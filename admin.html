@@ -551,8 +551,6 @@
                 }
 
                 const users = await response.json();
-                const tbody = document.getElementById('user-list-body');
-                tbody.innerHTML = '';
 
                 // users가 배열인지 확인
                 if (!Array.isArray(users)) {
@@ -624,7 +622,6 @@
             } catch (err) {
                 console.error('사용자 목록 로드 실패:', err);
                 // 사용자에게 에러 표시
-                const tbody = document.getElementById('user-list-body');
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="6" style="text-align: center; color: #ef4444; padding: 40px;">
