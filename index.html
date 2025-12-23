@@ -923,6 +923,14 @@
         async function checkStatus() {
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
+
+            // GitHub Pages에서는 로컬 서버 연결을 시도하지 않음
+            if (window.location.hostname === 'srunaic.github.io') {
+                dot.classList.add('online');
+                text.innerText = "GitHub Pages";
+                return;
+            }
+
             try {
                 const res = await fetch(`${API_URL}/api/test`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
