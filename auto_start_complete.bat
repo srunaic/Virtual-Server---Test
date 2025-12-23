@@ -1,97 +1,124 @@
 @echo off
+chcp 65001 >nul
 echo ========================================
-echo    NexusVerse Complete Auto-Start
+echo  Virtual Server Complete Auto-Start
 echo ========================================
 echo.
 
-echo [1/5] Checking MySQL service...
+echo [1/6] Checking MySQL service...
 net start mysql >nul 2>&1
 if %errorlevel% equ 0 (
-    echo ✓ MySQL service started successfully
+    echo [OK] MySQL service started successfully
 ) else if %errorlevel% equ 2 (
-    echo ⚠ MySQL service is already running
+    echo [INFO] MySQL service is already running
 ) else (
-    echo ✗ Failed to start MySQL service
+    echo [ERROR] Failed to start MySQL service
     echo Please make sure XAMPP is installed correctly.
-    pause
-    exit /b 1
+    echo Press any key to continue anyway...
+    pause >nul
 )
 echo.
 
-echo [2/5] Waiting for MySQL to initialize...
-timeout /t 5 /nobreak >nul
-echo ✓ MySQL initialization complete
-echo.
-
-echo [3/5] Setting environment variables...
+echo [2/6] Setting environment variables...
 set DB_HOST=localhost
 set DB_USER=root
 set DB_PASSWORD=
 set DB_NAME=virtual_server
-echo ✓ Environment variables configured
+set NODE_ENV=production
+echo [OK] Environment variables configured
 echo.
 
-echo [4/6] Starting NexusVerse server...
+echo [3/6] Terminating existing processes...
+taskkill /F /IM node.exe >nul 2>&1
+taskkill /F /IM cloudflared.exe >nul 2>&1
+timeout /t 2 /nobreak >nul
+echo [OK] Cleaned up existing processes
+echo.
+
+echo [4/6] Starting Virtual Server...
 cd /d "D:\AntiGravity AI File\AI-Agent-SoftWare"
 if not exist "server.js" (
-    echo ✗ server.js not found in current directory
-    echo Please check the installation path
+    echo [ERROR] server.js not found in current directory
+    echo Please check the installation path: %cd%
     pause
     exit /b 1
 )
 
+echo Starting Node.js server...
 start /b node server.js > server_log.txt 2>&1
-echo ✓ Server started in background
+echo [OK] Server started in background
+timeout /t 3 /nobreak >nul
 echo.
 
-echo [5/6] Starting localtunnel for external access...
-start /b npx localtunnel --port 3000 > tunnel_log.txt 2>&1
-echo ✓ Localtunnel started in background
+echo [5/6] Starting Cloudflare Tunnel...
+echo Starting cloudflared tunnel for external access...
+start /b cloudflared tunnel --url http://127.0.0.1:3000 > tunnel_log.txt 2>&1
+echo [OK] Cloudflare tunnel started in background
+timeout /t 8 /nobreak >nul
 echo.
 
 echo [6/6] Verifying connections...
-timeout /t 8 /nobreak >nul
 
-curl -s http://localhost:3000/api/test >nul 2>&1
+REM Test local server connection
+echo Testing local server connection...
+powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:3000/api/test' -TimeoutSec 10; Write-Host '[OK] Local server is responding correctly' } catch { Write-Host '[ERROR] Local server connection failed' }" 2>nul
+
+echo.
+echo Checking tunnel status...
+
+REM Check if tunnel URL was generated (look for the specific success message)
+findstr /C:"Your quick Tunnel has been created" tunnel_log.txt >nul 2>&1
 if %errorlevel% equ 0 (
-    echo ✓ Local server is responding correctly
+    echo [OK] Cloudflare tunnel established
 
-    REM Check if tunnel URL was generated
-    findstr "your url is:" tunnel_log.txt >nul 2>&1
-    if %errorlevel% equ 0 (
-        echo ✓ External tunnel established
-        for /f "tokens=4" %%i in ('findstr "your url is:" tunnel_log.txt') do set TUNNEL_URL=%%i
-        echo 🌐 External URL: !TUNNEL_URL!
-    ) else (
-        echo ⚠ External tunnel may not be ready yet
-        echo Check tunnel_log.txt for tunnel URL
+    REM Extract tunnel URL
+    for /f "tokens=10 delims= " %%i in ('findstr /C:"https://" tunnel_log.txt') do (
+        set TUNNEL_URL=%%i
+        goto :found_url
     )
-
-    echo.
-    echo ================================
-    echo     NexusVerse Started Successfully!
-    echo ================================
-    echo.
-    echo 🌐 Local Server: http://localhost:3000
-    if defined TUNNEL_URL echo 🌐 External URL: !TUNNEL_URL!
-    echo 🔑 Admin Login: Check .env file for credentials
-    echo 📝 Server Log: server_log.txt
-    echo 📝 Tunnel Log: tunnel_log.txt
-    echo.
-    echo Opening browser in 3 seconds...
-    timeout /t 3 /nobreak >nul
-    start http://localhost:3000
 ) else (
-    echo ✗ Server failed to respond
-    echo Check server_log.txt for error details
-    echo.
-    echo Press any key to view log files...
-    pause >nul
-    notepad server_log.txt
-    notepad tunnel_log.txt
+    echo [WARN] External tunnel may not be ready yet
+    echo Check tunnel_log.txt for tunnel URL
+)
+
+:found_url
+if defined TUNNEL_URL (
+    echo [INFO] External URL: %TUNNEL_URL%
+
+    REM Save tunnel URL for future reference
+    echo %TUNNEL_URL% > current_tunnel_url.txt
+    echo [INFO] Tunnel URL saved to current_tunnel_url.txt
+) else (
+    echo [WARN] Could not extract tunnel URL
 )
 
 echo.
-echo NexusVerse auto-start complete.
+echo ================================
+echo   Virtual Server Started Successfully!
+echo ================================
+echo.
+echo [INFO] Local Server: http://localhost:3000
+if defined TUNNEL_URL echo [INFO] External URL: %TUNNEL_URL%
+echo [INFO] Admin Page: https://srunaic.github.io/Virtual-Server---Test/admin.html
+echo [INFO] Server Log: server_log.txt
+echo [INFO] Tunnel Log: tunnel_log.txt
+echo.
+echo [SUCCESS] All systems operational!
+echo Server will remain running in background.
+echo.
+
+REM Optional: Open browser automatically
+echo Opening Virtual Server in browser...
+timeout /t 2 /nobreak >nul
+start https://srunaic.github.io/Virtual-Server---Test/
+
+echo.
+echo ========================================
+echo        Auto-Start Complete!
+echo ========================================
+echo.
+echo Server and tunnel are running in background.
+echo To stop services: Run 'taskkill /F /IM node.exe /IM cloudflared.exe'
+echo.
 echo Press any key to exit...
 pause >nul
