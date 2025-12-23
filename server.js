@@ -116,25 +116,86 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// 2. 로그인 API
+// 2. 로그인 API (일반 사용자 + 관리자 모두 가능)
 app.post('/api/login', (req, res) => {
     const { user_id, password } = req.body;
 
-    const query = 'SELECT * FROM users WHERE user_id = ?';
-    pool.query(query, [user_id], async (err, results) => {
+    // 먼저 users 테이블에서 사용자 찾기
+    const userQuery = 'SELECT * FROM users WHERE user_id = ?';
+    pool.query(userQuery, [user_id], async (err, userResults) => {
         if (err) {
             console.error("로그인 DB 오류:", err);
             return res.status(500).json({ error: "로그인 처리 중 오류 발생" });
         }
-        if (results.length === 0) return res.status(400).json({ error: "존재하지 않는 사용자입니다." });
 
-        const user = results[0];
+        let user = null;
+        let isAdmin = false;
+
+        if (userResults.length > 0) {
+            // 일반 사용자인 경우
+            user = userResults[0];
+        } else {
+            // users 테이블에 없으면 admins 테이블에서 찾기
+            const adminQuery = 'SELECT * FROM admins WHERE admin_id = ?';
+            pool.query(adminQuery, [user_id], async (adminErr, adminResults) => {
+                if (adminErr) {
+                    console.error("관리자 로그인 DB 오류:", adminErr);
+                    return res.status(500).json({ error: "로그인 처리 중 오류 발생" });
+                }
+
+                if (adminResults.length === 0) {
+                    return res.status(400).json({ error: "존재하지 않는 사용자입니다." });
+                }
+
+                // 관리자인 경우
+                const admin = adminResults[0];
+                isAdmin = true;
+
+                // 관리자 비밀번호는 평문으로 저장되어 있음 (보안 개선 필요)
+                if (password !== admin.password) {
+                    return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
+                }
+
+                // 관리자 정보를 유저 형식으로 변환
+                user = {
+                    id: admin.id,
+                    user_id: admin.admin_id,
+                    nickname: admin.admin_id, // 관리자 아이디를 닉네임으로 사용
+                    level: 99, // 관리자는 최고 레벨
+                    gold: 999999, // 관리자는 최대 골드
+                    is_admin: true // 관리자 표시
+                };
+
+                // 로그인 성공 응답
+                res.json({
+                    message: "관리자 로그인 성공!",
+                    user: {
+                        id: user.id,
+                        user_id: user.user_id,
+                        nickname: user.nickname,
+                        level: user.level,
+                        gold: user.gold,
+                        is_admin: true
+                    }
+                });
+            });
+            return; // admins 테이블 조회로 넘어가므로 여기서 종료
+        }
+
+        // 일반 사용자 로그인 처리
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
 
         res.json({
             message: "로그인 성공!",
-            user: { id: user.id, user_id: user.user_id, nickname: user.nickname, level: user.level, gold: user.gold }
+            user: {
+                id: user.id,
+                user_id: user.user_id,
+                nickname: user.nickname,
+                level: user.level,
+                gold: user.gold,
+                is_admin: false
+            }
         });
     });
 });
