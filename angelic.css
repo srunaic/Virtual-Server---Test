@@ -299,3 +299,178 @@ body {
     flex: 1;
     padding: 40px;
 }
+
+/* Mobile Toggle Menu */
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    color: var(--text-main);
+    cursor: pointer;
+    z-index: 1001;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .novel-cover-wrapper {
+        transform: scale(0.9);
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 15px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 1100;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        height: 100vh;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(15px);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        box-shadow: -15px 0 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .hero-title {
+        font-size: 32px;
+        padding: 0 15px;
+    }
+
+    .novel-cover-wrapper {
+        transform: scale(1);
+        width: 100%;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 0 20px;
+        box-sizing: border-box;
+    }
+
+    .novel-cover {
+        min-width: 600px;
+    }
+
+    .world-realms {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        padding: 0 20px;
+    }
+
+    .realm-card {
+        width: 100%;
+        max-width: none;
+    }
+
+    .episodes-grid {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+    }
+
+    .character-container {
+        flex-direction: column;
+        gap: 40px;
+        padding: 0 20px;
+    }
+
+    .character-card {
+        max-width: 100%;
+    }
+
+    .modal-content {
+        width: 90%;
+        padding: 30px 20px;
+    }
+
+    /* Admin Mobile Adjustments */
+    .admin-container {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 15px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-sizing: border-box;
+    }
+
+    .admin-sidebar>div:first-child {
+        display: none;
+    }
+
+    .sidebar-item {
+        margin-bottom: 0;
+        padding: 10px 15px;
+        white-space: nowrap;
+    }
+
+    .admin-main {
+        padding: 20px;
+    }
+
+    .admin-main header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .section-panel>div {
+        grid-template-columns: 1fr !important;
+    }
+
+    .glass-card {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 28px;
+    }
+
+    .auth-buttons {
+        gap: 8px;
+    }
+
+    .btn-auth {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    #user-nickname {
+        display: none;
+    }
+}
