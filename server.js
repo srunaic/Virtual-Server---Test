@@ -22,6 +22,18 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
+// 데이터베이스 연결 테스트
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('데이터베이스 연결 실패:', err);
+        console.error('환경변수 확인 필요: DB_HOST, DB_USER, DB_PASSWORD, DB_NAME');
+        return;
+    }
+
+    console.log('데이터베이스 연결 성공!');
+    connection.release();
+});
+
 // 1. 회원가입 API
 app.post('/api/register', async (req, res) => {
     const { user_id, password, nickname, email } = req.body;
@@ -92,11 +104,32 @@ app.post('/api/admin/login', (req, res) => {
 
 // 4. 모든 유저 정보 조회 (어드민 전용)
 app.get('/api/admin/users', (req, res) => {
+    console.log('사용자 목록 조회 요청 받음');
+
+    // 데이터베이스 연결 상태 확인
+    if (!pool) {
+        console.error('데이터베이스 풀 연결 없음');
+        return res.status(500).json({
+            error: "데이터베이스 연결 실패",
+            details: "데이터베이스 풀 연결이 설정되지 않았습니다."
+        });
+    }
+
+    // 올바른 스키마의 컬럼들로 조회
     pool.query('SELECT id, user_id, nickname, level, gold, created_at FROM users', (err, results) => {
         if (err) {
             console.error("유저 조회 DB 오류:", err);
-            return res.status(500).json({ error: "데이터 조회 실패", details: err.message });
+            console.error("에러 상세:", err);
+            return res.status(500).json({
+                error: "데이터 조회 실패",
+                details: err.message,
+                sqlState: err.sqlState,
+                errno: err.errno
+            });
         }
+
+        console.log("조회된 데이터:", results);
+        console.log(`사용자 ${results.length}명 조회 완료`);
         res.json(results);
     });
 });

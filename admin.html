@@ -331,26 +331,48 @@
                 const response = await fetch(`${API_URL}/api/admin/users`, {
                     headers: { 'ngrok-skip-browser-warning': '69420' }
                 });
+
+                if (!response.ok) {
+                    throw new Error(`서버 응답 오류: ${response.status} ${response.statusText}`);
+                }
+
                 const users = await response.json();
                 const tbody = document.getElementById('user-list-body');
                 tbody.innerHTML = '';
+
+                // users가 배열인지 확인
+                if (!Array.isArray(users)) {
+                    throw new Error('서버에서 잘못된 데이터 형식을 반환했습니다.');
+                }
 
                 document.getElementById('total-users').innerText = users.length;
 
                 users.forEach(user => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${user.user_id}</td>
-                        <td>${user.nickname}</td>
-                        <td>Lv.${user.level}</td>
-                        <td>${user.gold} G</td>
-                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td>${user.user_id || 'N/A'}</td>
+                        <td>${user.nickname || 'N/A'}</td>
+                        <td>Lv.${user.level || 1}</td>
+                        <td>${user.gold || 0} G</td>
+                        <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
                         <td><button class="action-btn">제재</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (err) {
-                console.error(err);
+                console.error('사용자 목록 로드 실패:', err);
+                // 사용자에게 에러 표시
+                const tbody = document.getElementById('user-list-body');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #ef4444; padding: 40px;">
+                            <i class="fas fa-exclamation-triangle"></i><br>
+                            사용자 목록을 불러올 수 없습니다.<br>
+                            <small>${err.message}</small>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('total-users').innerText = '오류';
             }
         }
 
