@@ -111,14 +111,19 @@
 
 ## 🚀 체험하기
 
-### 🌐 주요 페이지 바로가기 (Local/Repo)
-- [🏠 **메인 스토리 체험 (유저 페이지)**](./index.html)
-- [⚙️ **관리자 대시보드 (어드민 페이지)**](./admin.html)
+### 🌐 주요 페이지 바로가기 (Live URL)
+- [🏠 **메인 스토리 체험 (유저 페이지)**](https://srunaic.github.io/Virtual-Server---Test/index.html)
+- [⚙️ **관리자 대시보드 (어드민 페이지)**](https://srunaic.github.io/Virtual-Server---Test/admin.html)
 
 ### 🌐 웹에서 바로 체험 (GitHub Pages)
 천사냥이의 세계관과 스토리를 웹에서 바로 만나보세요!
-
 **[🎮 천사냥이 스토리 체험하기](https://srunaic.github.io/Virtual-Server---Test/)**
+
+---
+
+### 🐱‍👤 천사냥이 방문 
+- [가이드 및 소개](https://srunaic.github.io/Virtual-Server---Test/index.html#characters)
+- [수호수의 이야기](https://srunaic.github.io/Virtual-Server---Test/index.html#story)
 
 ### 💻 로컬 개발 환경 (Unity 프로젝트용)
 ```bash
