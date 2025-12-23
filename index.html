@@ -371,17 +371,26 @@
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
-        // 환경에 따른 API URL 자동 설정
-        let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-            ? 'http://localhost:3000'
-            : 'https://orange-teams-listen.loca.lt';
+        // 환경에 따른 API URL 자동 설정 (임시로 로컬 우선)
+        let API_URL = 'http://localhost:3000'; // 일단 로컬로 고정해서 테스트
 
-        // Socket.io 연결 초기화
-        const socket = io(API_URL, {
-            transports: ['websocket', 'polling'],
-            timeout: 20000,
-            forceNew: true
-        });
+        // Socket.io 연결 초기화 (로컬 우선)
+        let socket;
+        try {
+            socket = io(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3000'
+                : API_URL, {
+                transports: ['websocket', 'polling'],
+                timeout: 10000,
+                forceNew: true,
+                reconnection: true,
+                reconnectionAttempts: 3,
+                reconnectionDelay: 1000
+            });
+        } catch (error) {
+            console.warn('Socket.io 초기화 실패, HTTP 모드로 전환:', error);
+            socket = null;
+        }
 
         // 실시간 서버 상태 모니터링
         let serverOnline = false;
@@ -495,19 +504,25 @@
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
 
-            // Socket.io 상태 우선 확인
-            if (socket.connected && serverOnline) {
+            // Socket.io 상태 우선 확인 (로컬 우선)
+            if (socket && socket.connected && serverOnline) {
                 dot.classList.add('online');
                 text.innerText = "실시간 연결됨";
                 return;
             }
 
-            // HTTP 폴백
+            // HTTP 폴백 (항상 로컬 서버로 테스트)
             try {
-                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://orange-teams-listen.loca.lt'}/api/test`);
+                const testUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3000/api/test'
+                    : `${API_URL}/api/test`;
+
+                const res = await makeCorsRequest(testUrl);
                 if(res.ok) {
                     dot.classList.add('online');
-                    text.innerText = "HTTP 연결됨";
+                    text.innerText = window.location.hostname === 'localhost'
+                        ? "로컬 서버 연결됨"
+                        : "원격 서버 연결됨";
                 } else {
                     throw new Error('HTTP 응답 실패');
                 }
@@ -516,10 +531,10 @@
                 dot.classList.remove('online');
                 text.innerText = "연결 실패";
 
-                // 재연결 시도
-                if (!socket.connected) {
+                // 로컬에서는 Socket.io 재연결 시도
+                if (window.location.hostname === 'localhost' && socket && !socket.connected) {
                     console.log('🔄 Socket.io 재연결 시도');
-                    socket.connect();
+                    setTimeout(() => socket.connect(), 2000);
                 }
             }
         }
