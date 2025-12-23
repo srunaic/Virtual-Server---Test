@@ -8,7 +8,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // 미들웨어 설정
-app.use(cors()); // 모든 도메인 허용 (GitHub Pages 연동을 위해 필요)
+app.use(cors({
+    origin: [
+        'http://localhost:3000',
+        'https://srunaic.github.io',
+        'https://hornless-yer-scleritic.ngrok-free.dev'
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'ngrok-skip-browser-warning']
+}));
 app.use(express.json());
 
 // MySQL 연결 풀 생성 (연결 관리가 더 효율적임)
