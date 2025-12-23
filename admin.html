@@ -189,6 +189,273 @@
             width: 100%;
             font-weight: bold;
         }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                padding: 30px 20px;
+            }
+
+            .header h2 {
+                font-size: 1.8rem;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                overflow: auto;
+            }
+
+            /* Mobile Header */
+            .mobile-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 15px 20px;
+                background: var(--card-bg);
+                border-bottom: 1px solid #334155;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                height: 60px;
+            }
+
+            .mobile-brand {
+                font-size: 1.2rem;
+                font-weight: bold;
+                color: var(--primary);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .mobile-menu-toggle {
+                background: none;
+                border: 1px solid #334155;
+                color: white;
+                padding: 8px 12px;
+                border-radius: 8px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 0.9rem;
+            }
+
+            .mobile-menu-toggle:hover {
+                background: #334155;
+            }
+
+            /* Mobile Sidebar Overlay */
+            .sidebar {
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 280px;
+                height: calc(100vh - 60px);
+                background: var(--card-bg);
+                border-right: 1px solid #334155;
+                padding: 20px;
+                flex-direction: column;
+                z-index: 999;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .sidebar .logo {
+                margin-bottom: 30px;
+                font-size: 1.3rem;
+            }
+
+            .sidebar .nav-item {
+                padding: 14px 16px;
+                margin-bottom: 8px;
+                border-radius: 10px;
+                font-size: 1rem;
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            /* Main Content for Mobile */
+            .main-content {
+                flex: 1;
+                padding: 20px;
+                margin-top: 60px;
+                overflow-y: auto;
+                min-height: calc(100vh - 60px);
+            }
+
+            .header {
+                margin-bottom: 30px;
+            }
+
+            .header h2 {
+                font-size: 1.6rem;
+                margin-bottom: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 30px;
+            }
+
+            .stat-card {
+                padding: 20px;
+                text-align: center;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+                margin: 8px 0;
+            }
+
+            .user-table-container {
+                overflow-x: auto;
+                border-radius: 12px;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            th, td {
+                padding: 12px 8px;
+                font-size: 0.85rem;
+            }
+
+            .action-btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+
+            .notice-section .stat-card {
+                margin: 0;
+                max-width: none;
+            }
+
+            textarea {
+                min-height: 120px;
+                font-size: 0.9rem;
+            }
+
+            /* Mobile Overlay */
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 998;
+            }
+
+            .mobile-overlay.show {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mobile-header {
+                padding: 12px 15px;
+                height: 55px;
+            }
+
+            .mobile-brand {
+                font-size: 1.1rem;
+            }
+
+            .mobile-menu-toggle {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+
+            .sidebar {
+                top: 55px;
+                height: calc(100vh - 55px);
+                width: 260px;
+                padding: 15px;
+            }
+
+            .sidebar .logo {
+                font-size: 1.2rem;
+                margin-bottom: 25px;
+            }
+
+            .sidebar .nav-item {
+                padding: 12px 14px;
+                min-height: 44px;
+                font-size: 0.95rem;
+            }
+
+            .main-content {
+                padding: 15px;
+                margin-top: 55px;
+            }
+
+            .header h2 {
+                font-size: 1.4rem;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-value {
+                font-size: 1.7rem;
+            }
+
+            .login-box {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            .login-box input {
+                padding: 12px;
+                font-size: 1rem;
+            }
+
+            .login-box button {
+                padding: 14px;
+                font-size: 1rem;
+            }
+
+            textarea {
+                padding: 12px;
+                font-size: 1rem;
+            }
+
+            .btn-primary {
+                padding: 14px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Hide desktop elements on mobile */
+        @media (max-width: 768px) {
+            .sidebar:not(.show) {
+                display: block !important;
+            }
+        }
     </style>
 </head>
 
@@ -204,6 +471,20 @@
         </div>
     </div>
 
+    <!-- Mobile Header -->
+    <div class="mobile-header" id="mobile-header" style="display: none;">
+        <div class="mobile-brand">
+            <i class="fas fa-gamepad"></i> AG Admin
+        </div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">
+            <i class="fas fa-bars"></i>
+            <span>메뉴</span>
+        </button>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileSidebar()"></div>
+
     <div class="sidebar" id="sidebar">
         <div class="logo">
             <i class="fas fa-gamepad"></i> AG Admin
@@ -217,7 +498,7 @@
         <div class="nav-item" onclick="showSection('notice')">
             <i class="fas fa-bullhorn"></i> 공지사항 관리
         </div>
-        <div class="nav-item" onclick="location.reload()" style="margin-top: auto; color: #94a3b8;">
+        <div class="nav-item" onclick="adminLogout()" style="margin-top: auto; color: #94a3b8;">
             <i class="fas fa-sign-out-alt"></i> 로그아웃
         </div>
     </div>
@@ -303,6 +584,7 @@
                 if (response.ok) {
                     // 로그인 성공 시 UI 전환
                     document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('mobile-header').style.display = 'flex';
                     document.getElementById('sidebar').style.display = 'flex';
                     document.getElementById('main-content').style.display = 'block';
                     document.body.style.overflow = 'auto';
@@ -322,7 +604,43 @@
             document.getElementById(id).classList.add('active-section');
             event.currentTarget.classList.add('active');
 
+            // 모바일에서 메뉴 선택 시 사이드바 닫기
+            if (window.innerWidth <= 768) {
+                closeMobileSidebar();
+            }
+
             if (id === 'users') fetchUsers();
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            if (sidebar.classList.contains('show')) {
+                closeMobileSidebar();
+            } else {
+                sidebar.classList.add('show');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function adminLogout() {
+            if (confirm('정말 로그아웃하시겠습니까?')) {
+                // 모바일 사이드바 닫기
+                closeMobileSidebar();
+                // 페이지 새로고침으로 초기 상태로 돌아감
+                location.reload();
+            }
         }
 
         async function fetchUsers() {
