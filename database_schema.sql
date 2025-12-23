@@ -1,6 +1,6 @@
 -- 데이터베이스 생성 (이미 있다면 생략 가능)
-CREATE DATABASE IF NOT EXISTS testdb;
-USE testdb;
+CREATE DATABASE IF NOT EXISTS virtual_server;
+USE virtual_server;
 
 -- 1. 유저 테이블 (가입/로그인 및 게임 데이터 저장)
 CREATE TABLE IF NOT EXISTS users (
