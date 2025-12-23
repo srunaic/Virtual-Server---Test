@@ -349,16 +349,32 @@
 
                 users.forEach(user => {
                     const tr = document.createElement('tr');
+                    const isAdmin = user.is_admin === 1;
+                    const adminBadge = isAdmin ? `<span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em;">${user.admin_role || '관리자'}</span>` : '';
+
+                    let actionButtons = '';
+
+                    if (isAdmin) {
+                        // 관리자인 경우: 권한 해제 버튼만 표시
+                        actionButtons = `
+                            <button class="action-btn" style="background: #f59e0b;" onclick="toggleAdmin(${user.id}, '${user.user_id}', 'revoke')">권한해제</button>
+                        `;
+                    } else {
+                        // 일반 유저인 경우: 제재, 삭제, 권한부여 버튼 표시
+                        actionButtons = `
+                            <button class="action-btn" onclick="banUser(${user.id}, '${user.user_id}')">제재</button>
+                            <button class="action-btn" style="background: #dc2626; margin-left: 5px;" onclick="deleteUser(${user.id}, '${user.user_id}')">삭제</button>
+                            <button class="action-btn" style="background: #10b981; margin-left: 5px;" onclick="toggleAdmin(${user.id}, '${user.user_id}', 'grant')">관리자임명</button>
+                        `;
+                    }
+
                     tr.innerHTML = `
-                        <td>${user.user_id || 'N/A'}</td>
+                        <td>${user.user_id || 'N/A'} ${adminBadge}</td>
                         <td>${user.nickname || 'N/A'}</td>
                         <td>Lv.${user.level || 1}</td>
                         <td>${user.gold || 0} G</td>
                         <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
-                        <td>
-                            <button class="action-btn" onclick="banUser(${user.id}, '${user.user_id}')">제재</button>
-                            <button class="action-btn" style="background: #dc2626; margin-left: 5px;" onclick="deleteUser(${user.id}, '${user.user_id}')">삭제</button>
-                        </td>
+                        <td>${actionButtons}</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -433,6 +449,39 @@
             } catch (err) {
                 console.error('사용자 삭제 실패:', err);
                 alert(`사용자 삭제에 실패했습니다: ${err.message}`);
+            }
+        }
+
+        async function toggleAdmin(userId, userIdStr, action) {
+            const actionText = action === 'grant' ? '부여' : '해제';
+            const confirmText = action === 'grant'
+                ? `사용자 "${userIdStr}"에게 관리자 권한을 ${actionText}하시겠습니까?`
+                : `사용자 "${userIdStr}"의 관리자 권한을 ${actionText}하시겠습니까?`;
+
+            if (!confirm(confirmText)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/users/${userId}/toggle-admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': '69420'
+                    },
+                    body: JSON.stringify({ action })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`${actionText} 실패: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                alert(data.message || `관리자 권한이 성공적으로 ${actionText}되었습니다.`);
+                fetchUsers(); // 목록 새로고침
+            } catch (err) {
+                console.error(`관리자 권한 ${actionText} 실패:`, err);
+                alert(`관리자 권한 ${actionText}에 실패했습니다: ${err.message}`);
             }
         }
     </script>

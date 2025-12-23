@@ -22,7 +22,7 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// 데이터베이스 연결 테스트
+// 데이터베이스 연결 테스트 및 초기 데이터 설정
 pool.getConnection((err, connection) => {
     if (err) {
         console.error('데이터베이스 연결 실패:', err);
@@ -31,7 +31,32 @@ pool.getConnection((err, connection) => {
     }
 
     console.log('데이터베이스 연결 성공!');
-    connection.release();
+
+    // 초기 관리자 계정과 테스트 유저 추가
+    connection.query(`
+        INSERT IGNORE INTO admins (admin_id, password, role) VALUES
+        ('admin2', 'admin123', 'moderator')
+    `, (err) => {
+        if (err) {
+            console.error('초기 관리자 데이터 삽입 오류:', err);
+        } else {
+            console.log('초기 관리자 데이터 확인/추가 완료');
+        }
+    });
+
+    connection.query(`
+        INSERT IGNORE INTO users (user_id, password, nickname, email, level, gold) VALUES
+        ('admin2', 'admin123', '관리자2', 'admin2@example.com', 1, 0),
+        ('user1', 'user123', '일반유저1', 'user1@example.com', 5, 150),
+        ('user2', 'user123', '일반유저2', 'user2@example.com', 3, 75)
+    `, (err) => {
+        if (err) {
+            console.error('초기 유저 데이터 삽입 오류:', err);
+        } else {
+            console.log('초기 유저 데이터 확인/추가 완료');
+        }
+        connection.release();
+    });
 });
 
 // 1. 회원가입 API
@@ -115,8 +140,18 @@ app.get('/api/admin/users', (req, res) => {
         });
     }
 
-    // 올바른 스키마의 컬럼들로 조회
-    pool.query('SELECT id, user_id, nickname, level, gold, created_at FROM users', (err, results) => {
+    // 유저 정보와 관리자 여부를 함께 조회
+    const query = `
+        SELECT
+            u.id, u.user_id, u.nickname, u.level, u.gold, u.created_at,
+            CASE WHEN a.admin_id IS NOT NULL THEN 1 ELSE 0 END as is_admin,
+            a.role as admin_role
+        FROM users u
+        LEFT JOIN admins a ON u.user_id = a.admin_id
+        ORDER BY u.created_at DESC
+    `;
+
+    pool.query(query, (err, results) => {
         if (err) {
             console.error("유저 조회 DB 오류:", err);
             console.error("에러 상세:", err);
@@ -134,7 +169,131 @@ app.get('/api/admin/users', (req, res) => {
     });
 });
 
-// 5. 특정 유저 삭제 (어드민 전용)
+// 5. 관리자 권한 부여/해제 (어드민 전용)
+app.post('/api/admin/users/:id/toggle-admin', (req, res) => {
+    const userId = req.params.id;
+    const { action } = req.body; // 'grant' 또는 'revoke'
+
+    console.log(`관리자 권한 ${action} 요청: 사용자 ID ${userId}`);
+
+    if (!pool) {
+        console.error('데이터베이스 풀 연결 없음');
+        return res.status(500).json({
+            error: "데이터베이스 연결 실패",
+            details: "데이터베이스 풀 연결이 설정되지 않았습니다."
+        });
+    }
+
+    // 먼저 사용자가 존재하는지 확인
+    pool.query('SELECT user_id FROM users WHERE id = ?', [userId], (err, userResults) => {
+        if (err) {
+            console.error("유저 조회 DB 오류:", err);
+            return res.status(500).json({
+                error: "사용자 조회 실패",
+                details: err.message
+            });
+        }
+
+        if (userResults.length === 0) {
+            return res.status(404).json({ error: "존재하지 않는 사용자입니다." });
+        }
+
+        const userIdStr = userResults[0].user_id;
+
+        if (action === 'grant') {
+            // 관리자 권한 부여
+            pool.query('INSERT IGNORE INTO admins (admin_id, password, role) VALUES (?, ?, ?)',
+                [userIdStr, 'temp_password', 'moderator'], (err, result) => {
+                if (err) {
+                    console.error("관리자 권한 부여 DB 오류:", err);
+                    return res.status(500).json({
+                        error: "관리자 권한 부여 실패",
+                        details: err.message
+                    });
+                }
+
+                if (result.affectedRows === 0) {
+                    return res.status(400).json({ error: "이미 관리자 권한이 있습니다." });
+                }
+
+                console.log(`관리자 권한 부여 완료: ${userIdStr}`);
+                res.json({
+                    message: `사용자 "${userIdStr}"에게 관리자 권한이 부여되었습니다.`,
+                    userId: userId,
+                    userIdStr: userIdStr,
+                    action: 'granted'
+                });
+            });
+        } else if (action === 'revoke') {
+            // 관리자 권한 해제 (최소 1명의 슈퍼관리자는 남겨야 함)
+            pool.query('SELECT role FROM admins WHERE admin_id = ?', [userIdStr], (err, adminResults) => {
+                if (err) {
+                    console.error("관리자 권한 확인 DB 오류:", err);
+                    return res.status(500).json({
+                        error: "관리자 권한 확인 실패",
+                        details: err.message
+                    });
+                }
+
+                if (adminResults.length === 0) {
+                    return res.status(400).json({ error: "관리자 권한이 없는 사용자입니다." });
+                }
+
+                const adminRole = adminResults[0].role;
+
+                // 슈퍼관리자인 경우, 다른 슈퍼관리자가 있는지 확인
+                if (adminRole === 'superadmin') {
+                    pool.query('SELECT COUNT(*) as superadmin_count FROM admins WHERE role = ?',
+                        ['superadmin'], (err, countResults) => {
+                        if (err) {
+                            console.error("슈퍼관리자 수 확인 DB 오류:", err);
+                            return res.status(500).json({
+                                error: "슈퍼관리자 수 확인 실패",
+                                details: err.message
+                            });
+                        }
+
+                        if (countResults[0].superadmin_count <= 1) {
+                            return res.status(400).json({
+                                error: "최소 1명의 슈퍼관리자는 유지되어야 합니다."
+                            });
+                        }
+
+                        // 슈퍼관리자 권한 해제 진행
+                        revokeAdminRights();
+                    });
+                } else {
+                    // 일반 관리자 권한 해제
+                    revokeAdminRights();
+                }
+
+                function revokeAdminRights() {
+                    pool.query('DELETE FROM admins WHERE admin_id = ?', [userIdStr], (err, result) => {
+                        if (err) {
+                            console.error("관리자 권한 해제 DB 오류:", err);
+                            return res.status(500).json({
+                                error: "관리자 권한 해제 실패",
+                                details: err.message
+                            });
+                        }
+
+                        console.log(`관리자 권한 해제 완료: ${userIdStr}`);
+                        res.json({
+                            message: `사용자 "${userIdStr}"의 관리자 권한이 해제되었습니다.`,
+                            userId: userId,
+                            userIdStr: userIdStr,
+                            action: 'revoked'
+                        });
+                    });
+                }
+            });
+        } else {
+            return res.status(400).json({ error: "잘못된 action입니다. 'grant' 또는 'revoke'를 사용하세요." });
+        }
+    });
+});
+
+// 6. 특정 유저 삭제 (어드민 전용)
 app.delete('/api/admin/users/:id', (req, res) => {
     const userId = req.params.id;
 
@@ -165,25 +324,42 @@ app.delete('/api/admin/users/:id', (req, res) => {
 
         const userIdStr = results[0].user_id;
 
-        // 사용자를 삭제
-        pool.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+        // 관리자인 경우 삭제 불가
+        pool.query('SELECT admin_id FROM admins WHERE admin_id = ?', [userIdStr], (err, adminResults) => {
             if (err) {
-                console.error("유저 삭제 DB 오류:", err);
+                console.error("관리자 권한 확인 DB 오류:", err);
                 return res.status(500).json({
-                    error: "사용자 삭제 실패",
+                    error: "관리자 권한 확인 실패",
                     details: err.message
                 });
             }
 
-            if (result.affectedRows === 0) {
-                return res.status(404).json({ error: "삭제할 사용자를 찾을 수 없습니다." });
+            if (adminResults.length > 0) {
+                return res.status(400).json({
+                    error: "관리자 계정은 삭제할 수 없습니다. 먼저 관리자 권한을 해제하세요."
+                });
             }
 
-            console.log(`사용자 삭제 완료: ${userIdStr} (ID: ${userId})`);
-            res.json({
-                message: `사용자 "${userIdStr}"이(가) 성공적으로 삭제되었습니다.`,
-                deletedUserId: userId,
-                deletedUserName: userIdStr
+            // 사용자를 삭제
+            pool.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+                if (err) {
+                    console.error("유저 삭제 DB 오류:", err);
+                    return res.status(500).json({
+                        error: "사용자 삭제 실패",
+                        details: err.message
+                    });
+                }
+
+                if (result.affectedRows === 0) {
+                    return res.status(404).json({ error: "삭제할 사용자를 찾을 수 없습니다." });
+                }
+
+                console.log(`사용자 삭제 완료: ${userIdStr} (ID: ${userId})`);
+                res.json({
+                    message: `사용자 "${userIdStr}"이(가) 성공적으로 삭제되었습니다.`,
+                    deletedUserId: userId,
+                    deletedUserName: userIdStr
+                });
             });
         });
     });
