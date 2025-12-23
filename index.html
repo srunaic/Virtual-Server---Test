@@ -12,6 +12,158 @@
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Dancing+Script:wght@600&family=Inter:wght@300;400;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .angel-font {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        header {
+            padding: 20px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--angel-pink-deep);
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            margin-left: 25px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--angel-pink-deep);
+        }
+
+        section {
+            padding: 80px 5%;
+        }
+
+        .hero-section {
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(255, 218, 235, 0.4) 0%, transparent 70%);
+        }
+
+        .hero-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ffb3d9, #d4a5ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .episode-card {
+            padding: 30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ep-num {
+            font-family: 'Dancing Script', cursive;
+            font-size: 40px;
+            color: var(--angel-pink-deep);
+            margin-bottom: 15px;
+        }
+
+        .ep-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .ep-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-soft);
+            white-space: pre-line;
+        }
+
+        .world-realms {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .realm-info {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .realm-info i {
+            font-size: 40px;
+            color: var(--angel-pink-deep);
+            margin-bottom: 15px;
+        }
+
+        .char-section {
+            display: flex;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .char-img {
+            width: 400px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .char-info h3 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: var(--angel-pink-deep);
+        }
+
+        footer {
+            padding: 50px;
+            text-align: center;
+            color: var(--text-soft);
+            background: var(--angel-pink);
+            margin-top: 100px;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,11 +171,11 @@
 
     <header>
         <a href="#" class="logo">Angel Kitty</a>
-        <nav id="nav-menu" class="nav-links">
-            <a href="#cover" onclick="closeMenu()">Book Cover</a>
-            <a href="#story" onclick="closeMenu()">Scenario</a>
-            <a href="#world" onclick="closeMenu()">World</a>
-            <a href="#characters" onclick="closeMenu()">Characters</a>
+        <nav class="nav-links">
+            <a href="#cover">Book Cover</a>
+            <a href="#story">Scenario</a>
+            <a href="#world">World</a>
+            <a href="#characters">Characters</a>
         </nav>
         <div id="auth-section" class="auth-buttons">
             <button class="btn-auth btn-login" onclick="openModal('loginModal')">Login</button>
@@ -37,9 +189,6 @@
                 <a href="admin.html" id="admin-link" class="dropdown-link" style="display: none;">Admin Panel</a>
                 <a href="#" class="dropdown-link" onclick="logout()">Logout</a>
             </div>
-        </div>
-        <div class="menu-toggle" onclick="toggleMenu()">
-            <i class="fas fa-bars"></i>
         </div>
     </header>
 
@@ -215,16 +364,6 @@
 
         // Authentication Logic
         const API_BASE = "https://hornless-yer-scleritic.ngrok-free.dev"; // Live Ngrok URL
-
-        function toggleMenu() {
-            const nav = document.getElementById('nav-menu');
-            nav.classList.toggle('active');
-        }
-
-        function closeMenu() {
-            const nav = document.getElementById('nav-menu');
-            nav.classList.remove('active');
-        }
 
         function openModal(id) {
             document.getElementById(id).style.display = 'flex';
