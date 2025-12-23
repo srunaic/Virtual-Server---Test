@@ -109,18 +109,6 @@
 - **확장성**: 모듈식 아키텍처로 새로운 에피소드 추가 용이
 - **성능 최적화**: 빠른 로딩과 부드러운 애니메이션
 
-## 🚀 체험하기
-
-### 🌐 주요 페이지 바로가기 (Live URL)
-- [🏠 **메인 스토리 체험 (유저 페이지)**](https://srunaic.github.io/Virtual-Server---Test/index.html)
-- [⚙️ **관리자 대시보드 (어드민 페이지)**](https://srunaic.github.io/Virtual-Server---Test/admin.html)
-
-### 🌐 웹에서 바로 체험 (GitHub Pages)
-천사냥이의 세계관과 스토리를 웹에서 바로 만나보세요!
-**[🎮 천사냥이 스토리 체험하기](https://srunaic.github.io/Virtual-Server---Test/)**
-
----
-
 ### 🐱‍👤 천사냥이 방문 (유저 페이지)
 천사냥이의 일상을 함께 확인해보세요!
 - [🏠 **천사냥이 공식 사이트 방문하기**](https://srunaic.github.io/Virtual-Server---Test/index.html)
