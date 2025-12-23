@@ -292,7 +292,10 @@
             try {
                 const response = await fetch(`${API_URL}/api/admin/login`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': '69420'
+                    },
                     body: JSON.stringify({ admin_id, password })
                 });
 
@@ -325,7 +328,9 @@
 
         async function fetchUsers() {
             try {
-                const response = await fetch(`${API_URL}/api/admin/users`);
+                const response = await fetch(`${API_URL}/api/admin/users`, {
+                    headers: { 'ngrok-skip-browser-warning': '69420' }
+                });
                 const users = await response.json();
                 const tbody = document.getElementById('user-list-body');
                 tbody.innerHTML = '';
@@ -358,7 +363,10 @@
             try {
                 const response = await fetch(`${API_URL}/api/admin/notices`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': '69420'
+                    },
                     body: JSON.stringify({ title, content })
                 });
                 const data = await response.json();

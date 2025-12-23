@@ -82,14 +82,18 @@
 
             try {
                 // 1. 서버 작동 확인
-                const testRes = await fetch(`${API_URL}/api/test`);
+                const testRes = await fetch(`${API_URL}/api/test`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
                 const testData = await testRes.json();
                 statusCard.innerText = testData.message;
                 statusCard.style.background = "#e8fdf0";
                 statusCard.style.color = "#27ae60";
 
                 // 2. 실제 데이터베이스 데이터 가져오기 (예시)
-                const userRes = await fetch(`${API_URL}/api/users`);
+                const userRes = await fetch(`${API_URL}/api/users`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
                 if (userRes.ok) {
                     const users = await userRes.json();
                     if (users.length === 0) {
