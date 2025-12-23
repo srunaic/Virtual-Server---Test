@@ -458,8 +458,8 @@
     <nav>
         <div class="brand">AIAgentGame</div>
         <div class="nav-right">
-            <!-- 로그인 전: 서버 상태만 표시 -->
-            <div class="server-status" id="server-status-pill">
+            <!-- 로그인 후에만 서버 상태와 사용자 정보 표시 -->
+            <div class="server-status" id="server-status-pill" style="display: none;">
                 <div class="dot" id="status-dot"></div>
                 <span id="status-text">Server Offline</span>
             </div>
@@ -766,15 +766,14 @@
             const authForms = document.querySelectorAll('.auth-form');
             authForms.forEach(form => form.style.display = 'none');
 
-            // 사용자 정보 표시
+            // 사용자 정보와 서버 상태 표시 (로그인한 사용자만)
             const userInfo = document.getElementById('user-info');
+            const serverStatus = document.getElementById('server-status-pill');
             const userNickname = document.getElementById('user-nickname');
 
             userNickname.textContent = userData.nickname;
             userInfo.style.display = 'flex';
-
-            // 서버 상태 숨기기 (선택사항)
-            document.getElementById('server-status-pill').style.display = 'none';
+            serverStatus.style.display = 'flex';
         }
 
         function updateUIForLoggedOutUser() {
@@ -782,12 +781,12 @@
             const authForms = document.querySelectorAll('.auth-form');
             authForms.forEach(form => form.style.display = 'block');
 
-            // 사용자 정보 숨기기
+            // 사용자 정보와 서버 상태 숨기기 (일반 사용자에게는 표시하지 않음)
             const userInfo = document.getElementById('user-info');
-            userInfo.style.display = 'none';
+            const serverStatus = document.getElementById('server-status-pill');
 
-            // 서버 상태 표시
-            document.getElementById('server-status-pill').style.display = 'flex';
+            userInfo.style.display = 'none';
+            serverStatus.style.display = 'none';
         }
 
         // 프로필 모달 함수들
@@ -845,6 +844,7 @@
                     updateUIForLoggedOutUser();
                 }
             } else {
+                // 일반 사용자: 로그인 폼 표시, 서버 상태 숨김
                 updateUIForLoggedOutUser();
             }
         }
