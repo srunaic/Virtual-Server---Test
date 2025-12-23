@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySQL & GitHub Pages 연동 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 { color: #2c3e50; margin-bottom: 1.5rem; }
+        #status-card {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: #e8f4fd;
+            color: #2980b9;
+            font-weight: bold;
+        }
+        .data-list {
+            text-align: left;
+            margin-top: 1rem;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+        .user-item {
+            background: #f9f9f9;
+            padding: 0.5rem;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .error { background: #fde8e8 !important; color: #c0392b !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>자체 서버 연동 테스트</h1>
+        <div id="status-card">서버 연결 시도 중...</div>
+        
+        <div class="data-list" id="user-list">
+            <!-- 데이터가 여기에 표시됩니다 -->
+        </div>
+    </div>
+
+    <script>
+        // localtunnel에서 생성된 API 주소
+        const API_URL = "https://fluffy-apes-create.loca.lt";
+
+        async function init() {
+            const statusCard = document.getElementById('status-card');
+            const userList = document.getElementById('user-list');
+
+            try {
+                // 1. 서버 작동 확인
+                const testRes = await fetch(`${API_URL}/api/test`);
+                const testData = await testRes.json();
+                statusCard.innerText = testData.message;
+                statusCard.style.background = "#e8fdf0";
+                statusCard.style.color = "#27ae60";
+
+                // 2. 실제 데이터베이스 데이터 가져오기 (예시)
+                const userRes = await fetch(`${API_URL}/api/users`);
+                if (userRes.ok) {
+                    const users = await userRes.json();
+                    if (users.length === 0) {
+                        userList.innerHTML = "<p>DB에 데이터가 없습니다. (테이블을 확인해 주세용)</p>";
+                    } else {
+                        userList.innerHTML = "<h3>사용자 목록:</h3>";
+                        users.forEach(user => {
+                            const div = document.createElement('div');
+                            div.className = 'user-item';
+                            div.innerHTML = `<strong>${user.name}</strong> (${user.email})`;
+                            userList.appendChild(div);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("연결 에러:", error);
+                statusCard.innerText = "서버 연결 실패 (Localtunnel 실행 및 IP 인증 확인 필요)";
+                statusCard.classList.add('error');
+                userList.innerHTML = `
+                    <p style="color: #666; font-size: 0.8rem;">
+                        처음 접속 시 <a href="${API_URL}" target="_blank">여기</a>를 눌러 
+                        IP 주소를 입력하고 'Click to Continue'를 눌러주셔야 합니다.
+                    </p>
+                `;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
