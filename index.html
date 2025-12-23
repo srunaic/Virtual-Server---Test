@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIAgentGame | Open World Universe</title>
-    <meta name="description" content="Explore the vast open world of AIAgentGame. Register now to join the adventure!">
+    <title>NexusVerse | 가상 세계 플랫폼</title>
+    <meta name="description" content="현실과 가상을 연결하는 메타버스 플랫폼. AI 기반의 가상 세계를 탐험하세요!">
+
+    <!-- PWA 관련 메타 태그 -->
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NexusVerse">
+    <link rel="manifest" href="manifest.json">
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -750,7 +757,7 @@
     </div>
 
     <nav>
-        <div class="brand">AIAgentGame</div>
+        <div class="brand">NexusVerse</div>
         <div style="display: flex; align-items: center; gap: 20px;">
             <!-- 로그인 상태 표시 영역 -->
             <div id="user-info" class="user-info" style="display: none;">
@@ -1249,6 +1256,54 @@
 
         // 10초마다 배경 변경
         setInterval(changeBackgroundImage, 10000);
+
+        // PWA Service Worker 등록
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker 등록 성공:', registration.scope);
+
+                        // Service Worker 업데이트 확인
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // 새로운 버전이 설치됨
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker 등록 실패:', error);
+                    });
+            });
+        }
+
+        // PWA 업데이트 알림
+        function showUpdateNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'update-notification';
+            notification.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; background: var(--primary); color: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000; max-width: 300px;">
+                    <div style="font-weight: bold; margin-bottom: 10px;">🎉 앱 업데이트!</div>
+                    <div style="font-size: 0.9rem; margin-bottom: 15px;">새로운 버전이 준비되었습니다.</div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="location.reload()" style="background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">업데이트</button>
+                        <button onclick="this.parentElement.parentElement.remove()" style="background: transparent; color: white; border: 1px solid white; padding: 8px 15px; border-radius: 5px; cursor: pointer;">나중에</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            // 10초 후 자동 제거
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 10000);
+        }
 
         // Initial check
         checkStatus();

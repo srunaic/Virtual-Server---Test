@@ -1,0 +1,41 @@
+{
+  "name": "NexusVerse - 가상 세계 플랫폼",
+  "short_name": "NexusVerse",
+  "description": "현실과 가상을 연결하는 메타버스 플랫폼. AI 기반의 가상 세계를 탐험하세요!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["games", "entertainment", "social"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='60' fill='%238b5cf6'/><circle cx='256' cy='256' r='120' fill='white' opacity='0.9'/><circle cx='200' cy='200' r='20' fill='%238b5cf6'/><circle cx='312' cy='200' r='20' fill='%238b5cf6'/><circle cx='256' cy='280' r='15' fill='%238b5cf6'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='60' fill='%238b5cf6'/><circle cx='256' cy='256' r='150' fill='white' opacity='0.9'/><circle cx='200' cy='200' r='25' fill='%238b5cf6'/><circle cx='312' cy='200' r='25' fill='%238b5cf6'/><circle cx='256' cy='280' r='20' fill='%238b5cf6'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "관리자 페이지",
+      "short_name": "관리자",
+      "description": "관리자 대시보드로 이동",
+      "url": "/admin.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' rx='12' fill='%23ef4444'/><text x='48' y='58' text-anchor='middle' fill='white' font-size='40' font-weight='bold'>👑</text></svg>",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
