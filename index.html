@@ -396,7 +396,10 @@
             try {
                 const response = await fetch(`${API_BASE}/api/login`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
                     body: JSON.stringify({ user_id, password })
                 });
                 const data = await response.json();
@@ -423,7 +426,10 @@
             try {
                 const response = await fetch(`${API_BASE}/api/register`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
                     body: JSON.stringify({ user_id, nickname, password })
                 });
                 const data = await response.json();
