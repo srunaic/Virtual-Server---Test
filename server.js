@@ -71,53 +71,111 @@ io.on('connection', (socket) => {
     });
 });
 
-// MySQL 연결 풀 생성 (연결 관리가 더 효율적임)
-const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'virtual_server',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    connectTimeout: 60000,
-    acquireTimeout: 60000,
-    timeout: 60000,
-    reconnect: true
-});
+// 데이터베이스 연결 설정 (Railway PostgreSQL 또는 로컬 MySQL)
+let pool;
+let dbType = 'unknown';
 
-// 연결 상태 모니터링
-pool.on('connection', (connection) => {
-    console.log('MySQL 연결됨 - ID:', connection.threadId);
-});
+if (process.env.DATABASE_URL) {
+    // Railway PostgreSQL
+    console.log('📊 Railway PostgreSQL 모드');
+    dbType = 'postgresql';
+    const { Pool } = require('pg');
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+} else {
+    // 로컬 MySQL
+    console.log('📊 로컬 MySQL 모드');
+    dbType = 'mysql';
+    pool = mysql.createPool({
+        host: process.env.DB_HOST || 'localhost',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'virtual_server',
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        connectTimeout: 60000,
+        acquireTimeout: 60000,
+        timeout: 60000,
+        reconnect: true
+    });
 
-pool.on('error', (err) => {
-    console.error('MySQL 풀 에러:', err);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        console.log('MySQL 연결 재시도...');
-    }
-});
+    // MySQL 연결 상태 모니터링
+    pool.on('connection', (connection) => {
+        console.log('MySQL 연결됨 - ID:', connection.threadId);
+    });
+
+    pool.on('error', (err) => {
+        console.error('MySQL 풀 에러:', err);
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            console.log('MySQL 연결 재시도...');
+        }
+    });
+}
+
+// 데이터베이스 쿼리 헬퍼 함수
+function executeQuery(query, params = []) {
+    return new Promise((resolve, reject) => {
+        pool.query(query, params, (err, results) => {
+            if (err) reject(err);
+            else resolve(results);
+        });
+    });
+}
 
 // 1. 회원가입 API
 app.post('/api/register', async (req, res) => {
     const { user_id, password, nickname, email } = req.body;
 
+    // 입력 검증
+    if (!user_id || !password || !nickname) {
+        return res.status(400).json({ error: "아이디, 비밀번호, 닉네임은 필수입니다." });
+    }
+
+    if (user_id.length < 3 || user_id.length > 20) {
+        return res.status(400).json({ error: "아이디는 3-20자 사이여야 합니다." });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: "비밀번호는 최소 6자 이상이어야 합니다." });
+    }
+
     try {
         // 비밀번호 암호화
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const query = 'INSERT INTO users (user_id, password, nickname, email) VALUES (?, ?, ?, ?)';
-        pool.query(query, [user_id, hashedPassword, nickname, email], (err, result) => {
-            if (err) {
-                console.error("회원가입 DB 오류:", err);
-                if (err.code === 'ER_DUP_ENTRY') {
-                    return res.status(400).json({ error: "이미 존재하는 아이디입니다." });
-                }
-                return res.status(500).json({ error: "회원가입 중 오류가 발생했습니다." });
-            }
-            res.json({ message: "회원가입이 완료되었습니다!", id: result.insertId });
-        });
-    } catch (error) {
+        // 아이디 중복 확인
+        const checkQuery = dbType === 'postgresql'
+            ? 'SELECT id FROM users WHERE user_id = $1'
+            : 'SELECT id FROM users WHERE user_id = ?';
+
+        const checkResults = await executeQuery(checkQuery, [user_id]);
+        const hasExistingUser = dbType === 'postgresql'
+            ? checkResults.rows && checkResults.rows.length > 0
+            : checkResults.length > 0;
+
+        if (hasExistingUser) {
+            return res.status(400).json({ error: "이미 존재하는 아이디입니다." });
+        }
+
+        // 사용자 등록
+        const insertQuery = dbType === 'postgresql'
+            ? 'INSERT INTO users (user_id, password, nickname, email) VALUES ($1, $2, $3, $4) RETURNING id'
+            : 'INSERT INTO users (user_id, password, nickname, email) VALUES (?, ?, ?, ?)';
+
+        const insertResults = await executeQuery(insertQuery, [user_id, hashedPassword, nickname, email || null]);
+
+        const userId = dbType === 'postgresql'
+            ? insertResults.rows[0].id
+            : insertResults.insertId;
+
+        console.log(`새 사용자 등록: ${user_id}`);
+        res.json({ message: "회원가입이 완료되었습니다!", id: userId });
+
+    } catch (err) {
+        console.error("회원가입 DB 오류:", err);
         res.status(500).json({ error: "서버 오류가 발생했습니다." });
     }
 });
@@ -127,32 +185,39 @@ app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
 
     try {
-        const query = 'SELECT * FROM users WHERE user_id = ?';
-        pool.query(query, [user_id], async (err, results) => {
-            if (err) {
-                console.error("로그인 DB 오류:", err);
-                return res.status(500).json({ error: "로그인 처리 중 오류 발생" });
-            }
-            if (results.length === 0) return res.status(400).json({ error: "존재하지 않는 사용자입니다." });
+        const query = dbType === 'postgresql'
+            ? 'SELECT * FROM users WHERE user_id = $1'
+            : 'SELECT * FROM users WHERE user_id = ?';
 
-            const user = results[0];
+        const results = await executeQuery(query, [user_id]);
 
-            try {
-                const isMatch = await bcrypt.compare(password, user.password);
-                if (!isMatch) return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
+        const user = dbType === 'postgresql'
+            ? results.rows[0]
+            : results[0];
 
-                res.json({
-                    message: "로그인 성공!",
-                    user: { id: user.id, user_id: user.user_id, nickname: user.nickname, level: user.level, gold: user.gold }
-                });
-            } catch (bcryptErr) {
-                console.error("bcrypt 비교 오류:", bcryptErr);
-                return res.status(500).json({ error: "비밀번호 검증 중 오류 발생" });
+        if (!user) {
+            return res.status(400).json({ error: "존재하지 않는 사용자입니다." });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
+        }
+
+        res.json({
+            message: "로그인 성공!",
+            user: {
+                id: user.id,
+                user_id: user.user_id,
+                nickname: user.nickname,
+                level: user.level || 1,
+                gold: user.gold || 0
             }
         });
-    } catch (error) {
-        console.error("로그인 처리 오류:", error);
-        return res.status(500).json({ error: "서버 오류가 발생했습니다." });
+
+    } catch (err) {
+        console.error("로그인 DB 오류:", err);
+        res.status(500).json({ error: "로그인 처리 중 오류 발생" });
     }
 });
 
