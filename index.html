@@ -87,6 +87,59 @@
 
         .dot.online { background: #10b981; box-shadow: 0 0 10px #10b981; }
 
+        /* User Info Styles */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .welcome-msg {
+            font-size: 1rem;
+            font-weight: 500;
+            color: white;
+            background: var(--glass);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 1px solid var(--primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Close button */
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--glass);
+            color: white;
+        }
+
         /* Hero Section */
         .hero {
             height: 100vh;
@@ -273,9 +326,22 @@
 
     <nav>
         <div class="brand">AIAgentGame</div>
-        <div class="server-status" id="server-status-pill">
-            <div class="dot" id="status-dot"></div>
-            <span id="status-text">Server Offline</span>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <!-- 로그인 상태 표시 영역 -->
+            <div id="user-info" class="user-info" style="display: none;">
+                <span id="welcome-msg" class="welcome-msg"></span>
+                <button onclick="handleLogout()" class="btn btn-outline">로그아웃</button>
+            </div>
+
+            <!-- 로그인 전 표시 -->
+            <div id="login-btn" class="login-btn">
+                <button onclick="showLoginModal()" class="btn btn-primary">로그인</button>
+            </div>
+
+            <div class="server-status" id="server-status-pill">
+                <div class="dot" id="status-dot"></div>
+                <span id="status-text">Server Offline</span>
+            </div>
         </div>
     </nav>
 
@@ -301,7 +367,8 @@
                 </div>
             </div>
 
-            <div class="auth-container">
+            <div id="login-modal" class="auth-container">
+                <button class="close-btn" onclick="closeModal()">&times;</button>
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('login')">로그인</div>
                     <div class="tab" onclick="switchTab('register')">회원가입</div>
@@ -370,7 +437,7 @@
     </footer>
 
     <script>
-        const API_URL = "https://hornless-yer-scleritic.ngrok-free.dev";
+        const API_URL = "http://localhost:3000";
 
         // Tab Switching
         function switchTab(type) {
@@ -404,6 +471,50 @@
             }
         }
 
+        // 페이지 로드 시 로그인 상태 확인
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+        });
+
+        // 로그인 상태 확인
+        function checkLoginStatus() {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                showLoggedInState(user.nickname);
+            } else {
+                showLoggedOutState();
+            }
+        }
+
+        // 로그인 상태 표시
+        function showLoggedInState(nickname) {
+            document.getElementById('user-info').style.display = 'flex';
+            document.getElementById('login-btn').style.display = 'none';
+            document.getElementById('welcome-msg').textContent = `${nickname}님 환영합니다!`;
+            document.getElementById('login-modal').style.display = 'none';
+        }
+
+        // 로그아웃 상태 표시
+        function showLoggedOutState() {
+            document.getElementById('user-info').style.display = 'none';
+            document.getElementById('login-btn').style.display = 'block';
+            localStorage.removeItem('userData');
+        }
+
+        // 로그인 모달 표시
+        function showLoginModal() {
+            document.getElementById('login-modal').style.display = 'flex';
+        }
+
+        // 로그아웃 처리
+        function handleLogout() {
+            if (confirm('정말 로그아웃하시겠습니까?')) {
+                showLoggedOutState();
+                showMsg(document.getElementById('login-msg'), '로그아웃되었습니다.', true);
+            }
+        }
+
         // Login Handler
         async function handleLogin() {
             const user_id = document.getElementById('l-userid').value;
@@ -415,17 +526,23 @@
             try {
                 const res = await fetch(`${API_URL}/api/login`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'ngrok-skip-browser-warning': 'true'
                     },
                     body: JSON.stringify({ user_id, password })
                 });
                 const data = await res.json();
-                
+
                 if(res.ok) {
+                    // 로그인 성공 시 사용자 데이터 저장 및 UI 변경
+                    localStorage.setItem('userData', JSON.stringify(data.user));
+                    showLoggedInState(data.user.nickname);
                     showMsg(msg, `${data.user.nickname}님, 환영합니다!`, true);
-                    // 추후 게임 실행이나 프로필 페이지 이동 로직 추가 가능
+
+                    // 입력 필드 초기화
+                    document.getElementById('l-userid').value = '';
+                    document.getElementById('l-password').value = '';
                 } else {
                     showMsg(msg, data.error, false);
                 }
@@ -433,6 +550,25 @@
                 showMsg(msg, "서버 연결 오류", false);
             }
         }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('login-modal').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('login-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
 
         // Register Handler
         async function handleRegister() {
