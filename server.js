@@ -275,7 +275,35 @@ app.get('/api/admin/users/delete/:id', (req, res) => {
     });
 });
 
-// 7. 관리자 권한 부여/해제 (어드민 전용)
+// 7. 공지사항 조회 (모든 사용자)
+app.get('/api/notices', (req, res) => {
+    console.log('공지사항 조회 요청');
+
+    // 데이터베이스 연결 상태 확인
+    if (!pool) {
+        console.error('데이터베이스 풀 연결 없음');
+        return res.status(500).json({
+            error: "데이터베이스 연결 실패",
+            details: "데이터베이스 풀 연결이 설정되지 않았습니다."
+        });
+    }
+
+    // 최신 공지사항 5개 조회 (최신순)
+    pool.query('SELECT id, title, content, created_at FROM notices ORDER BY created_at DESC LIMIT 5', (err, results) => {
+        if (err) {
+            console.error("공지사항 조회 DB 오류:", err);
+            return res.status(500).json({
+                error: "공지사항 조회 실패",
+                details: err.message
+            });
+        }
+
+        console.log(`${results.length}개의 공지사항 조회 완료`);
+        res.json(results);
+    });
+});
+
+// 8. 관리자 권한 부여/해제 (어드민 전용)
 app.post('/api/admin/users/:id/toggle-admin', (req, res) => {
     const userId = req.params.id;
     const { action } = req.body; // 'grant' 또는 'revoke'
@@ -399,7 +427,7 @@ app.post('/api/admin/users/:id/toggle-admin', (req, res) => {
     });
 });
 
-// 8. 공지사항 등록
+// 9. 공지사항 등록
 app.post('/api/admin/notices', (req, res) => {
     const { title, content } = req.body;
     pool.query('INSERT INTO notices (title, content) VALUES (?, ?)', [title, content], (err, result) => {

@@ -43,6 +43,68 @@
             font-family: 'Outfit', sans-serif;
         }
 
+        /* Notice Banner */
+        .notice-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            color: white;
+            z-index: 1100;
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+            overflow: hidden;
+        }
+
+        .notice-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 8px 5%;
+            white-space: nowrap;
+        }
+
+        .notice-content i {
+            font-size: 1.2rem;
+            color: #ffd700;
+        }
+
+        .notice-text {
+            flex: 1;
+            font-weight: 600;
+            font-size: 0.95rem;
+            animation: scrollText 15s linear infinite;
+            position: relative;
+        }
+
+        .notice-text::before,
+        .notice-text::after {
+            content: "●";
+            margin: 0 20px;
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+
+        @keyframes scrollText {
+            0% {
+                transform: translateX(100%);
+            }
+            10% {
+                transform: translateX(0%);
+            }
+            90% {
+                transform: translateX(0%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Adjust navbar position when notice banner is visible */
+        .notice-banner.show + nav {
+            top: 41px; /* banner height */
+        }
+
         /* Navbar */
         nav {
             padding: 1.5rem 5%;
@@ -56,6 +118,7 @@
             backdrop-filter: blur(10px);
             background: rgba(3, 7, 18, 0.5);
             border-bottom: 1px solid var(--glass-border);
+            transition: top 0.3s ease;
         }
 
         .brand {
@@ -316,6 +379,28 @@
         }
 
         @media (max-width: 768px) {
+            .notice-banner {
+                font-size: 0.9rem;
+            }
+
+            .notice-content {
+                padding: 6px 3%;
+                gap: 10px;
+            }
+
+            .notice-content i {
+                font-size: 1rem;
+            }
+
+            .notice-text {
+                font-size: 0.85rem;
+                animation-duration: 12s; /* 모바일에서는 조금 빠르게 */
+            }
+
+            .notice-banner.show + nav {
+                top: 35px; /* 모바일에서는 높이 조정 */
+            }
+
             nav {
                 padding: 1rem 3%;
                 flex-wrap: wrap;
@@ -503,6 +588,14 @@
 </head>
 <body>
 
+    <!-- 공지사항 전광판 -->
+    <div id="notice-banner" class="notice-banner" style="display: none;">
+        <div class="notice-content">
+            <i class="fas fa-bullhorn"></i>
+            <div class="notice-text" id="notice-text"></div>
+        </div>
+    </div>
+
     <nav>
         <div class="brand">AIAgentGame</div>
         <div style="display: flex; align-items: center; gap: 20px;">
@@ -650,9 +743,80 @@
             }
         }
 
-        // 페이지 로드 시 로그인 상태 확인
+        // Notice Banner Management
+        let currentNoticeIndex = 0;
+        let notices = [];
+        let noticeInterval;
+
+        // Load notices from server
+        async function loadNotices() {
+            try {
+                const res = await fetch(`${API_URL}/api/notices`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                if(res.ok) {
+                    const data = await res.json();
+                    if(data.length > 0) {
+                        notices = data;
+                        showNoticeBanner();
+                        startNoticeRotation();
+                    } else {
+                        hideNoticeBanner();
+                    }
+                }
+            } catch (e) {
+                console.log('공지사항 로드 실패:', e);
+                hideNoticeBanner();
+            }
+        }
+
+        // Show notice banner
+        function showNoticeBanner() {
+            const banner = document.getElementById('notice-banner');
+            banner.style.display = 'block';
+            banner.classList.add('show');
+        }
+
+        // Hide notice banner
+        function hideNoticeBanner() {
+            const banner = document.getElementById('notice-banner');
+            banner.style.display = 'none';
+            banner.classList.remove('show');
+            if(noticeInterval) {
+                clearInterval(noticeInterval);
+                noticeInterval = null;
+            }
+        }
+
+        // Start notice rotation
+        function startNoticeRotation() {
+            if(noticeInterval) {
+                clearInterval(noticeInterval);
+            }
+            updateNoticeText();
+            noticeInterval = setInterval(() => {
+                currentNoticeIndex = (currentNoticeIndex + 1) % notices.length;
+                updateNoticeText();
+            }, 15000); // 15초마다 변경
+        }
+
+        // Update notice text
+        function updateNoticeText() {
+            if(notices.length === 0) return;
+
+            const notice = notices[currentNoticeIndex];
+            const noticeText = document.getElementById('notice-text');
+            noticeText.textContent = `${notice.title}: ${notice.content}`;
+        }
+
+        // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', function() {
             checkLoginStatus();
+            checkStatus(); // 서버 상태 확인
+            loadNotices(); // 공지사항 로드
+
+            // 30초마다 공지사항 새로고침
+            setInterval(loadNotices, 30000);
         });
 
         // 로그인 상태 확인
