@@ -121,9 +121,15 @@
 
 ---
 
-### 🐱‍👤 천사냥이 방문 
-- [가이드 및 소개](https://srunaic.github.io/Virtual-Server---Test/index.html#characters)
-- [수호수의 이야기](https://srunaic.github.io/Virtual-Server---Test/index.html#story)
+### 🐱‍👤 천사냥이 방문 (유저 페이지)
+천사냥이의 일상을 함께 확인해보세요!
+- [🏠 **천사냥이 공식 사이트 방문하기**](https://srunaic.github.io/Virtual-Server---Test/index.html)
+- [📖 수호수의 이야기 (시나리오)](https://srunaic.github.io/Virtual-Server---Test/index.html#story)
+
+### 🛡️ 수호자 관리 (관리자 페이지)
+서버 및 사용자 관리를 위한 대시보드입니다.
+- [⚙️ **관리자 대시보드 바로가기**](https://srunaic.github.io/Virtual-Server---Test/admin.html)
+- [👥 사용자 가이드 및 소개](https://srunaic.github.io/Virtual-Server---Test/index.html#characters)
 
 ### 💻 로컬 개발 환경 (Unity 프로젝트용)
 ```bash
