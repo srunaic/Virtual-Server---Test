@@ -369,11 +369,73 @@
         <p style="margin-top: 10px; font-size: 0.7rem">Powered by Antigravity AI Engine</p>
     </footer>
 
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
         // 환경에 따른 API URL 자동 설정
         let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://olive-boats-sell.loca.lt';
+            : 'https://orange-teams-listen.loca.lt';
+
+        // Socket.io 연결 초기화
+        const socket = io(API_URL, {
+            transports: ['websocket', 'polling'],
+            timeout: 20000,
+            forceNew: true
+        });
+
+        // 실시간 서버 상태 모니터링
+        let serverOnline = false;
+        let connectionAttempts = 0;
+
+        // Socket.io 이벤트 핸들러
+        socket.on('connect', () => {
+            console.log('🔌 Socket.io 연결 성공');
+            serverOnline = true;
+            connectionAttempts = 0;
+            updateServerStatus(true);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('🔌 Socket.io 연결 해제');
+            serverOnline = false;
+            updateServerStatus(false);
+        });
+
+        socket.on('server_status', (data) => {
+            console.log('📊 서버 상태:', data);
+            serverOnline = true;
+            updateServerStatus(true, data);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('🔌 Socket.io 연결 오류:', error);
+            connectionAttempts++;
+            serverOnline = false;
+            updateServerStatus(false);
+
+            // 재연결 시도
+            if (connectionAttempts < 5) {
+                setTimeout(() => {
+                    console.log(`🔄 재연결 시도 ${connectionAttempts}/5`);
+                    socket.connect();
+                }, 3000);
+            }
+        });
+
+        // 서버 상태 표시 업데이트 함수
+        function updateServerStatus(isOnline, serverData = null) {
+            const statusElement = document.getElementById('server-status');
+            if (statusElement) {
+                if (isOnline) {
+                    statusElement.innerHTML = `
+                        <span style="color: #00ff00;">🟢 서버 온라인</span>
+                        ${serverData ? `<br><small>연결: ${serverData.connections}명 | 업타임: ${Math.floor(serverData.uptime)}초</small>` : ''}
+                    `;
+                } else {
+                    statusElement.innerHTML = '<span style="color: #ff4444;">🔴 서버 오프라인</span>';
+                }
+            }
+        }
 
         // CORS 우회를 위한 함수들
         async function makeCorsRequest(url, options = {}) {
@@ -432,17 +494,33 @@
         async function checkStatus() {
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
+
+            // Socket.io 상태 우선 확인
+            if (socket.connected && serverOnline) {
+                dot.classList.add('online');
+                text.innerText = "실시간 연결됨";
+                return;
+            }
+
+            // HTTP 폴백
             try {
-                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://olive-boats-sell.loca.lt'}/api/test`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://orange-teams-listen.loca.lt'}/api/test`);
                 if(res.ok) {
                     dot.classList.add('online');
-                    text.innerText = "Server Online";
+                    text.innerText = "HTTP 연결됨";
+                } else {
+                    throw new Error('HTTP 응답 실패');
                 }
             } catch (e) {
+                console.error('서버 연결 실패:', e);
                 dot.classList.remove('online');
-                text.innerText = "Server Offline";
+                text.innerText = "연결 실패";
+
+                // 재연결 시도
+                if (!socket.connected) {
+                    console.log('🔄 Socket.io 재연결 시도');
+                    socket.connect();
+                }
             }
         }
 
@@ -455,7 +533,7 @@
             if(!user_id || !password) return showMsg(msg, "아이디와 비번을 입력하세요.", false);
 
             try {
-                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://olive-boats-sell.loca.lt'}/api/login`, {
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://orange-teams-listen.loca.lt'}/api/login`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -487,7 +565,7 @@
             if(!user_id || !nickname || !password) return showMsg(msg, "필수 항목을 모두 입력하세요.", false);
 
             try {
-                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://olive-boats-sell.loca.lt'}/api/register`, {
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://orange-teams-listen.loca.lt'}/api/register`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',

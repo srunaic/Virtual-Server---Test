@@ -2,64 +2,100 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: ["http://localhost:3000", "https://srunaic.github.io", "https://orange-teams-listen.loca.lt", "*"],
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
 const port = process.env.PORT || 3000;
+
+// Supabase 클라이언트 초기화 (폴백용)
+const supabase = createClient(
+    process.env.SUPABASE_URL || 'https://your-project.supabase.co',
+    process.env.SUPABASE_ANON_KEY || 'your-anon-key'
+);
 
 // 미들웨어 설정
 app.use(express.json());
 
-// CORS 설정 강화 - GitHub Pages 및 로컬 개발 지원
-app.use((req, res, next) => {
-    const allowedOrigins = [
-        'http://localhost:3000',
-        'https://srunaic.github.io',
-        'https://hornless-yer-scleritic.ngrok-free.dev',
-        'https://olive-boats-sell.loca.lt',
-        // 새로운 ngrok/localtunnel URL 패턴 추가
-        /^https:\/\/[a-z0-9]+\.ngrok(?:-free)?\.app$/,
-        /^https:\/\/[a-z0-9]+\.ngrok(?:-free)?\.dev$/,
-        /^https:\/\/[a-z0-9-]+\.loca\.lt$/
-    ];
+// CORS 설정 - 완전 개방 (실시간 연결을 위해)
+app.use(cors({
+    origin: true, // 모든 오리진 허용
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+}));
 
-    const origin = req.headers.origin;
+// Socket.io 연결 처리
+io.on('connection', (socket) => {
+    console.log('클라이언트 연결됨:', socket.id);
 
-    // Origin이 허용된 도메인 목록에 있는지 확인
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
-        if (typeof allowedOrigin === 'string') {
-            return allowedOrigin === origin;
-        } else if (allowedOrigin instanceof RegExp) {
-            return allowedOrigin.test(origin);
-        }
-        return false;
+    // 서버 상태 실시간 전송
+    const statusInterval = setInterval(() => {
+        socket.emit('server_status', {
+            status: 'online',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            connections: io.engine.clientsCount
+        });
+    }, 5000); // 5초마다 상태 전송
+
+    // 연결 해제 시 정리
+    socket.on('disconnect', () => {
+        console.log('클라이언트 연결 해제:', socket.id);
+        clearInterval(statusInterval);
     });
 
-    if (isAllowed || !origin) {
-        res.header('Access-Control-Allow-Origin', origin || '*');
-    }
+    // 핑-퐁으로 연결 상태 확인
+    socket.on('ping', () => {
+        socket.emit('pong', { timestamp: Date.now() });
+    });
 
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, ngrok-skip-browser-warning, X-Requested-With, Accept, Accept-Encoding, Accept-Language, Cache-Control, Connection, Host, Pragma, Referer, User-Agent');
-    res.header('Access-Control-Allow-Credentials', 'true');
-
-    if (req.method === 'OPTIONS') {
-        res.sendStatus(200);
-        return;
-    }
-
-    next();
+    // 사용자 온라인 상태 업데이트
+    socket.on('user_online', (data) => {
+        socket.broadcast.emit('user_status_update', {
+            user_id: data.user_id,
+            status: 'online',
+            timestamp: new Date().toISOString()
+        });
+    });
 });
 
 // MySQL 연결 풀 생성 (연결 관리가 더 효율적임)
 const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'virtual_server',
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    connectTimeout: 60000,
+    acquireTimeout: 60000,
+    timeout: 60000,
+    reconnect: true
+});
+
+// 연결 상태 모니터링
+pool.on('connection', (connection) => {
+    console.log('MySQL 연결됨 - ID:', connection.threadId);
+});
+
+pool.on('error', (err) => {
+    console.error('MySQL 풀 에러:', err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        console.log('MySQL 연결 재시도...');
+    }
 });
 
 // 1. 회원가입 API
@@ -197,6 +233,16 @@ app.post('/api/admin/notices', (req, res) => {
     });
 });
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`서버가 http://0.0.0.0:${port} 에서 실행 중입니다.`);
+// 서버 시작
+server.listen(port, '0.0.0.0', () => {
+    console.log(`🚀 서버가 포트 ${port}에서 실행 중입니다.`);
+    console.log(`🌐 http://localhost:${port}`);
+    console.log(`🔌 Socket.io 실시간 연결 활성화`);
+    console.log(`📊 연결된 클라이언트 수: ${io.engine.clientsCount}`);
 });
+
+// 서버 상태 모니터링
+setInterval(() => {
+    const clients = io.engine.clientsCount;
+    console.log(`📊 실시간 모니터링 - 연결된 클라이언트: ${clients}, 서버 상태: 온라인`);
+}, 30000); // 30초마다 로그
