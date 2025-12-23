@@ -47,26 +47,37 @@ app.post('/api/register', async (req, res) => {
 });
 
 // 2. 로그인 API
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
 
-    const query = 'SELECT * FROM users WHERE user_id = ?';
-    pool.query(query, [user_id], async (err, results) => {
-        if (err) {
-            console.error("로그인 DB 오류:", err);
-            return res.status(500).json({ error: "로그인 처리 중 오류 발생" });
-        }
-        if (results.length === 0) return res.status(400).json({ error: "존재하지 않는 사용자입니다." });
+    try {
+        const query = 'SELECT * FROM users WHERE user_id = ?';
+        pool.query(query, [user_id], async (err, results) => {
+            if (err) {
+                console.error("로그인 DB 오류:", err);
+                return res.status(500).json({ error: "로그인 처리 중 오류 발생" });
+            }
+            if (results.length === 0) return res.status(400).json({ error: "존재하지 않는 사용자입니다." });
 
-        const user = results[0];
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
+            const user = results[0];
 
-        res.json({
-            message: "로그인 성공!",
-            user: { id: user.id, user_id: user.user_id, nickname: user.nickname, level: user.level, gold: user.gold }
+            try {
+                const isMatch = await bcrypt.compare(password, user.password);
+                if (!isMatch) return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
+
+                res.json({
+                    message: "로그인 성공!",
+                    user: { id: user.id, user_id: user.user_id, nickname: user.nickname, level: user.level, gold: user.gold }
+                });
+            } catch (bcryptErr) {
+                console.error("bcrypt 비교 오류:", bcryptErr);
+                return res.status(500).json({ error: "비밀번호 검증 중 오류 발생" });
+            }
         });
-    });
+    } catch (error) {
+        console.error("로그인 처리 오류:", error);
+        return res.status(500).json({ error: "서버 오류가 발생했습니다." });
+    }
 });
 
 // 3. 서버 상태 테스트 API
