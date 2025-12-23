@@ -3,23 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIAgentGame | Open World Universe</title>
-    <meta name="description" content="Explore the vast open world of AIAgentGame. Register now to join the adventure!">
-    
+    <title>천사냥이 | 수호수의 계약</title>
+    <meta name="description" content="천사에서 타락한 수호수 루미와의 감동적인 사랑 이야기. 질서와 감정 사이에서 펼쳐지는 미연시 게임.">
+    <meta name="keywords" content="천사냥이, 미연시, 수호수, 루미, 감정, 계약, 사랑">
+
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --primary: #8b5cf6;
-            --secondary: #ec4899;
-            --accent: #06b6d4;
-            --bg: #030712;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            /* 천사냥이 테마 컬러 */
+            --angel-pink: #ffb3d9;
+            --angel-purple: #d4a5ff;
+            --angel-blue: #a5d4ff;
+            --demon-red: #ff6b6b;
+            --heaven-gold: #ffd700;
+            --shadow-dark: #1a1a2e;
+            --text-light: #ffffff;
+            --text-soft: #e0e0e0;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --card-bg: rgba(26, 26, 46, 0.8);
         }
 
         * {
@@ -29,75 +36,1062 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: white;
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, var(--shadow-dark) 0%, #16213e 50%, #0f3460 100%);
+            color: var(--text-light);
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
             min-height: 100vh;
+            position: relative;
         }
 
-        h1, h2, h3, .brand {
-            font-family: 'Outfit', sans-serif;
+        /* 배경 애니메이션 효과 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(255, 179, 217, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(212, 165, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 60% 20%, rgba(165, 212, 255, 0.08) 0%, transparent 50%);
+            animation: backgroundFloat 20s ease-in-out infinite;
+            z-index: -1;
         }
 
-        /* Navbar */
-        nav {
-            padding: 1.5rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        @keyframes backgroundFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(10px) rotate(-1deg); }
+        }
+
+        /* 반짝이는 별 효과 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: var(--heaven-gold);
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        .star:nth-child(1) { width: 2px; height: 2px; top: 20%; left: 10%; animation-delay: 0s; }
+        .star:nth-child(2) { width: 1px; height: 1px; top: 40%; left: 80%; animation-delay: 1s; }
+        .star:nth-child(3) { width: 1.5px; height: 1.5px; top: 60%; left: 30%; animation-delay: 2s; }
+        .star:nth-child(4) { width: 1px; height: 1px; top: 80%; left: 70%; animation-delay: 0.5s; }
+        .star:nth-child(5) { width: 2px; height: 2px; top: 30%; left: 50%; animation-delay: 1.5s; }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        h1, h2, h3, .logo {
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 700;
+        }
+
+        /* 헤더 스타일 */
+        header {
             position: fixed;
             top: 0;
             width: 100%;
             z-index: 1000;
-            backdrop-filter: blur(10px);
-            background: rgba(3, 7, 18, 0.5);
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .brand {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(to right, var(--primary), var(--accent));
+        .header-content {
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--angel-pink), var(--angel-purple), var(--angel-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 179, 217, 0.5);
             letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .nav-right {
+        .logo::before {
+            content: '🐱';
+            font-size: 2.5rem;
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from { filter: drop-shadow(0 0 5px var(--angel-pink)); }
+            to { filter: drop-shadow(0 0 15px var(--angel-purple)); }
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-item {
+            position: relative;
+            padding: 10px 15px;
+            color: var(--text-soft);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            color: var(--angel-pink);
+            background: var(--glass-bg);
+            transform: translateY(-2px);
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--angel-pink), var(--angel-purple));
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-item:hover::after {
+            width: 100%;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            min-width: 200px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            z-index: 1001;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 12px 20px;
+            color: var(--text-soft);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--glass-bg);
+            color: var(--angel-pink);
+            padding-left: 25px;
+        }
+
+        .user-section {
             display: flex;
             align-items: center;
             gap: 20px;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: var(--glass);
-            padding: 10px 15px;
+        .login-btn, .register-btn {
+            padding: 10px 20px;
             border-radius: 25px;
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
 
-        .welcome-text {
+        .login-btn {
+            background: var(--glass-bg);
+            color: var(--text-light);
+            border-color: var(--glass-border);
+        }
+
+        .login-btn:hover {
+            background: var(--angel-pink);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 179, 217, 0.3);
+        }
+
+        .register-btn {
+            background: linear-gradient(45deg, var(--angel-pink), var(--angel-purple));
+            color: white;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 179, 217, 0.4);
+        }
+
+        /* 히어로 섹션 스타일 */
+        .hero {
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 5%;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero-title .highlight {
+            background: linear-gradient(45deg, var(--angel-pink), var(--angel-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-soft);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--angel-pink);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-soft);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--angel-pink), var(--angel-purple));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 179, 217, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-light);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--angel-blue);
+            color: white;
+        }
+
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .character-preview {
+            position: relative;
+            text-align: center;
+        }
+
+        .character-glow {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            background: radial-gradient(circle, rgba(255, 179, 217, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: characterGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes characterGlow {
+            from { transform: scale(0.9); opacity: 0.5; }
+            to { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .character-image {
+            position: relative;
+            z-index: 2;
+        }
+
+        .character-emoji-large {
+            font-size: 8rem;
+            filter: drop-shadow(0 0 20px rgba(255, 179, 217, 0.5));
+        }
+
+        .character-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 1rem;
+            color: var(--angel-pink);
+        }
+
+        .character-title {
+            font-size: 0.9rem;
+            color: var(--text-soft);
+        }
+
+        /* 섹션 공통 스타일 */
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 5%;
+        }
+
+        /* 스토리 섹션 */
+        .story-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.3) 0%, rgba(22, 33, 62, 0.3) 100%);
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+        }
+
+        .story-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .main-story {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-story::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 179, 217, 0.1) 0%, transparent 50%);
+            animation: storyBgFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes storyBgFloat {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+        }
+
+        .story-header {
+            position: relative;
+            z-index: 2;
+        }
+
+        .story-header h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--angel-pink);
+        }
+
+        .story-tag {
+            display: inline-block;
+            background: var(--angel-purple);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
             font-weight: 500;
+        }
+
+        .story-desc {
+            position: relative;
+            z-index: 2;
+            color: var(--text-soft);
+            line-height: 1.6;
+        }
+
+        .story-themes {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .theme-tag {
+            background: var(--glass-bg);
+            color: var(--angel-blue);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .world-realms {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .realm {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .realm:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .realm-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .realm h4 {
+            color: var(--angel-pink);
+            margin-bottom: 0.5rem;
+        }
+
+        /* 캐릭터 섹션 */
+        .characters-section {
+            padding: 80px 0;
+        }
+
+        .characters-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .character-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .character-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .character-image-container {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .character-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--angel-pink), var(--angel-purple));
+            opacity: 0.1;
+        }
+
+        .rumi-bg {
+            background: linear-gradient(135deg, var(--angel-pink), var(--angel-purple));
+        }
+
+        .protagonist-bg {
+            background: linear-gradient(135deg, var(--angel-blue), var(--heaven-gold));
+        }
+
+        .character-emoji-large {
+            font-size: 6rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .character-info {
+            padding: 2rem;
+        }
+
+        .character-role {
+            color: var(--angel-pink);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .character-desc {
+            color: var(--text-soft);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .character-abilities ul, .character-traits ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .character-abilities li, .character-traits li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-soft);
+        }
+
+        .character-abilities li:last-child, .character-traits li:last-child {
+            border-bottom: none;
+        }
+
+        .character-weakness {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        /* 게임 특징 섹션 */
+        .features-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.2) 0%, rgba(22, 33, 62, 0.2) 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: var(--angel-pink);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-soft);
+            line-height: 1.6;
+        }
+
+        /* 뉴스 섹션 */
+        .news-section {
+            padding: 80px 0;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .news-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .featured {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        .news-image {
+            height: 200px;
+            background: var(--glass-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .featured .news-image {
+            height: auto;
+            border-bottom: none;
+            border-radius: 12px;
+        }
+
+        .news-bg {
+            font-size: 4rem;
+            opacity: 0.6;
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .featured .news-content {
+            padding: 2rem;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
             font-size: 0.9rem;
         }
 
-        .user-menu {
-            display: flex;
-            gap: 10px;
+        .news-date {
+            color: var(--angel-blue);
         }
 
-        .profile-btn, .logout-btn {
-            background: none;
+        .news-category {
+            background: var(--angel-purple);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .news-content h3 {
+            color: var(--angel-pink);
+            margin-bottom: 0.5rem;
+        }
+
+        .news-content p {
+            color: var(--text-soft);
+            line-height: 1.6;
+        }
+
+        .news-link {
+            color: var(--angel-blue);
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+
+        .news-link:hover {
+            color: var(--angel-pink);
+        }
+
+        /* 공지사항 섹션 */
+        .notice-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.2) 0%, rgba(22, 33, 62, 0.2) 100%);
+        }
+
+        .notice-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .notice-item {
+            background: var(--card-bg);
             border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .notice-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .important {
+            border-color: var(--angel-pink);
+            box-shadow: 0 0 20px rgba(255, 179, 217, 0.2);
+        }
+
+        .notice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .notice-badge {
+            background: var(--angel-pink);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .notice-date {
+            color: var(--angel-blue);
+            font-size: 0.9rem;
+        }
+
+        .notice-item h3 {
+            color: var(--angel-pink);
+            margin-bottom: 0.5rem;
+        }
+
+        .notice-item p {
+            color: var(--text-soft);
+            line-height: 1.6;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            margin: 10% auto;
+            max-width: 400px;
+            backdrop-filter: blur(20px);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .modal-header h3 {
+            color: var(--angel-pink);
+            margin: 0;
+        }
+
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-soft);
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--angel-pink);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            text-align: center;
+            padding: 1rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .modal-footer a {
+            color: var(--angel-blue);
+        }
+
+        /* 푸터 스타일 */
+        .footer {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.9) 100%);
+            border-top: 1px solid var(--glass-border);
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            padding: 3rem 0;
+        }
+
+        .footer-section h4 {
+            color: var(--angel-pink);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: var(--text-soft);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-section ul li a:hover {
+            color: var(--angel-pink);
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--angel-pink), var(--angel-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-link {
+            font-size: 1.5rem;
+            color: var(--text-soft);
+            transition: all 0.2s;
+        }
+
+        .social-link:hover {
+            color: var(--angel-pink);
+            transform: scale(1.2);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--glass-border);
+            padding: 1.5rem 0;
+            text-align: center;
+            color: var(--text-soft);
+        }
+
+        .footer-bottom p {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                text-align: center;
+            }
+
+            .hero-title {
+                font-size: 2.8rem;
+            }
+
+            .story-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .characters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .featured {
+                grid-column: 1;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                position: relative;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .hero {
+                padding: 100px 0 60px;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .character-emoji-large {
+                font-size: 4rem;
+            }
+
+            .modal-content {
+                margin: 5% auto;
+                max-width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .user-section {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .login-btn, .register-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .character-info {
+                padding: 1.5rem;
+            }
+
+            .story-card, .character-card, .feature-card, .news-card, .notice-item {
+                padding: 1rem;
+            }
+
+            .footer-content {
+                padding: 2rem 0;
+            }
+        }
             color: white;
             padding: 6px 12px;
             border-radius: 15px;
@@ -585,107 +1579,378 @@
     </style>
 </head>
 <body>
+    <!-- 배경 별 효과 -->
+    <div class="stars">
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+        <div class="star"></div>
+    </div>
 
-    <nav>
-        <div class="brand">AIAgentGame</div>
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-            <i class="fas fa-bars"></i>
-            <span>메뉴</span>
-        </button>
-        <div class="nav-right">
-            <!-- 로그인 후에만 서버 상태와 사용자 정보 표시 -->
-            <div class="server-status" id="server-status-pill" style="display: none;">
-                <div class="dot" id="status-dot"></div>
-                <span id="status-text">Server Offline</span>
-            </div>
-
-            <!-- 로그인 후: 사용자 정보 표시 -->
-            <div class="user-info" id="user-info" style="display: none;">
-                <span class="welcome-text">
-                    환영합니다, <span id="user-nickname">닉네임</span>님
-                </span>
-                <div class="user-menu">
-                    <button class="profile-btn" onclick="openProfileModal()">
-                        <i class="fas fa-user-edit"></i> 프로필 수정
-                    </button>
-                    <button class="logout-btn" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> 로그아웃
-                    </button>
+    <!-- 헤더 -->
+    <header>
+        <div class="header-content">
+            <div class="logo">천사냥이</div>
+            <nav class="nav-menu">
+                <a href="#story" class="nav-item">스토리 개요</a>
+                <div class="dropdown">
+                    <a href="#characters" class="nav-item">등장인물</a>
+                    <div class="dropdown-content">
+                        <a href="#rumi" class="dropdown-item">루미 (천사냥이)</a>
+                        <a href="#protagonist" class="dropdown-item">주인공 (남주)</a>
+                        <a href="#world" class="dropdown-item">세계관 설정</a>
+                    </div>
                 </div>
+                <a href="#features" class="nav-item">게임 특징</a>
+                <a href="#news" class="nav-item">게임 소식</a>
+                <a href="#notice" class="nav-item">공지사항</a>
+            </nav>
+            <div class="user-section">
+                <a href="register.html" class="register-btn">회원가입</a>
+                <a href="#login" class="login-btn" onclick="showLoginModal()">로그인</a>
             </div>
         </div>
-    </nav>
+    </header>
 
+    <!-- 메인 히어로 섹션 -->
     <section class="hero">
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1200px; flex-wrap: wrap;">
+        <div class="hero-container">
             <div class="hero-content">
-                <h1>Next-Gen <br><span style="color: var(--accent)">Open World</span></h1>
-                <p>AI가 숨쉬는 거대한 오픈월드의 주인이 되세요. 지금 바로 가입하고 당신만의 전설을 쓰기 시작하십시오.</p>
-                
-                <div style="display: flex; gap: 20px; justify-content: center; margin-top: 2rem;">
-                    <div style="text-align: center">
-                        <h3 style="font-size: 2rem">10k+</h3>
-                        <p style="font-size: 0.8rem">active players</p>
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        수호수의 <span class="highlight">계약</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        천사에서 타락한 수호수 루미와의 감동적인 사랑 이야기.<br>
+                        질서와 감정 사이에서 펼쳐지는 운명의 선택.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">8화</div>
+                            <div class="stat-label">완성 에피소드</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">미연시</div>
+                            <div class="stat-label">게임 장르</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">Unity</div>
+                            <div class="stat-label">개발 엔진</div>
+                        </div>
                     </div>
-                    <div style="text-align: center">
-                        <h3 style="font-size: 2rem">99.9%</h3>
-                        <p style="font-size: 0.8rem">uptime</p>
-                    </div>
-                    <div style="text-align: center">
-                        <h3 style="font-size: 2rem">C#</h3>
-                        <p style="font-size: 0.8rem">Unity optimized</p>
+                    <div class="hero-buttons">
+                        <a href="#story" class="btn-primary">스토리 보기</a>
+                        <a href="#characters" class="btn-secondary">캐릭터 소개</a>
                     </div>
                 </div>
-            </div>
-
-            <div class="auth-container">
-                <div class="auth-header">
-                    <h2>로그인</h2>
-                    <p>계정에 로그인하여 오픈월드를 탐험하세요</p>
-                </div>
-
-                <!-- Login Form -->
-                <div id="login-form" class="auth-form active">
-                    <div class="input-group">
-                        <label>아이디</label>
-                        <input type="text" id="l-userid" placeholder="아이디를 입력하세요">
-                    </div>
-                    <div class="input-group">
-                        <label>비밀번호</label>
-                        <input type="password" id="l-password" placeholder="••••••••">
-                    </div>
-                    <button class="btn btn-primary" onclick="handleLogin()">로그인</button>
-                    <div id="login-msg" class="message"></div>
-
-                    <div class="register-link">
-                        계정이 없으신가요? <a href="register.html">회원가입</a>
+                <div class="hero-visual">
+                    <div class="character-preview">
+                        <div class="character-glow"></div>
+                        <div class="character-image">
+                            <span class="character-emoji">🐱‍👤</span>
+                        </div>
+                        <div class="character-name">루미</div>
+                        <div class="character-title">천사에서 타락한 수호수</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="features">
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-microchip"></i></div>
-            <h3>AI-Native World</h3>
-            <p>Antigravity AI가 직접 설계한 지능형 NPC와 실시간으로 상호작용하세요.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
-            <h3>Secure Economy</h3>
-            <p>Bcrypt 암호화와 중앙화된 보안 시스템으로 당신의 자산을 안전하게 보호합니다.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-bolt"></i></div>
-            <h3>Real-time Sync</h3>
-            <p>유니티와 완벽하게 연동되는 고성능 Node.js 백엔드로 끊김 없는 플레이를 제공합니다.</p>
+    <!-- 스토리 개요 섹션 -->
+    <section id="story" class="story-section">
+        <div class="container">
+            <h2 class="section-title">스토리 개요</h2>
+            <div class="story-grid">
+                <div class="story-card main-story">
+                    <div class="story-header">
+                        <h3>「수호수의 계약」</h3>
+                        <div class="story-tag">메인 스토리</div>
+                    </div>
+                    <p class="story-desc">
+                        폐암 말기의 청년과 천사에서 타락한 수호수 루미의 감동적인 사랑 이야기.
+                        질서와 감정 사이에서 펼쳐지는 운명의 선택과 대가.
+                    </p>
+                    <div class="story-themes">
+                        <span class="theme-tag">사랑</span>
+                        <span class="theme-tag">희생</span>
+                        <span class="theme-tag">질서</span>
+                        <span class="theme-tag">감정</span>
+                    </div>
+                </div>
+
+                <div class="story-card world-setting">
+                    <h3>세계관 설정</h3>
+                    <div class="world-realms">
+                        <div class="realm">
+                            <div class="realm-icon">✨</div>
+                            <h4>신계</h4>
+                            <p>직접 개입을 금지하고 지상을 관망하는 상위 차원</p>
+                        </div>
+                        <div class="realm">
+                            <div class="realm-icon">🔥</div>
+                            <h4>마계</h4>
+                            <p>불규칙한 질서의 세계, 마왕이 무력으로 통치</p>
+                        </div>
+                        <div class="realm">
+                            <div class="realm-icon">🏙️</div>
+                            <h4>인간계</h4>
+                            <p>신과 마의 영향을 받는 중간 세계</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <footer>
-        <p>&copy; 2025 AIAgentGame Universe. All rights reserved.</p>
-        <p style="margin-top: 10px; font-size: 0.7rem">Powered by Antigravity AI Engine</p>
+    <!-- 등장인물 섹션 -->
+    <section id="characters" class="characters-section">
+        <div class="container">
+            <h2 class="section-title">등장인물</h2>
+            <div class="characters-grid">
+                <div id="rumi" class="character-card main-character">
+                    <div class="character-image-container">
+                        <div class="character-bg rumi-bg"></div>
+                        <div class="character-emoji-large">🐱‍👤</div>
+                    </div>
+                    <div class="character-info">
+                        <h3>루미 (Lumi)</h3>
+                        <div class="character-role">천사냥이 → 지상 강등 수호수</div>
+                        <p class="character-desc">
+                            처음엔 사무적이었으나 점점 감정을 품게 되는 천사.
+                            인간을 향한 감정 때문에 신계에서 강등당한 소형 수호 천사.
+                        </p>
+                        <div class="character-abilities">
+                            <h4>능력</h4>
+                            <ul>
+                                <li>생명 유지 보조</li>
+                                <li>병의 진행을 늦추는 성역</li>
+                                <li>수호수 계약</li>
+                            </ul>
+                        </div>
+                        <div class="character-weakness">
+                            <h4>약점</h4>
+                            <p>사랑이라는 감정은 신계 규율 위반</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="protagonist" class="character-card protagonist">
+                    <div class="character-image-container">
+                        <div class="character-bg protagonist-bg"></div>
+                        <div class="character-emoji-large">👨</div>
+                    </div>
+                    <div class="character-info">
+                        <h3>주인공 (남주)</h3>
+                        <div class="character-role">폐암 말기 환자</div>
+                        <p class="character-desc">
+                            조용하고 다정하며 고양이를 끝까지 책임지려는 성격.
+                            자신의 수명보다 남을 먼저 걱정하는 따뜻한 청년.
+                        </p>
+                        <div class="character-traits">
+                            <h4>성격 특징</h4>
+                            <ul>
+                                <li>고양이를 끝까지 책임지는 책임감</li>
+                                <li>자신보다 타인을 먼저 생각하는 배려심</li>
+                                <li>조용하지만 다정한 성격</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 게임 특징 섹션 -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">게임 특징</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💕</div>
+                    <h3>감정 중심 스토리</h3>
+                    <p>질서와 감정의 충돌, 사랑의 대가에 대한 깊이 있는 이야기</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚖️</div>
+                    <h3>선택의 무게</h3>
+                    <p>모든 선택에는 대가가 따름. 생명의 균형을 유지하는 시스템</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎭</div>
+                    <h3>다중 엔딩</h3>
+                    <p>플레이어의 선택에 따라 다양한 결말이 펼쳐짐</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>아름다운 일러스트</h3>
+                    <p>천사와 악마의 세계관을 표현한 독특한 아트 스타일</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎵</div>
+                    <h3>감동적인 OST</h3>
+                    <p>스토리의 감정을 더해주는 아름다운 배경음악</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌟</div>
+                    <h3>수호수 시스템</h3>
+                    <p>계약을 통한 특별한 관계성 형성</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 게임 소식 섹션 -->
+    <section id="news" class="news-section">
+        <div class="container">
+            <h2 class="section-title">게임 소식</h2>
+            <div class="news-grid">
+                <div class="news-card featured">
+                    <div class="news-image">
+                        <div class="news-bg">🎬</div>
+                    </div>
+                    <div class="news-content">
+                        <div class="news-meta">
+                            <span class="news-date">2025.01.15</span>
+                            <span class="news-category">쇼츠 애니메이션</span>
+                        </div>
+                        <h3>8화 「아침의 온도」 완성!</h3>
+                        <p>루미의 수인화 떡밥이 공개되는 에피소드. 계약의 대가와 새로운 전개가 시작됩니다.</p>
+                        <a href="#" class="news-link">자세히 보기 →</a>
+                    </div>
+                </div>
+
+                <div class="news-card">
+                    <div class="news-image">
+                        <div class="news-bg">🎮</div>
+                    </div>
+                    <div class="news-content">
+                        <h3>Unity 개발 진행중</h3>
+                        <p>미연시 게임으로의 개발이 본격적으로 시작되었습니다. 아름다운 일러스트와 감동적인 스토리를 기대해주세요.</p>
+                        <div class="news-meta">
+                            <span class="news-date">2025.01.10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-card">
+                    <div class="news-image">
+                        <div class="news-bg">📚</div>
+                    </div>
+                    <div class="news-content">
+                        <h3>세계관 설정 완성</h3>
+                        <p>신계, 마계, 인간계의 상세한 설정이 완료되었습니다. 각 세계의 질서와 규율이 게임에 반영됩니다.</p>
+                        <div class="news-meta">
+                            <span class="news-date">2025.01.05</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 공지사항 섹션 -->
+    <section id="notice" class="notice-section">
+        <div class="container">
+            <h2 class="section-title">공지사항</h2>
+            <div class="notice-list">
+                <div class="notice-item important">
+                    <div class="notice-header">
+                        <span class="notice-badge">중요</span>
+                        <span class="notice-date">2025.01.20</span>
+                    </div>
+                    <h3>Unity 엔진으로의 포팅 작업 시작</h3>
+                    <p>웹 기반 스토리에서 완전한 미연시 게임으로 발전합니다. 새로운 일러스트와 시스템이 추가될 예정입니다.</p>
+                </div>
+
+                <div class="notice-item">
+                    <div class="notice-header">
+                        <span class="notice-date">2025.01.15</span>
+                    </div>
+                    <h3>스토리 에피소드 8화 완성</h3>
+                    <p>「아침의 온도」 에피소드가 완성되었습니다. 루미의 수인화와 새로운 전개가 시작됩니다.</p>
+                </div>
+
+                <div class="notice-item">
+                    <div class="notice-header">
+                        <span class="notice-date">2025.01.10</span>
+                    </div>
+                    <h3>캐릭터 설정 업데이트</h3>
+                    <p>주요 캐릭터들의 성격과 능력이 보다 구체적으로 설정되었습니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 로그인 모달 -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>로그인</h3>
+                <span class="modal-close" onclick="closeLoginModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>아이디</label>
+                    <input type="text" id="l-userid" placeholder="아이디를 입력하세요">
+                </div>
+                <div class="input-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="l-password" placeholder="••••••••">
+                </div>
+                <button class="btn btn-primary" onclick="handleLogin()">로그인</button>
+                <div id="login-msg" class="message"></div>
+                <div class="modal-footer">
+                    <p>계정이 없으신가요? <a href="register.html">회원가입</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">천사냥이</div>
+                    <p>수호수의 계약 - 질서와 감정의 아름다운 이야기</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link">🐱</a>
+                        <a href="#" class="social-link">📘</a>
+                        <a href="#" class="social-link">🐦</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>게임 정보</h4>
+                    <ul>
+                        <li><a href="#story">스토리 개요</a></li>
+                        <li><a href="#characters">등장인물</a></li>
+                        <li><a href="#features">게임 특징</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>커뮤니티</h4>
+                    <ul>
+                        <li><a href="#news">게임 소식</a></li>
+                        <li><a href="#notice">공지사항</a></li>
+                        <li><a href="admin.html">관리자 페이지</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>개발 정보</h4>
+                    <ul>
+                        <li>장르: 미연시</li>
+                        <li>엔진: Unity</li>
+                        <li>상태: 개발중</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 천사냥이 프로젝트. All rights reserved.</p>
+                <p>Powered by Antigravity AI Engine</p>
+            </div>
+        </div>
     </footer>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
@@ -694,6 +1959,48 @@
         let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
             : 'https://hornless-yer-scleritic.ngrok-free.dev'; // GitHub Pages에서는 ngrok URL 사용
+
+        // 모달 관련 함수들
+        function showLoginModal() {
+            const modal = document.getElementById('login-modal');
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModal() {
+            const modal = document.getElementById('login-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('login-modal');
+            if (event.target === modal) {
+                closeLoginModal();
+            }
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeLoginModal();
+            }
+        })
+
+        // 부드러운 스크롤
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
 
         // Socket.io 연결 초기화 (환경별 URL 사용)
         let socket;
