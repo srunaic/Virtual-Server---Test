@@ -33,6 +33,7 @@ app.post('/api/register', async (req, res) => {
         const query = 'INSERT INTO users (user_id, password, nickname, email) VALUES (?, ?, ?, ?)';
         pool.query(query, [user_id, hashedPassword, nickname, email], (err, result) => {
             if (err) {
+                console.error("회원가입 DB 오류:", err);
                 if (err.code === 'ER_DUP_ENTRY') {
                     return res.status(400).json({ error: "이미 존재하는 아이디입니다." });
                 }
@@ -51,7 +52,10 @@ app.post('/api/login', (req, res) => {
 
     const query = 'SELECT * FROM users WHERE user_id = ?';
     pool.query(query, [user_id], async (err, results) => {
-        if (err) return res.status(500).json({ error: "로그인 처리 중 오류 발생" });
+        if (err) {
+            console.error("로그인 DB 오류:", err);
+            return res.status(500).json({ error: "로그인 처리 중 오류 발생" });
+        }
         if (results.length === 0) return res.status(400).json({ error: "존재하지 않는 사용자입니다." });
 
         const user = results[0];
@@ -70,7 +74,10 @@ app.post('/api/admin/login', (req, res) => {
     const { admin_id, password } = req.body;
     const query = 'SELECT * FROM admins WHERE admin_id = ?';
     pool.query(query, [admin_id], async (err, results) => {
-        if (err) return res.status(500).json({ error: "DB 오류" });
+        if (err) {
+            console.error("어드민 로그인 DB 오류:", err);
+            return res.status(500).json({ error: "DB 오류" });
+        }
         if (results.length === 0) return res.status(400).json({ error: "관리자 정보가 없습니다." });
 
         const admin = results[0];
@@ -86,7 +93,10 @@ app.post('/api/admin/login', (req, res) => {
 // 4. 모든 유저 정보 조회 (어드민 전용)
 app.get('/api/admin/users', (req, res) => {
     pool.query('SELECT id, user_id, nickname, level, gold, created_at FROM users', (err, results) => {
-        if (err) return res.status(500).json({ error: "데이터 조회 실패" });
+        if (err) {
+            console.error("유저 조회 DB 오류:", err);
+            return res.status(500).json({ error: "데이터 조회 실패", details: err.message });
+        }
         res.json(results);
     });
 });
@@ -100,6 +110,6 @@ app.post('/api/admin/notices', (req, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`서버가 http://localhost:${port} 에서 실행 중입니다.`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`서버가 http://0.0.0.0:${port} 에서 실행 중입니다.`);
 });
