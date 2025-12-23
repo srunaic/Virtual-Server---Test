@@ -2,6 +2,19 @@
 
 AI 기반의 가상 세계를 탐험하고 친구들과 함께 즐기는 인터랙티브 플랫폼입니다. 현실과 가상을 넘나드는 새로운 차원의 엔터테인먼트를 경험해보세요.
 
+## 🌐 바로 체험하기
+
+<div align="center">
+
+### [**🚀 지금 바로 게임 시작하기**](https://srunaic.github.io/Virtual-Server---Test/)
+#### *클릭해서 가상 세계로 입장하세요!*
+
+[![게임 접속](https://img.shields.io/badge/🎮_게임_접속-Click_Here-brightgreen?style=for-the-badge&logo=github&logoColor=white)](https://srunaic.github.io/Virtual-Server---Test/)
+
+**관리자 페이지**: [👑 관리자 대시보드](https://srunaic.github.io/Virtual-Server---Test/admin.html)
+
+</div>
+
 ## 🚀 주요 기능
 
 ### 🎮 게임 플랫폼
