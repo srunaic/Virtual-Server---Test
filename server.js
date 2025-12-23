@@ -16,9 +16,11 @@ app.use((req, res, next) => {
         'http://localhost:3000',
         'https://srunaic.github.io',
         'https://hornless-yer-scleritic.ngrok-free.dev',
-        // 새로운 ngrok URL 패턴 추가
+        'https://olive-boats-sell.loca.lt',
+        // 새로운 ngrok/localtunnel URL 패턴 추가
         /^https:\/\/[a-z0-9]+\.ngrok(?:-free)?\.app$/,
-        /^https:\/\/[a-z0-9]+\.ngrok(?:-free)?\.dev$/
+        /^https:\/\/[a-z0-9]+\.ngrok(?:-free)?\.dev$/,
+        /^https:\/\/[a-z0-9-]+\.loca\.lt$/
     ];
 
     const origin = req.headers.origin;
@@ -38,7 +40,7 @@ app.use((req, res, next) => {
     }
 
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, ngrok-skip-browser-warning');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, ngrok-skip-browser-warning, X-Requested-With, Accept, Accept-Encoding, Accept-Language, Cache-Control, Connection, Host, Pragma, Referer, User-Agent');
     res.header('Access-Control-Allow-Credentials', 'true');
 
     if (req.method === 'OPTIONS') {

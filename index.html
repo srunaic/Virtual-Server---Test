@@ -373,31 +373,44 @@
         // 환경에 따른 API URL 자동 설정
         let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://hornless-yer-scleritic.ngrok-free.dev');
+            : 'https://olive-boats-sell.loca.lt';
 
         // CORS 우회를 위한 함수들
         async function makeCorsRequest(url, options = {}) {
+            // ngrok-skip-browser-warning 헤더 제거 (CORS 문제 유발)
+            const cleanOptions = { ...options };
+            if (cleanOptions.headers) {
+                delete cleanOptions.headers['ngrok-skip-browser-warning'];
+            }
+
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 // 로컬에서는 직접 요청
-                return fetch(url, options);
+                return fetch(url, cleanOptions);
             } else {
-                // GitHub Pages에서는 CORS 우회
+                // GitHub Pages에서는 여러 CORS 우회 방법 시도
                 try {
-                    // 첫 번째 시도: allorigins.win 프록시
-                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-                    const response = await fetch(proxyUrl, {
-                        ...options,
-                        headers: {
-                            ...options.headers,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                    return response;
-                } catch (error) {
-                    console.warn('CORS proxy failed, trying direct connection:', error);
-                    // 프록시 실패 시 직접 연결 시도 (실패할 수 있음)
-                    return fetch(url, options);
+                    // 방법 1: cors-anywhere.herokuapp.com (요청 필요할 수 있음)
+                    console.log('Trying cors-anywhere proxy...');
+                    const corsAnywhereUrl = 'https://cors-anywhere.herokuapp.com/' + url;
+                    const response1 = await fetch(corsAnywhereUrl, cleanOptions);
+                    if (response1.ok) return response1;
+                } catch (error1) {
+                    console.warn('cors-anywhere failed:', error1);
                 }
+
+                try {
+                    // 방법 2: allorigins.win
+                    console.log('Trying allorigins proxy...');
+                    const allOriginsUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+                    const response2 = await fetch(allOriginsUrl, cleanOptions);
+                    if (response2.ok) return response2;
+                } catch (error2) {
+                    console.warn('allorigins failed:', error2);
+                }
+
+                // 방법 3: 직접 연결 (실패할 수 있음)
+                console.log('Trying direct connection...');
+                return fetch(url, cleanOptions);
             }
         }
 
@@ -420,7 +433,7 @@
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
             try {
-                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://hornless-yer-scleritic.ngrok-free.dev'}/api/test`, {
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://olive-boats-sell.loca.lt'}/api/test`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 if(res.ok) {
@@ -442,7 +455,7 @@
             if(!user_id || !password) return showMsg(msg, "아이디와 비번을 입력하세요.", false);
 
             try {
-                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://hornless-yer-scleritic.ngrok-free.dev'}/api/login`, {
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://olive-boats-sell.loca.lt'}/api/login`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -474,7 +487,7 @@
             if(!user_id || !nickname || !password) return showMsg(msg, "필수 항목을 모두 입력하세요.", false);
 
             try {
-                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://hornless-yer-scleritic.ngrok-free.dev'}/api/register`, {
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://olive-boats-sell.loca.lt'}/api/register`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
