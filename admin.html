@@ -25,6 +25,17 @@
             overflow: hidden;
         }
 
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+        }
+
         /* Login Overlay */
         #login-overlay {
             position: fixed;
@@ -189,6 +200,180 @@
             width: 100%;
             font-weight: bold;
         }
+
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .mobile-overlay.show {
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -260px;
+                width: 260px;
+                height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+            }
+
+            /* Mobile table styles */
+            .user-table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 12px 8px;
+                white-space: nowrap;
+            }
+
+            /* Mobile card layout for user list */
+            .mobile-user-cards {
+                display: none;
+            }
+
+            @media (max-width: 768px) {
+                .mobile-user-cards {
+                    display: block;
+                }
+
+                .user-table-container table {
+                    display: none;
+                }
+
+                .mobile-user-cards .user-card {
+                    background: var(--card-bg);
+                    border-radius: 12px;
+                    padding: 15px;
+                    margin-bottom: 10px;
+                    border: 1px solid #334155;
+                }
+
+                .user-card-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 10px;
+                }
+
+                .user-card-info {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 8px;
+                    font-size: 0.9rem;
+                }
+
+                .user-card-info div {
+                    display: flex;
+                    justify-content: space-between;
+                }
+
+                .user-card-actions {
+                    margin-top: 10px;
+                    display: flex;
+                    gap: 5px;
+                }
+
+                .user-card-actions button {
+                    flex: 1;
+                    padding: 8px;
+                    font-size: 0.8rem;
+                }
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .header h2 {
+                margin: 0;
+            }
+
+            .stat-card input,
+            .stat-card textarea {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .login-box {
+                margin: 20px;
+                max-width: none;
+                width: calc(100% - 40px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+
+            .stats-grid {
+                padding: 0 10px;
+            }
+
+            .user-table-container {
+                margin: 15px;
+                padding: 15px;
+            }
+
+            .notice-section {
+                padding: 15px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 
@@ -203,6 +388,9 @@
             <p id="login-error" style="color: #ef4444; margin-top: 15px; font-size: 0.9rem;"></p>
         </div>
     </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay" onclick="toggleSidebar()"></div>
 
     <div class="sidebar" id="sidebar">
         <div class="logo">
@@ -226,6 +414,9 @@
         <!-- Dashboard Section -->
         <div id="dashboard" class="notice-section active-section">
             <div class="header">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <h2>전체 현황</h2>
             </div>
             <div class="stats-grid">
@@ -247,6 +438,9 @@
         <!-- User Management Section -->
         <div id="users" class="notice-section">
             <div class="header">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <h2>유저 리스트</h2>
             </div>
             <div class="user-table-container">
@@ -266,11 +460,18 @@
                     </tbody>
                 </table>
             </div>
+            <!-- Mobile User Cards -->
+            <div class="mobile-user-cards" id="mobile-user-cards">
+                <!-- JS로 채워짐 -->
+            </div>
         </div>
 
         <!-- Notice Management Section -->
         <div id="notice" class="notice-section">
             <div class="header">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <h2>공지사항 작성</h2>
             </div>
             <div class="stat-card" style="max-width: 600px;">
@@ -282,7 +483,7 @@
     </div>
 
     <script>
-        const API_URL = "https://hornless-yer-scleritic.ngrok-free.dev";
+        const API_URL = "http://localhost:3000";
 
         async function adminLogin() {
             const admin_id = document.getElementById('admin-id').value;
@@ -317,11 +518,24 @@
             }
         }
 
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
         function showSection(id) {
             document.querySelectorAll('.notice-section').forEach(s => s.classList.remove('active-section'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active-section');
             event.currentTarget.classList.add('active');
+
+            // 모바일에서 사이드바 닫기
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
 
             if (id === 'users') fetchUsers();
         }
@@ -347,8 +561,15 @@
 
                 document.getElementById('total-users').innerText = users.length;
 
+                // 데스크톱 테이블
+                const tbody = document.getElementById('user-list-body');
+                tbody.innerHTML = '';
+
+                // 모바일 카드 컨테이너
+                const mobileCards = document.getElementById('mobile-user-cards');
+                mobileCards.innerHTML = '';
+
                 users.forEach(user => {
-                    const tr = document.createElement('tr');
                     const isAdmin = user.is_admin === 1;
                     const adminBadge = isAdmin ? `<span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em;">${user.admin_role || '관리자'}</span>` : '';
 
@@ -368,6 +589,8 @@
                         `;
                     }
 
+                    // 데스크톱 테이블 행 생성
+                    const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${user.user_id || 'N/A'} ${adminBadge}</td>
                         <td>${user.nickname || 'N/A'}</td>
@@ -377,6 +600,26 @@
                         <td>${actionButtons}</td>
                     `;
                     tbody.appendChild(tr);
+
+                    // 모바일 카드 생성
+                    const card = document.createElement('div');
+                    card.className = 'user-card';
+                    card.innerHTML = `
+                        <div class="user-card-header">
+                            <h4>${user.user_id || 'N/A'} ${adminBadge}</h4>
+                            <small>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</small>
+                        </div>
+                        <div class="user-card-info">
+                            <div><span>닉네임:</span> <span>${user.nickname || 'N/A'}</span></div>
+                            <div><span>레벨:</span> <span>Lv.${user.level || 1}</span></div>
+                            <div><span>골드:</span> <span>${user.gold || 0} G</span></div>
+                            <div><span>상태:</span> <span>${isAdmin ? '관리자' : '일반유저'}</span></div>
+                        </div>
+                        <div class="user-card-actions">
+                            ${actionButtons}
+                        </div>
+                    `;
+                    mobileCards.appendChild(card);
                 });
             } catch (err) {
                 console.error('사용자 목록 로드 실패:', err);
@@ -434,8 +677,8 @@
             }
 
             try {
-                const response = await fetch(`${API_URL}/api/admin/users/${userId}`, {
-                    method: 'DELETE',
+                const response = await fetch(`${API_URL}/api/admin/users/delete/${userId}`, {
+                    method: 'GET',
                     headers: { 'ngrok-skip-browser-warning': '69420' }
                 });
 
