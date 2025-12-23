@@ -121,7 +121,7 @@ app.post('/api/login', (req, res) => {
     const { user_id, password } = req.body;
 
     // 먼저 users 테이블에서 사용자 찾기
-    const userQuery = 'SELECT * FROM users WHERE user_id = ?';
+    const userQuery = 'SELECT u.*, a.role as admin_role FROM users u LEFT JOIN admins a ON u.user_id = a.admin_id WHERE u.user_id = ?';
     pool.query(userQuery, [user_id], async (err, userResults) => {
         if (err) {
             console.error("로그인 DB 오류:", err);
@@ -132,8 +132,30 @@ app.post('/api/login', (req, res) => {
         let isAdmin = false;
 
         if (userResults.length > 0) {
-            // 일반 사용자인 경우
+            // 사용자가 존재하는 경우
             user = userResults[0];
+            isAdmin = user.admin_role !== null; // 관리자 권한 확인
+
+            // 관리자인 경우 (victoryka123 등)
+            if (isAdmin) {
+                // 관리자 비밀번호 검증 (평문 비교)
+                if (password !== 'Tpdlflszkdltm1@') {
+                    return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
+                }
+
+                // 관리자 정보로 응답
+                return res.json({
+                    message: "관리자 로그인 성공!",
+                    user: {
+                        id: user.id,
+                        user_id: user.user_id,
+                        nickname: user.nickname,
+                        level: 99, // 관리자는 최고 레벨
+                        gold: 999999, // 관리자는 최대 골드
+                        is_admin: true
+                    }
+                });
+            }
         } else {
             // users 테이블에 없으면 admins 테이블에서 찾기
             const adminQuery = 'SELECT * FROM admins WHERE admin_id = ?';
