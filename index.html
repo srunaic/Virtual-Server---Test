@@ -374,7 +374,7 @@
         // 환경에 따른 API URL 자동 설정 (임시로 로컬 우선)
         let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://solid-pans-doubt.loca.lt'; // GitHub Pages에서는 localtunnel URL 사용
+            : 'https://grumpy-parts-repeat.loca.lt'; // GitHub Pages에서는 localtunnel URL 사용
 
         // Socket.io 연결 초기화 (환경별 URL 사용)
         let socket;
@@ -458,30 +458,15 @@
                 // 로컬에서는 직접 요청
                 return fetch(url, cleanOptions);
             } else {
-                // GitHub Pages에서는 여러 CORS 우회 방법 시도
-                try {
-                    // 방법 1: cors-anywhere.herokuapp.com (요청 필요할 수 있음)
-                    console.log('Trying cors-anywhere proxy...');
-                    const corsAnywhereUrl = 'https://cors-anywhere.herokuapp.com/' + url;
-                    const response1 = await fetch(corsAnywhereUrl, cleanOptions);
-                    if (response1.ok) return response1;
-                } catch (error1) {
-                    console.warn('cors-anywhere failed:', error1);
-                }
+                // GitHub Pages에서는 현재 활성화된 터널 URL 사용 (프록시 없이 직접 연결)
+                console.log('Using direct connection to tunnel URL...');
 
-                try {
-                    // 방법 2: allorigins.win
-                    console.log('Trying allorigins proxy...');
-                    const allOriginsUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-                    const response2 = await fetch(allOriginsUrl, cleanOptions);
-                    if (response2.ok) return response2;
-                } catch (error2) {
-                    console.warn('allorigins failed:', error2);
-                }
+                // 현재 설정된 API_URL 사용 (항상 터널 URL)
+                const tunnelUrl = API_URL;
+                const finalUrl = url.replace('http://localhost:3000', tunnelUrl);
 
-                // 방법 3: 직접 연결 (실패할 수 있음)
-                console.log('Trying direct connection...');
-                return fetch(url, cleanOptions);
+                console.log('Request URL:', finalUrl);
+                return fetch(finalUrl, cleanOptions);
             }
         }
 
