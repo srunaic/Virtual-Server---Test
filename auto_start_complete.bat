@@ -50,10 +50,10 @@ echo [OK] Server started in background
 timeout /t 3 /nobreak >nul
 echo.
 
-echo [5/6] Starting Cloudflare Tunnel...
-echo Starting cloudflared tunnel for external access...
-start /b cloudflared tunnel --url http://127.0.0.1:3000 > tunnel_log.txt 2>&1
-echo [OK] Cloudflare tunnel started in background
+echo [5/6] Starting Ngrok Tunnel...
+echo Starting ngrok tunnel for external access (WebSocket enabled)...
+start /b ngrok http 3000 > tunnel_log.txt 2>&1
+echo [OK] Ngrok tunnel started in background (WebSocket enabled)
 timeout /t 8 /nobreak >nul
 echo.
 
@@ -66,13 +66,13 @@ powershell -Command "try { $response = Invoke-WebRequest -Uri 'http://localhost:
 echo.
 echo Checking tunnel status...
 
-REM Check if tunnel URL was generated (look for the specific success message)
-findstr /C:"Your quick Tunnel has been created" tunnel_log.txt >nul 2>&1
+REM Check if tunnel URL was generated (look for ngrok success message)
+findstr /C:"Forwarding" tunnel_log.txt >nul 2>&1
 if %errorlevel% equ 0 (
-    echo [OK] Cloudflare tunnel established
+    echo [OK] Ngrok tunnel established
 
-    REM Extract tunnel URL
-    for /f "tokens=10 delims= " %%i in ('findstr /C:"https://" tunnel_log.txt') do (
+    REM Extract tunnel URL from ngrok output (format: Forwarding    https://xxxxx.ngrok.io -> http://localhost:3000)
+    for /f "tokens=2 delims= " %%i in ('findstr /C:"Forwarding" tunnel_log.txt') do (
         set TUNNEL_URL=%%i
         goto :found_url
     )

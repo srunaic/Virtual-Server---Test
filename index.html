@@ -690,21 +690,23 @@
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
-        // 환경에 따른 API URL 자동 설정 (임시로 로컬 우선)
+        // 환경에 따른 API URL 자동 설정
         let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://parliamentary-fig-solar-certified.trycloudflare.com'; // GitHub Pages에서는 cloudflared URL 사용
+            : 'https://hornless-yer-scleritic.ngrok-free.dev'; // GitHub Pages에서는 ngrok URL 사용
 
         // Socket.io 연결 초기화 (환경별 URL 사용)
         let socket;
         try {
+            // Cloudflare 터널에서는 polling을 우선 사용
             socket = io(API_URL, {
-                transports: ['websocket', 'polling'],
-                timeout: 10000,
+                transports: ['polling', 'websocket'], // polling을 먼저 시도
+                timeout: 20000,
                 forceNew: true,
                 reconnection: true,
-                reconnectionAttempts: 3,
-                reconnectionDelay: 1000
+                reconnectionAttempts: 5,
+                reconnectionDelay: 2000,
+                upgrade: false // WebSocket 업그레이드 비활성화
             });
         } catch (error) {
             console.warn('Socket.io 초기화 실패, HTTP 모드로 전환:', error);
