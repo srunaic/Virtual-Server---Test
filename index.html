@@ -374,7 +374,7 @@
         // 환경에 따른 API URL 자동 설정 (임시로 로컬 우선)
         let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://hornless-yer-scleritic.ngrok-free.dev'; // GitHub Pages에서는 ngrok URL 사용
+            : 'https://may-temp-carries-punk.trycloudflare.com'; // GitHub Pages에서는 cloudflared URL 사용
 
         // Socket.io 연결 초기화 (환경별 URL 사용)
         let socket;
@@ -489,8 +489,7 @@
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
 
-            // GitHub Pages에서는 로컬 서버 연결 불가 안내
-            // 모든 환경에서 서버 연결 시도 (localtunnel 사용)
+            // 모든 환경에서 서버 연결 시도 (cloudflared 터널 사용)
 
             // 로컬 환경에서는 Socket.io 상태 우선 확인
             if (socket && socket.connected && serverOnline) {
@@ -499,19 +498,25 @@
                 return;
             }
 
-            // HTTP 폴백 (로컬 서버로 테스트)
+            // HTTP 연결 테스트 (환경별 URL 사용)
             try {
-                const res = await makeCorsRequest('http://localhost:3000/api/test');
+                const testUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3000/api/test'
+                    : `${API_URL}/api/test`;
+
+                const res = await makeCorsRequest(testUrl);
                 if(res.ok) {
                     dot.classList.add('online');
-                    text.innerText = "로컬 서버 연결됨";
+                    text.innerText = window.location.hostname === 'localhost'
+                        ? "로컬 서버 연결됨"
+                        : "클라우드 서버 연결됨";
                 } else {
                     throw new Error('HTTP 응답 실패');
                 }
             } catch (e) {
                 console.error('서버 연결 실패:', e);
                 dot.classList.remove('online');
-                text.innerText = "서버 실행 필요";
+                text.innerText = "연결 실패";
 
                 // Socket.io 재연결 시도
                 if (socket && !socket.connected) {
@@ -524,6 +529,12 @@
         // Login Handler
         async function handleLogin() {
             const user_id = document.getElementById('l-userid').value;
+            const password = document.getElementById('l-password').value;
+
+            if (!user_id || !password) {
+                alert('아이디와 비밀번호를 입력해주세요.');
+                return;
+            }
             const password = document.getElementById('l-password').value;
             const msg = document.getElementById('login-msg');
 
@@ -554,6 +565,19 @@
         // Register Handler
         async function handleRegister() {
             const user_id = document.getElementById('r-userid').value;
+            const password = document.getElementById('r-password').value;
+            const nickname = document.getElementById('r-nickname').value;
+            const email = document.getElementById('r-email').value;
+
+            if (!user_id || !password || !nickname) {
+                alert('아이디, 비밀번호, 닉네임을 입력해주세요.');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('비밀번호는 최소 6자 이상이어야 합니다.');
+                return;
+            }
             const nickname = document.getElementById('r-nickname').value;
             const email = document.getElementById('r-email').value;
             const password = document.getElementById('r-password').value;

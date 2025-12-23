@@ -11,7 +11,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000", "https://srunaic.github.io", "https://orange-teams-listen.loca.lt", "https://wild-nights-spend.loca.lt", "https://cyan-singers-rush.loca.lt", "https://solid-pans-doubt.loca.lt", "https://grumpy-parts-repeat.loca.lt", "https://hornless-yer-scleritic.ngrok-free.dev", "*"],
+        origin: ["http://localhost:3000", "https://srunaic.github.io", "https://orange-teams-listen.loca.lt", "https://wild-nights-spend.loca.lt", "https://cyan-singers-rush.loca.lt", "https://solid-pans-doubt.loca.lt", "https://grumpy-parts-repeat.loca.lt", "https://hornless-yer-scleritic.ngrok-free.dev", "https://may-temp-carries-punk.trycloudflare.com", "*"],
         methods: ["GET", "POST"],
         credentials: true
     }
