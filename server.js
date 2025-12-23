@@ -32,10 +32,21 @@ pool.getConnection((err, connection) => {
 
     console.log('데이터베이스 연결 성공!');
 
-    // 초기 관리자 계정 설정 및 불필요한 유저 정리
+    // 데이터베이스 정리 (한 번만 실행)
     console.log('데이터베이스 초기화 및 정리 시작...');
 
-    // victoryka123이 관리자로 설정되어 있는지 확인
+    // 1. 기존 관리자 데이터 정리 (victoryka123만 유지)
+    connection.query(`
+        DELETE FROM admins WHERE admin_id != 'victoryka123'
+    `, (err, result) => {
+        if (err) {
+            console.error('기존 관리자 데이터 정리 오류:', err);
+        } else {
+            console.log(`기존 관리자 ${result.affectedRows}명 정리 완료`);
+        }
+    });
+
+    // 2. victoryka123 관리자 권한 설정
     connection.query(`
         INSERT IGNORE INTO admins (admin_id, password, role) VALUES
         ('victoryka123', 'Tpdlflszkdltm1@', 'superadmin')
@@ -43,11 +54,11 @@ pool.getConnection((err, connection) => {
         if (err) {
             console.error('victoryka123 관리자 설정 오류:', err);
         } else {
-            console.log('victoryka123 관리자 권한 확인/설정 완료');
+            console.log('victoryka123 관리자 권한 설정 완료');
         }
     });
 
-    // victoryka123을 제외한 다른 모든 유저 삭제
+    // 3. 불필요한 유저 데이터 정리 (victoryka123만 유지)
     connection.query(`
         DELETE FROM users WHERE user_id != 'victoryka123'
     `, (err, result) => {
@@ -58,7 +69,7 @@ pool.getConnection((err, connection) => {
         }
     });
 
-    // victoryka123 유저가 존재하지 않으면 추가
+    // 4. victoryka123 유저 데이터 확인/추가
     connection.query(`
         INSERT IGNORE INTO users (user_id, password, nickname, email, level, gold) VALUES
         ('victoryka123', 'Tpdlflszkdltm1@', '나노도로시', 'nanodorosi@example.com', 99, 999999)
