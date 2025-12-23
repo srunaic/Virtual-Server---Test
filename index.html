@@ -1,128 +1,479 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySQL & GitHub Pages 연동 테스트</title>
+    <title>AIAgentGame | Open World Universe</title>
+    <meta name="description" content="Explore the vast open world of AIAgentGame. Register now to join the adventure!">
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --bg: #030712;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 500px;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: white;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, .brand {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Navbar */
+        nav {
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
             width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(3, 7, 18, 0.5);
+            border-bottom: 1px solid var(--glass-border);
         }
 
-        h1 {
-            color: #2c3e50;
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .server-status {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+        }
+
+        .dot.online { background: #10b981; box-shadow: 0 0 10px #10b981; }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5%;
+            position: relative;
+            background: 
+                linear-gradient(to bottom, rgba(3, 7, 18, 0.4), var(--bg)),
+                url('https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&q=80&w=2000') center/cover;
+            /* Placeholder background - you can use the generated one by uploading it to your repo */
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Auth Container */
+        .auth-container {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1.25rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .tab.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .auth-form {
+            padding: 2.5rem;
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .input-group {
             margin-bottom: 1.5rem;
         }
 
-        #status-card {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            background: #e8f4fd;
-            color: #2980b9;
-            font-weight: bold;
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
         }
 
-        .data-list {
-            text-align: left;
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .message {
             margin-top: 1rem;
-            border-top: 1px solid #eee;
-            padding-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            min-height: 1.5rem;
         }
 
-        .user-item {
-            background: #f9f9f9;
-            padding: 0.5rem;
-            margin: 5px 0;
-            border-radius: 4px;
+        /* Features */
+        .features {
+            padding: 100px 5%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            padding: 40px;
+            border-radius: 24px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            transition: 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Footer */
+        footer {
+            padding: 50px 5%;
+            text-align: center;
+            border-top: 1px solid var(--glass-border);
+            color: #64748b;
             font-size: 0.9rem;
         }
 
-        .error {
-            background: #fde8e8 !important;
-            color: #c0392b !important;
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3rem; }
+            .hero { flex-direction: column; height: auto; padding-top: 120px; }
+            .auth-container { margin-top: 40px; }
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>자체 서버 연동 테스트</h1>
-        <div id="status-card">서버 연결 시도 중...</div>
 
-        <div class="data-list" id="user-list">
-            <!-- 데이터가 여기에 표시됩니다 -->
+    <nav>
+        <div class="brand">AIAgentGame</div>
+        <div class="server-status" id="server-status-pill">
+            <div class="dot" id="status-dot"></div>
+            <span id="status-text">Server Offline</span>
         </div>
-    </div>
+    </nav>
+
+    <section class="hero">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 1200px; flex-wrap: wrap;">
+            <div class="hero-content">
+                <h1>Next-Gen <br><span style="color: var(--accent)">Open World</span></h1>
+                <p>AI가 숨쉬는 거대한 오픈월드의 주인이 되세요. 지금 바로 가입하고 당신만의 전설을 쓰기 시작하십시오.</p>
+                
+                <div style="display: flex; gap: 20px; justify-content: center; margin-top: 2rem;">
+                    <div style="text-align: center">
+                        <h3 style="font-size: 2rem">10k+</h3>
+                        <p style="font-size: 0.8rem">active players</p>
+                    </div>
+                    <div style="text-align: center">
+                        <h3 style="font-size: 2rem">99.9%</h3>
+                        <p style="font-size: 0.8rem">uptime</p>
+                    </div>
+                    <div style="text-align: center">
+                        <h3 style="font-size: 2rem">C#</h3>
+                        <p style="font-size: 0.8rem">Unity optimized</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('login')">로그인</div>
+                    <div class="tab" onclick="switchTab('register')">회원가입</div>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-form" class="auth-form active">
+                    <div class="input-group">
+                        <label>아이디</label>
+                        <input type="text" id="l-userid" placeholder="아이디를 입력하세요">
+                    </div>
+                    <div class="input-group">
+                        <label>비밀번호</label>
+                        <input type="password" id="l-password" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" onclick="handleLogin()">로그인</button>
+                    <div id="login-msg" class="message"></div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form" class="auth-form">
+                    <div class="input-group">
+                        <label>아이디</label>
+                        <input type="text" id="r-userid" placeholder="영문/숫자 조합">
+                    </div>
+                    <div class="input-group">
+                        <label>닉네임</label>
+                        <input type="text" id="r-nickname" placeholder="게임에서 사용할 이름">
+                    </div>
+                    <div class="input-group">
+                        <label>이메일</label>
+                        <input type="email" id="r-email" placeholder="example@mail.com">
+                    </div>
+                    <div class="input-group">
+                        <label>비밀번호</label>
+                        <input type="password" id="r-password" placeholder="••••••••">
+                    </div>
+                    <button class="btn btn-primary" onclick="handleRegister()">계정 생성하기</button>
+                    <div id="register-msg" class="message"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-microchip"></i></div>
+            <h3>AI-Native World</h3>
+            <p>Antigravity AI가 직접 설계한 지능형 NPC와 실시간으로 상호작용하세요.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+            <h3>Secure Economy</h3>
+            <p>Bcrypt 암호화와 중앙화된 보안 시스템으로 당신의 자산을 안전하게 보호합니다.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+            <h3>Real-time Sync</h3>
+            <p>유니티와 완벽하게 연동되는 고성능 Node.js 백엔드로 끊김 없는 플레이를 제공합니다.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 AIAgentGame Universe. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 0.7rem">Powered by Antigravity AI Engine</p>
+    </footer>
 
     <script>
-        // localtunnel에서 생성된 API 주소
         const API_URL = "https://hornless-yer-scleritic.ngrok-free.dev";
 
-        async function init() {
-            const statusCard = document.getElementById('status-card');
-            const userList = document.getElementById('user-list');
-
-            try {
-                // 1. 서버 작동 확인
-                const testRes = await fetch(`${API_URL}/api/test`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-                const testData = await testRes.json();
-                statusCard.innerText = testData.message;
-                statusCard.style.background = "#e8fdf0";
-                statusCard.style.color = "#27ae60";
-
-                // 2. 실제 데이터베이스 데이터 가져오기 (예시)
-                const userRes = await fetch(`${API_URL}/api/users`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-                if (userRes.ok) {
-                    const users = await userRes.json();
-                    if (users.length === 0) {
-                        userList.innerHTML = "<p>DB에 데이터가 없습니다. (테이블을 확인해 주세용)</p>";
-                    } else {
-                        userList.innerHTML = "<h3>사용자 목록:</h3>";
-                        users.forEach(user => {
-                            const div = document.createElement('div');
-                            div.className = 'user-item';
-                            div.innerHTML = `<strong>${user.name}</strong> (${user.email})`;
-                            userList.appendChild(div);
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error("연결 에러:", error);
-                statusCard.innerText = "서버 연결 실패 (Localtunnel 실행 및 IP 인증 확인 필요)";
-                statusCard.classList.add('error');
-                userList.innerHTML = `
-                    <p style="color: #666; font-size: 0.8rem;">
-                        처음 접속 시 <a href="${API_URL}" target="_blank">여기</a>를 눌러 
-                        IP 주소를 입력하고 'Click to Continue'를 눌러주셔야 합니다.
-                    </p>
-                `;
+        // Tab Switching
+        function switchTab(type) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if(type === 'login') {
+                event.target.classList.add('active');
+                document.getElementById('login-form').classList.add('active');
+            } else {
+                event.target.classList.add('active');
+                document.getElementById('register-form').classList.add('active');
             }
         }
 
-        init();
+        // Server Status Check
+        async function checkStatus() {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            try {
+                const res = await fetch(`${API_URL}/api/test`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                if(res.ok) {
+                    dot.classList.add('online');
+                    text.innerText = "Server Online";
+                }
+            } catch (e) {
+                dot.classList.remove('online');
+                text.innerText = "Server Offline";
+            }
+        }
+
+        // Login Handler
+        async function handleLogin() {
+            const user_id = document.getElementById('l-userid').value;
+            const password = document.getElementById('l-password').value;
+            const msg = document.getElementById('login-msg');
+
+            if(!user_id || !password) return showMsg(msg, "아이디와 비번을 입력하세요.", false);
+
+            try {
+                const res = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ user_id, password })
+                });
+                const data = await res.json();
+                
+                if(res.ok) {
+                    showMsg(msg, `${data.user.nickname}님, 환영합니다!`, true);
+                    // 추후 게임 실행이나 프로필 페이지 이동 로직 추가 가능
+                } else {
+                    showMsg(msg, data.error, false);
+                }
+            } catch (e) {
+                showMsg(msg, "서버 연결 오류", false);
+            }
+        }
+
+        // Register Handler
+        async function handleRegister() {
+            const user_id = document.getElementById('r-userid').value;
+            const nickname = document.getElementById('r-nickname').value;
+            const email = document.getElementById('r-email').value;
+            const password = document.getElementById('r-password').value;
+            const msg = document.getElementById('register-msg');
+
+            if(!user_id || !nickname || !password) return showMsg(msg, "필수 항목을 모두 입력하세요.", false);
+
+            try {
+                const res = await fetch(`${API_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ user_id, password, nickname, email })
+                });
+                const data = await res.json();
+                
+                if(res.ok) {
+                    showMsg(msg, "가입 성공! 로그인해 주세요.", true);
+                    setTimeout(() => switchTab('login'), 2000);
+                } else {
+                    showMsg(msg, data.error, false);
+                }
+            } catch (e) {
+                showMsg(msg, "서버 연결 오류", false);
+            }
+        }
+
+        function showMsg(el, text, isSuccess) {
+            el.innerText = text;
+            el.style.color = isSuccess ? "#10b981" : "#ef4444";
+        }
+
+        // Initial check
+        checkStatus();
+        setInterval(checkStatus, 30000);
     </script>
 </body>
-
 </html>
