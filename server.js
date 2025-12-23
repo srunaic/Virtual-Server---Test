@@ -33,7 +33,7 @@ app.use(cors({
     origin: true, // 모든 오리진 허용
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'ngrok-skip-browser-warning']
 }));
 
 // Socket.io 연결 처리
@@ -134,14 +134,14 @@ app.post('/api/register', async (req, res) => {
             // 사용자 등록
             pool.query('INSERT INTO users (user_id, password, nickname, email) VALUES (?, ?, ?, ?)',
                 [user_id, hashedPassword, nickname, email || null], (err, result) => {
-                if (err) {
-                    console.error("사용자 등록 DB 오류:", err);
-                    return res.status(500).json({ error: "회원가입 중 오류가 발생했습니다." });
-                }
+                    if (err) {
+                        console.error("사용자 등록 DB 오류:", err);
+                        return res.status(500).json({ error: "회원가입 중 오류가 발생했습니다." });
+                    }
 
-                console.log(`새 사용자 등록: ${user_id}`);
-                res.json({ message: "회원가입이 완료되었습니다!", id: result.insertId });
-            });
+                    console.log(`새 사용자 등록: ${user_id}`);
+                    res.json({ message: "회원가입이 완료되었습니다!", id: result.insertId });
+                });
         });
 
     } catch (error) {
