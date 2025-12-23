@@ -762,9 +762,11 @@
         }
 
         function updateUIForLoggedInUser(userData) {
-            // 로그인 폼 숨기기
-            const authForms = document.querySelectorAll('.auth-form');
-            authForms.forEach(form => form.style.display = 'none');
+            // 로그인 컨테이너 전체 숨기기 (더 확실한 방법)
+            const authContainer = document.querySelector('.auth-container');
+            if (authContainer) {
+                authContainer.style.display = 'none';
+            }
 
             // 사용자 정보와 서버 상태 표시 (로그인한 사용자만)
             const userInfo = document.getElementById('user-info');
@@ -774,12 +776,17 @@
             userNickname.textContent = userData.nickname;
             userInfo.style.display = 'flex';
             serverStatus.style.display = 'flex';
+
+            // 로그인 성공 후 게임 콘텐츠 표시 (선택사항)
+            showGameContent();
         }
 
         function updateUIForLoggedOutUser() {
-            // 로그인 폼 표시
-            const authForms = document.querySelectorAll('.auth-form');
-            authForms.forEach(form => form.style.display = 'block');
+            // 로그인 컨테이너 표시
+            const authContainer = document.querySelector('.auth-container');
+            if (authContainer) {
+                authContainer.style.display = 'block';
+            }
 
             // 사용자 정보와 서버 상태 숨기기 (일반 사용자에게는 표시하지 않음)
             const userInfo = document.getElementById('user-info');
@@ -787,6 +794,12 @@
 
             userInfo.style.display = 'none';
             serverStatus.style.display = 'none';
+
+            // 게임 콘텐츠 숨기기
+            const heroSection = document.querySelector('.hero');
+            if (heroSection) {
+                heroSection.style.display = 'none';
+            }
         }
 
         // 프로필 모달 함수들
@@ -810,6 +823,18 @@
             // 폼 초기화
             document.getElementById('profile-form').reset();
             document.getElementById('profile-msg').style.display = 'none';
+        }
+
+        // 게임 콘텐츠 표시 함수
+        function showGameContent() {
+            // 로그인 성공 후 표시할 콘텐츠 (현재 hero 섹션 표시)
+            const heroSection = document.querySelector('.hero');
+            if (heroSection) {
+                heroSection.style.display = 'block';
+            }
+
+            // 추가적인 게임 메뉴 표시 가능
+            // 예: 대시보드, 캐릭터 선택, 게임 시작 버튼 등
         }
 
         // 로그아웃 함수
@@ -844,7 +869,7 @@
                     updateUIForLoggedOutUser();
                 }
             } else {
-                // 일반 사용자: 로그인 폼 표시, 서버 상태 숨김
+                // 일반 사용자: 로그인 폼 표시, 서버 상태 및 게임 콘텐츠 숨김
                 updateUIForLoggedOutUser();
             }
         }
@@ -905,6 +930,12 @@
                 showMsg(msgElement, '프로필 업데이트 중 오류가 발생했습니다.', false);
             }
         });
+
+        // 초기화: 게임 콘텐츠 숨김
+        const heroSection = document.querySelector('.hero');
+        if (heroSection) {
+            heroSection.style.display = 'none';
+        }
 
         // Initial check
         checkStatus();
