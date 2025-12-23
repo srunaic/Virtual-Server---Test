@@ -90,6 +90,32 @@ header {
     flex-shrink: 0;
 }
 
+/* Download Button */
+.btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, var(--angel-gold) 0%, #ffb347 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+}
+
+.btn-download i {
+    font-size: 16px;
+}
+
 .nav-links {
     display: flex;
     align-items: center;
