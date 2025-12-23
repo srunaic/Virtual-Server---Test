@@ -56,7 +56,7 @@ if %errorlevel% equ 0 (
     echo ================================
     echo.
     echo 🌐 Server URL: http://localhost:3000
-    echo 🔑 Admin Login: victoryka123 / Tpdlflszkdltm1@
+    echo 🔑 Admin Login: Check .env file for credentials
     echo 📝 Log file: server_log.txt
     echo.
     echo Opening browser in 3 seconds...

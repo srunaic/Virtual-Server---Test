@@ -97,7 +97,7 @@ NODE_ENV=development
 
 ### 대시보드 접근
 1. **일반 사용자 페이지**: https://srunaic.github.io/Virtual-Server---Test/
-2. **관리자로 로그인**: `victoryka123` / `Tpdlflszkdltm1@`
+2. **관리자로 로그인**: 환경변수에 설정된 관리자 계정 사용
 3. **관리자 페이지 이동**: 프로필 메뉴에서 "관리자 페이지" 클릭
 4. **관리자 대시보드**: https://srunaic.github.io/Virtual-Server---Test/admin.html
 

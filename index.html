@@ -3,15 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusVerse | 가상 세계 플랫폼</title>
-    <meta name="description" content="현실과 가상을 연결하는 메타버스 플랫폼. AI 기반의 가상 세계를 탐험하세요!">
-
-    <!-- PWA 관련 메타 태그 -->
-    <meta name="theme-color" content="#8b5cf6">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="NexusVerse">
-    <link rel="manifest" href="manifest.json">
+    <title>AIAgentGame | Open World Universe</title>
+    <meta name="description" content="Explore the vast open world of AIAgentGame. Register now to join the adventure!">
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,91 +33,14 @@
             background-color: var(--bg);
             color: white;
             overflow-x: hidden;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
             min-height: 100vh;
-            transition: background-image 1s ease-in-out;
-        }
-
-        /* 배경 이미지 오버레이 */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            z-index: -1;
-            pointer-events: none;
         }
 
         h1, h2, h3, .brand {
             font-family: 'Outfit', sans-serif;
-        }
-
-        /* Notice Banner */
-        .notice-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(90deg, #8b5cf6, #ec4899);
-            color: white;
-            z-index: 1100;
-            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
-            overflow: hidden;
-        }
-
-        .notice-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 8px 5%;
-            white-space: nowrap;
-        }
-
-        .notice-content i {
-            font-size: 1.2rem;
-            color: #ffd700;
-        }
-
-        .notice-text {
-            flex: 1;
-            font-weight: 600;
-            font-size: 0.95rem;
-            animation: scrollText 15s linear infinite;
-            position: relative;
-        }
-
-        .notice-text::before,
-        .notice-text::after {
-            content: "●";
-            margin: 0 20px;
-            color: #ffd700;
-            font-size: 1.2rem;
-        }
-
-        @keyframes scrollText {
-            0% {
-                transform: translateX(100%);
-            }
-            10% {
-                transform: translateX(0%);
-            }
-            90% {
-                transform: translateX(0%);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-        /* Adjust navbar position when notice banner is visible */
-        .notice-banner.show + nav {
-            top: 41px; /* banner height */
         }
 
         /* Navbar */
@@ -140,7 +56,6 @@
             backdrop-filter: blur(10px);
             background: rgba(3, 7, 18, 0.5);
             border-bottom: 1px solid var(--glass-border);
-            transition: top 0.3s ease;
         }
 
         .brand {
@@ -171,59 +86,6 @@
         }
 
         .dot.online { background: #10b981; box-shadow: 0 0 10px #10b981; }
-
-        /* User Info Styles */
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .welcome-msg {
-            font-size: 1rem;
-            font-weight: 500;
-            color: white;
-            background: var(--glass);
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: white;
-            border: 1px solid var(--primary);
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Close button */
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .close-btn:hover {
-            background: var(--glass);
-            color: white;
-        }
 
         /* Hero Section */
         .hero {
@@ -362,58 +224,6 @@
             min-height: 1.5rem;
         }
 
-        /* 프로필 모달 스타일 */
-        .profile-info-card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .profile-info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            font-size: 1rem;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .profile-info-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-
-        .info-label {
-            color: #94a3b8;
-            font-weight: 500;
-            min-width: 80px;
-        }
-
-        .profile-info-row span:last-child {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .nickname-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            padding: 8px 12px;
-            color: white;
-            font-size: 0.9rem;
-            flex: 1;
-            margin-left: 10px;
-        }
-
-        .nickname-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
-        }
-
         /* Features */
         .features {
             padding: 100px 5%;
@@ -452,330 +262,20 @@
             font-size: 0.9rem;
         }
 
-        /* 태블릿 및 중간 크기 화면 (769px - 1024px) */
-        @media (max-width: 1024px) {
-            .hero h1 {
-                font-size: 3rem;
-            }
-
-            .hero p {
-                font-size: 1.1rem;
-            }
-
-            .stats {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 25px;
-            }
-
-            .feature-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 25px;
-            }
-
-            .feature-card {
-                padding: 25px;
-            }
-        }
-
-        /* 태블릿 세로 및 중간 크기 (769px - 900px) */
-        @media (max-width: 900px) {
-            .hero {
-                padding: 60px 30px;
-            }
-
-            .hero h1 {
-                font-size: 2.8rem;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .btn {
-                min-width: 200px;
-            }
-
-            .stats {
-                padding: 50px 30px;
-            }
-
-            .features {
-                padding: 50px 30px;
-            }
-
-            .auth-container {
-                max-width: 450px;
-            }
-        }
-
         @media (max-width: 768px) {
-            .notice-banner {
-                font-size: 0.9rem;
-            }
-
-            .notice-content {
-                padding: 6px 3%;
-                gap: 10px;
-            }
-
-            .notice-content i {
-                font-size: 1rem;
-            }
-
-            .notice-text {
-                font-size: 0.85rem;
-                animation-duration: 12s; /* 모바일에서는 조금 빠르게 */
-            }
-
-            .notice-banner.show + nav {
-                top: 35px; /* 모바일에서는 높이 조정 */
-            }
-
-            nav {
-                padding: 1rem 3%;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .brand {
-                font-size: 1.4rem;
-                order: 1;
-            }
-
-            .user-info {
-                order: 2;
-                flex: 1;
-                justify-content: center;
-            }
-
-            .welcome-msg {
-                font-size: 0.9rem;
-                padding: 6px 12px;
-            }
-
-            .login-btn {
-                order: 3;
-            }
-
-            .server-status {
-                order: 4;
-                margin-left: auto;
-            }
-
-            .hero {
-                padding: 2rem 3%;
-                min-height: 100vh;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-                text-align: center;
-            }
-
-            .hero p {
-                text-align: center;
-                font-size: 1rem;
-                max-width: 100%;
-            }
-
-            .hero-content {
-                text-align: center;
-                margin-bottom: 3rem;
-            }
-
-            .auth-container {
-                margin-top: 2rem;
-                max-width: 100%;
-                padding: 30px 20px;
-            }
-
-            .tabs {
-                justify-content: center;
-            }
-
-            .tab {
-                padding: 12px 20px;
-                font-size: 0.9rem;
-            }
-
-            .input-group {
-                margin-bottom: 20px;
-            }
-
-            .input-group label {
-                font-size: 0.9rem;
-            }
-
-            .input-group input,
-            .input-group textarea {
-                font-size: 16px; /* Prevent zoom on iOS */
-            }
-
-            .btn {
-                padding: 12px 20px;
-                font-size: 1rem;
-            }
-
-            .features {
-                padding: 60px 3%;
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-
-            .feature-card {
-                padding: 30px 20px;
-                text-align: center;
-            }
-
-            .feature-icon {
-                margin-bottom: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            nav {
-                padding: 1rem 2%;
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .brand {
-                text-align: center;
-                margin-bottom: 10px;
-            }
-
-            .user-info {
-                order: unset;
-                justify-content: center;
-                margin-bottom: 10px;
-            }
-
-            .login-btn,
-            .server-status {
-                order: unset;
-                text-align: center;
-            }
-
-            .server-status {
-                margin-left: 0;
-                margin-top: 10px;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-                line-height: 1.2;
-            }
-
-            .hero p {
-                font-size: 0.9rem;
-            }
-
-            .hero-content > div {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .auth-container, #profile-modal {
-                padding: 25px 15px;
-                margin: 1rem;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-
-            .tabs {
-                margin-bottom: 20px;
-            }
-
-            .tab {
-                padding: 10px 15px;
-                font-size: 0.85rem;
-            }
-
-            .profile-info-card {
-                padding: 15px;
-                margin-top: 15px;
-            }
-
-            .profile-info-row {
-                font-size: 0.9rem;
-                margin-bottom: 12px;
-                padding: 6px 0;
-            }
-
-            .profile-info-row:last-child {
-                margin-bottom: 0;
-            }
-
-            .info-label {
-                min-width: 60px;
-                font-size: 0.85rem;
-            }
-
-            .nickname-input {
-                font-size: 0.85rem;
-                padding: 6px 8px;
-                margin-left: 8px;
-            }
-            }
-
-            .input-group {
-                margin-bottom: 15px;
-            }
-
-            .features {
-                padding: 40px 2%;
-            }
-
-            .feature-card {
-                padding: 25px 15px;
-            }
-
-            .feature-card h3 {
-                font-size: 1.2rem;
-            }
-
-            footer {
-                padding: 30px 2%;
-                text-align: center;
-            }
-
-            footer p {
-                font-size: 0.8rem;
-            }
+            .hero h1 { font-size: 3rem; }
+            .hero { flex-direction: column; height: auto; padding-top: 120px; }
+            .auth-container { margin-top: 40px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 공지사항 전광판 -->
-    <div id="notice-banner" class="notice-banner" style="display: none;">
-        <div class="notice-content">
-            <i class="fas fa-bullhorn"></i>
-            <div class="notice-text" id="notice-text"></div>
-        </div>
-    </div>
-
     <nav>
-        <div class="brand">NexusVerse</div>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <!-- 로그인 상태 표시 영역 -->
-            <div id="user-info" class="user-info" style="display: none;">
-                <span id="welcome-msg" class="welcome-msg"></span>
-                <button onclick="showProfileModal()" class="btn btn-secondary" style="margin-right: 10px;">내 프로필</button>
-                <a id="admin-link" href="https://srunaic.github.io/Virtual-Server---Test/admin.html" class="btn btn-secondary" style="display: none; margin-right: 10px;">관리자 페이지</a>
-                <button onclick="handleLogout()" class="btn btn-outline">로그아웃</button>
-            </div>
-
-            <!-- 로그인 전 표시 -->
-            <div id="login-btn" class="login-btn">
-                <button onclick="showLoginModal()" class="btn btn-primary">로그인</button>
-            </div>
-
-            <div class="server-status" id="server-status-pill">
-                <div class="dot" id="status-dot"></div>
-                <span id="status-text">Server Offline</span>
-            </div>
+        <div class="brand">AIAgentGame</div>
+        <div class="server-status" id="server-status-pill">
+            <div class="dot" id="status-dot"></div>
+            <span id="status-text">Server Offline</span>
         </div>
     </nav>
 
@@ -801,8 +301,7 @@
                 </div>
             </div>
 
-            <div id="login-modal" class="auth-container">
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div class="auth-container">
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('login')">로그인</div>
                     <div class="tab" onclick="switchTab('register')">회원가입</div>
@@ -845,38 +344,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- 프로필 모달 -->
-        <div id="profile-modal" class="auth-container" style="display: none;">
-            <button class="close-btn" onclick="closeProfileModal()">&times;</button>
-            <h2 style="margin-bottom: 20px; color: white;">내 프로필</h2>
-
-            <!-- 프로필 정보 표시 영역 -->
-            <div class="profile-info-card">
-                <div class="profile-info-row">
-                    <span class="info-label">아이디:</span>
-                    <span id="profile-userid-display">사용자아이디</span>
-                </div>
-
-                <div class="profile-info-row">
-                    <span class="info-label">닉네임:</span>
-                    <input type="text" id="profile-nickname" placeholder="변경할 닉네임을 입력하세요" class="nickname-input">
-                </div>
-
-                <div class="profile-info-row">
-                    <span class="info-label">레벨:</span>
-                    <span id="profile-level">1</span>
-                </div>
-
-                <div class="profile-info-row">
-                    <span class="info-label">골드:</span>
-                    <span id="profile-gold">0</span>
-                </div>
-            </div>
-
-            <button class="btn btn-primary" onclick="updateNickname()" style="width: 100%; margin-top: 20px;">닉네임 변경</button>
-            <div id="profile-msg" class="message" style="margin-top: 15px;"></div>
-        </div>
     </section>
 
     <section class="features">
@@ -903,7 +370,7 @@
     </footer>
 
     <script>
-        const API_URL = "http://localhost:3000";
+        const API_URL = "https://hornless-yer-scleritic.ngrok-free.dev";
 
         // Tab Switching
         function switchTab(type) {
@@ -923,14 +390,6 @@
         async function checkStatus() {
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
-
-            // GitHub Pages에서는 로컬 서버 연결을 시도하지 않음
-            if (window.location.hostname === 'srunaic.github.io') {
-                dot.classList.add('online');
-                text.innerText = "GitHub Pages";
-                return;
-            }
-
             try {
                 const res = await fetch(`${API_URL}/api/test`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
@@ -945,135 +404,6 @@
             }
         }
 
-        // Notice Banner Management
-        let currentNoticeIndex = 0;
-        let notices = [];
-        let noticeInterval;
-
-        // Load notices from server
-        async function loadNotices() {
-            try {
-                const res = await fetch(`${API_URL}/api/notices`, {
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-                if(res.ok) {
-                    const data = await res.json();
-                    if(data.length > 0) {
-                        notices = data;
-                        showNoticeBanner();
-                        startNoticeRotation();
-                    } else {
-                        hideNoticeBanner();
-                    }
-                }
-            } catch (e) {
-                console.log('공지사항 로드 실패:', e);
-                hideNoticeBanner();
-            }
-        }
-
-        // Show notice banner
-        function showNoticeBanner() {
-            const banner = document.getElementById('notice-banner');
-            banner.style.display = 'block';
-            banner.classList.add('show');
-        }
-
-        // Hide notice banner
-        function hideNoticeBanner() {
-            const banner = document.getElementById('notice-banner');
-            banner.style.display = 'none';
-            banner.classList.remove('show');
-            if(noticeInterval) {
-                clearInterval(noticeInterval);
-                noticeInterval = null;
-            }
-        }
-
-        // Start notice rotation
-        function startNoticeRotation() {
-            if(noticeInterval) {
-                clearInterval(noticeInterval);
-            }
-            updateNoticeText();
-            noticeInterval = setInterval(() => {
-                currentNoticeIndex = (currentNoticeIndex + 1) % notices.length;
-                updateNoticeText();
-            }, 15000); // 15초마다 변경
-        }
-
-        // Update notice text
-        function updateNoticeText() {
-            if(notices.length === 0) return;
-
-            const notice = notices[currentNoticeIndex];
-            const noticeText = document.getElementById('notice-text');
-            noticeText.textContent = `${notice.title}: ${notice.content}`;
-        }
-
-        // 페이지 로드 시 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-            checkLoginStatus();
-            checkStatus(); // 서버 상태 확인
-            loadNotices(); // 공지사항 로드
-
-            // 30초마다 공지사항 새로고침
-            setInterval(loadNotices, 30000);
-        });
-
-        // 로그인 상태 확인
-        function checkLoginStatus() {
-            const userData = localStorage.getItem('userData');
-            if (userData) {
-                const user = JSON.parse(userData);
-                showLoggedInState(user.nickname);
-            } else {
-                showLoggedOutState();
-            }
-        }
-
-        // 로그인 상태 표시
-        function showLoggedInState(nickname) {
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-            const isAdmin = userData.is_admin;
-
-            document.getElementById('user-info').style.display = 'flex';
-            document.getElementById('login-btn').style.display = 'none';
-            document.getElementById('welcome-msg').textContent = `${nickname}님 환영합니다!`;
-
-            // 관리자인 경우 관리자 페이지 링크 표시
-            const adminLink = document.getElementById('admin-link');
-            if (isAdmin) {
-                adminLink.style.display = 'inline-block';
-            } else {
-                adminLink.style.display = 'none';
-            }
-
-            document.getElementById('login-modal').style.display = 'none';
-        }
-
-        // 로그아웃 상태 표시
-        function showLoggedOutState() {
-            document.getElementById('user-info').style.display = 'none';
-            document.getElementById('login-btn').style.display = 'block';
-            localStorage.removeItem('userData');
-            // 로그아웃 시 프로필 모달 닫기
-            document.getElementById('profile-modal').style.display = 'none';
-        }
-
-        // 로그인 모달 표시
-        function showLoginModal() {
-            document.getElementById('login-modal').style.display = 'flex';
-        }
-
-        // 로그아웃 처리
-        function handleLogout() {
-            if (confirm('정말 로그아웃하시겠습니까?')) {
-                showLoggedOutState();
-                showMsg(document.getElementById('login-msg'), '로그아웃되었습니다.', true);
-            }
-        }
-
         // Login Handler
         async function handleLogin() {
             const user_id = document.getElementById('l-userid').value;
@@ -1085,23 +415,17 @@
             try {
                 const res = await fetch(`${API_URL}/api/login`, {
                     method: 'POST',
-                    headers: {
+                    headers: { 
                         'Content-Type': 'application/json',
                         'ngrok-skip-browser-warning': 'true'
                     },
                     body: JSON.stringify({ user_id, password })
                 });
                 const data = await res.json();
-
+                
                 if(res.ok) {
-                    // 로그인 성공 시 사용자 데이터 저장 및 UI 변경
-                    localStorage.setItem('userData', JSON.stringify(data.user));
-                    showLoggedInState(data.user.nickname);
                     showMsg(msg, `${data.user.nickname}님, 환영합니다!`, true);
-
-                    // 입력 필드 초기화
-                    document.getElementById('l-userid').value = '';
-                    document.getElementById('l-password').value = '';
+                    // 추후 게임 실행이나 프로필 페이지 이동 로직 추가 가능
                 } else {
                     showMsg(msg, data.error, false);
                 }
@@ -1109,25 +433,6 @@
                 showMsg(msg, "서버 연결 오류", false);
             }
         }
-
-        // 모달 닫기
-        function closeModal() {
-            document.getElementById('login-modal').style.display = 'none';
-        }
-
-        // 모달 외부 클릭 시 닫기
-        document.getElementById('login-modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-
-        // ESC 키로 모달 닫기
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal();
-            }
-        });
 
         // Register Handler
         async function handleRegister() {
@@ -1164,153 +469,6 @@
         function showMsg(el, text, isSuccess) {
             el.innerText = text;
             el.style.color = isSuccess ? "#10b981" : "#ef4444";
-        }
-
-        // 프로필 모달 토글 (열기/닫기)
-        function showProfileModal() {
-            const modal = document.getElementById('profile-modal');
-            const isVisible = modal.style.display === 'flex';
-
-            if (isVisible) {
-                // 모달이 열려있으면 닫기
-                modal.style.display = 'none';
-            } else {
-                // 모달이 닫혀있으면 열기
-                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-                document.getElementById('profile-userid-display').textContent = userData.user_id || '';
-                document.getElementById('profile-nickname').value = userData.nickname || '';
-                document.getElementById('profile-level').textContent = userData.level || 1;
-                document.getElementById('profile-gold').textContent = (userData.gold || 0).toLocaleString();
-                modal.style.display = 'flex';
-            }
-        }
-
-        // 프로필 모달 닫기
-        function closeProfileModal() {
-            document.getElementById('profile-modal').style.display = 'none';
-        }
-
-        // 닉네임 변경 처리
-        async function updateNickname() {
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-            const newNickname = document.getElementById('profile-nickname').value.trim();
-            const msg = document.getElementById('profile-msg');
-
-            if (!newNickname) {
-                showMsg(msg, "닉네임을 입력하세요.", false);
-                return;
-            }
-
-            if (newNickname.length < 2 || newNickname.length > 20) {
-                showMsg(msg, "닉네임은 2-20자 사이여야 합니다.", false);
-                return;
-            }
-
-            try {
-                const res = await fetch(`${API_URL}/api/user/update-nickname`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userData.user_id,
-                        new_nickname: newNickname
-                    })
-                });
-                const data = await res.json();
-
-                if (res.ok) {
-                    // 로컬 데이터 업데이트
-                    userData.nickname = newNickname;
-                    localStorage.setItem('userData', JSON.stringify(userData));
-
-                    // UI 업데이트
-                    document.getElementById('welcome-msg').textContent = `${newNickname}님 환영합니다!`;
-                    showMsg(msg, "닉네임이 변경되었습니다!", true);
-
-                    // 2초 후 모달 닫기
-                    setTimeout(() => {
-                        closeProfileModal();
-                    }, 2000);
-                } else {
-                    showMsg(msg, data.error, false);
-                }
-            } catch (e) {
-                showMsg(msg, "서버 연결 오류", false);
-            }
-        }
-
-        // 배경 이미지 로테이션 (오타쿠/오픈월드 테마)
-        const backgroundImages = [
-            'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop&crop=center', // 판타지 캐슬
-            'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&crop=center', // 미스틱 포레스트
-            'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=1920&h=1080&fit=crop&crop=center', // 매직 포레스트
-            'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1920&h=1080&fit=crop&crop=center', // 판타지 마운틴
-            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&crop=center', // 매직 레이크
-            'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&crop=center', // 엔찬티드 포레스트
-            'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1920&h=1080&fit=crop&crop=center', // 판타지 캐슬 2
-            'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=1920&h=1080&fit=crop&crop=center', // 매직 포레스트 2
-            'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&crop=center', // 미스틱 포레스트 2
-            'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1920&h=1080&fit=crop&crop=center'  // 판타지 마운틴 2
-        ];
-
-        let currentImageIndex = 0;
-
-        function changeBackgroundImage() {
-            document.body.style.backgroundImage = `url('${backgroundImages[currentImageIndex]}')`;
-            currentImageIndex = (currentImageIndex + 1) % backgroundImages.length;
-        }
-
-        // 초기 배경 설정
-        changeBackgroundImage();
-
-        // 10초마다 배경 변경
-        setInterval(changeBackgroundImage, 10000);
-
-        // PWA Service Worker 등록
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then((registration) => {
-                        console.log('Service Worker 등록 성공:', registration.scope);
-
-                        // Service Worker 업데이트 확인
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // 새로운 버전이 설치됨
-                                    showUpdateNotification();
-                                }
-                            });
-                        });
-                    })
-                    .catch((error) => {
-                        console.log('Service Worker 등록 실패:', error);
-                    });
-            });
-        }
-
-        // PWA 업데이트 알림
-        function showUpdateNotification() {
-            const notification = document.createElement('div');
-            notification.className = 'update-notification';
-            notification.innerHTML = `
-                <div style="position: fixed; top: 20px; right: 20px; background: var(--primary); color: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000; max-width: 300px;">
-                    <div style="font-weight: bold; margin-bottom: 10px;">🎉 앱 업데이트!</div>
-                    <div style="font-size: 0.9rem; margin-bottom: 15px;">새로운 버전이 준비되었습니다.</div>
-                    <div style="display: flex; gap: 10px;">
-                        <button onclick="location.reload()" style="background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">업데이트</button>
-                        <button onclick="this.parentElement.parentElement.remove()" style="background: transparent; color: white; border: 1px solid white; padding: 8px 15px; border-radius: 5px; cursor: pointer;">나중에</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(notification);
-
-            // 10초 후 자동 제거
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.remove();
-                }
-            }, 10000);
         }
 
         // Initial check

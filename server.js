@@ -92,6 +92,25 @@ app.get('/api/test', (req, res) => {
 // 4. 어드민 로그인 API
 app.post('/api/admin/login', (req, res) => {
     const { admin_id, password } = req.body;
+
+    // 환경변수에서 관리자 정보 가져오기 (보안 강화)
+    const envAdminUsername = process.env.ADMIN_USERNAME || 'victoryka123';
+    const envAdminPassword = process.env.ADMIN_PASSWORD;
+
+    // 환경변수에 설정된 관리자 계정으로 로그인 시도
+    if (admin_id === envAdminUsername && password === envAdminPassword) {
+        return res.json({
+            message: "어드민 로그인 성공",
+            admin: {
+                id: 1,
+                admin_id: envAdminUsername,
+                role: 'superadmin',
+                login_method: 'env_credentials'
+            }
+        });
+    }
+
+    // DB에서 관리자 조회 (기존 방식 유지)
     const query = 'SELECT * FROM admins WHERE admin_id = ?';
     pool.query(query, [admin_id], async (err, results) => {
         if (err) {
@@ -103,7 +122,15 @@ app.post('/api/admin/login', (req, res) => {
         const admin = results[0];
         // 비밀번호 암호화 처리가 되어있다면 bcrypt.compare 사용
         if (password === admin.password) { // 임시로 평문 비교 (보안상 추후 암호화 권장)
-            res.json({ message: "어드민 로그인 성공", admin: { id: admin.id, admin_id: admin.admin_id, role: admin.role } });
+            res.json({
+                message: "어드민 로그인 성공",
+                admin: {
+                    id: admin.id,
+                    admin_id: admin.admin_id,
+                    role: admin.role,
+                    login_method: 'db_credentials'
+                }
+            });
         } else {
             res.status(400).json({ error: "비밀번호가 틀렸습니다." });
         }

@@ -1,6 +1,6 @@
 -- 데이터베이스 생성 (이미 있다면 생략 가능)
-CREATE DATABASE IF NOT EXISTS virtual_server;
-USE virtual_server;
+CREATE DATABASE IF NOT EXISTS testdb;
+USE testdb;
 
 -- 1. 유저 테이블 (가입/로그인 및 게임 데이터 저장)
 CREATE TABLE IF NOT EXISTS users (
@@ -36,5 +36,7 @@ CREATE TABLE IF NOT EXISTS notices (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 사용자 설정 관리자 데이터 삽입
-INSERT IGNORE INTO admins (admin_id, password, role) VALUES ('victoryka123', 'Tpdlflszkdltm1@', 'superadmin');
+-- 관리자 계정 초기화 (환경변수에서 설정 권장)
+-- 실제 운영 시에는 환경변수를 통해 관리자 계정을 설정하세요
+-- 예시: INSERT IGNORE INTO admins (admin_id, password, role) VALUES (?, ?, 'superadmin');
+-- 보안상 실제 비밀번호는 코드에 하드코딩하지 마세요

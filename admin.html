@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexusVerse Admin | 관리자 대시보드</title>
+    <title>Admin Dashboard | Virtual Server</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -23,17 +23,6 @@
             display: flex;
             min-height: 100vh;
             overflow: hidden;
-        }
-
-        /* Mobile Menu Toggle */
-        .mobile-menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 10px;
         }
 
         /* Login Overlay */
@@ -200,180 +189,6 @@
             width: 100%;
             font-weight: bold;
         }
-
-        /* Mobile Overlay */
-        .mobile-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .mobile-overlay.show {
-            display: block;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: -260px;
-                width: 260px;
-                height: 100vh;
-                z-index: 1000;
-                transition: left 0.3s ease;
-                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-            }
-
-            .sidebar.show {
-                left: 0;
-            }
-
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .mobile-menu-toggle {
-                display: block;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .stat-card {
-                padding: 20px;
-            }
-
-            .stat-value {
-                font-size: 1.8rem;
-            }
-
-            /* Mobile table styles */
-            .user-table-container {
-                overflow-x: auto;
-            }
-
-            table {
-                min-width: 600px;
-                font-size: 0.9rem;
-            }
-
-            th, td {
-                padding: 12px 8px;
-                white-space: nowrap;
-            }
-
-            /* Mobile card layout for user list */
-            .mobile-user-cards {
-                display: none;
-            }
-
-            @media (max-width: 768px) {
-                .mobile-user-cards {
-                    display: block;
-                }
-
-                .user-table-container table {
-                    display: none;
-                }
-
-                .mobile-user-cards .user-card {
-                    background: var(--card-bg);
-                    border-radius: 12px;
-                    padding: 15px;
-                    margin-bottom: 10px;
-                    border: 1px solid #334155;
-                }
-
-                .user-card-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 10px;
-                }
-
-                .user-card-info {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 8px;
-                    font-size: 0.9rem;
-                }
-
-                .user-card-info div {
-                    display: flex;
-                    justify-content: space-between;
-                }
-
-                .user-card-actions {
-                    margin-top: 10px;
-                    display: flex;
-                    gap: 5px;
-                }
-
-                .user-card-actions button {
-                    flex: 1;
-                    padding: 8px;
-                    font-size: 0.8rem;
-                }
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .header h2 {
-                margin: 0;
-            }
-
-            .stat-card input,
-            .stat-card textarea {
-                font-size: 16px; /* Prevent zoom on iOS */
-            }
-
-            .login-box {
-                margin: 20px;
-                max-width: none;
-                width: calc(100% - 40px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .sidebar {
-                width: 100%;
-                left: -100%;
-            }
-
-            .stats-grid {
-                padding: 0 10px;
-            }
-
-            .user-table-container {
-                margin: 15px;
-                padding: 15px;
-            }
-
-            .notice-section {
-                padding: 15px;
-            }
-
-            .stat-card {
-                padding: 15px;
-            }
-
-            .stat-value {
-                font-size: 1.5rem;
-            }
-        }
     </style>
 </head>
 
@@ -389,9 +204,6 @@
         </div>
     </div>
 
-    <!-- Mobile Menu Overlay -->
-    <div id="mobile-overlay" class="mobile-overlay" onclick="toggleSidebar()"></div>
-
     <div class="sidebar" id="sidebar">
         <div class="logo">
             <i class="fas fa-gamepad"></i> AG Admin
@@ -405,10 +217,7 @@
         <div class="nav-item" onclick="showSection('notice')">
             <i class="fas fa-bullhorn"></i> 공지사항 관리
         </div>
-        <div class="nav-item" onclick="window.location.href='https://srunaic.github.io/Virtual-Server---Test/'" style="margin-top: auto;">
-            <i class="fas fa-home"></i> 메인으로 돌아가기
-        </div>
-        <div class="nav-item" onclick="location.reload()" style="color: #94a3b8;">
+        <div class="nav-item" onclick="location.reload()" style="margin-top: auto; color: #94a3b8;">
             <i class="fas fa-sign-out-alt"></i> 로그아웃
         </div>
     </div>
@@ -417,9 +226,6 @@
         <!-- Dashboard Section -->
         <div id="dashboard" class="notice-section active-section">
             <div class="header">
-                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
                 <h2>전체 현황</h2>
             </div>
             <div class="stats-grid">
@@ -429,7 +235,7 @@
                 </div>
                 <div class="stat-card">
                     <div style="color: #94a3b8;">오늘 신규 유저</div>
-                    <div class="stat-value" id="new-users-today">--</div>
+                    <div class="stat-value">--</div>
                 </div>
                 <div class="stat-card">
                     <div style="color: #94a3b8;">서버 상태</div>
@@ -441,9 +247,6 @@
         <!-- User Management Section -->
         <div id="users" class="notice-section">
             <div class="header">
-                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
                 <h2>유저 리스트</h2>
             </div>
             <div class="user-table-container">
@@ -463,18 +266,11 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Mobile User Cards -->
-            <div class="mobile-user-cards" id="mobile-user-cards">
-                <!-- JS로 채워짐 -->
-            </div>
         </div>
 
         <!-- Notice Management Section -->
         <div id="notice" class="notice-section">
             <div class="header">
-                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
                 <h2>공지사항 작성</h2>
             </div>
             <div class="stat-card" style="max-width: 600px;">
@@ -486,7 +282,7 @@
     </div>
 
     <script>
-        const API_URL = "http://localhost:3000";
+        const API_URL = "https://hornless-yer-scleritic.ngrok-free.dev";
 
         async function adminLogin() {
             const admin_id = document.getElementById('admin-id').value;
@@ -521,149 +317,40 @@
             }
         }
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobile-overlay');
-
-            sidebar.classList.toggle('show');
-            overlay.classList.toggle('show');
-        }
-
         function showSection(id) {
             document.querySelectorAll('.notice-section').forEach(s => s.classList.remove('active-section'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active-section');
             event.currentTarget.classList.add('active');
 
-            // 모바일에서 사이드바 닫기
-            if (window.innerWidth <= 768) {
-                toggleSidebar();
-            }
-
             if (id === 'users') fetchUsers();
         }
 
-        // 중복 호출 방지 변수
-        let isLoadingUsers = false;
-
         async function fetchUsers() {
-            // 이미 로딩 중이면 중복 호출 방지
-            if (isLoadingUsers) {
-                return;
-            }
-
-            isLoadingUsers = true;
-
             try {
                 const response = await fetch(`${API_URL}/api/admin/users`, {
                     headers: { 'ngrok-skip-browser-warning': '69420' }
                 });
-
-                if (!response.ok) {
-                    throw new Error(`서버 응답 오류: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-
-                // API 응답 형식 확인 (새로운 형식: {users: [...], stats: {...}})
-                let users;
-                if (data.users && Array.isArray(data.users)) {
-                    users = data.users;
-                    // 통계 정보 표시
-                    if (data.stats) {
-                        document.getElementById('total-users').innerText = data.stats.total_users || users.length;
-                        document.getElementById('new-users-today').innerText = data.stats.new_users_today || 0;
-                    }
-                } else if (Array.isArray(data)) {
-                    // 구형식 지원 (배열 직접 반환)
-                    users = data;
-                    document.getElementById('total-users').innerText = users.length;
-                    document.getElementById('new-users-today').innerText = '--';
-                } else {
-                    throw new Error('서버에서 잘못된 데이터 형식을 반환했습니다.');
-                }
-
-                // 중복 유저 제거 (user_id 기준)
-                const uniqueUsers = users.filter((user, index, self) =>
-                    index === self.findIndex(u => u.user_id === user.user_id)
-                );
-
-                // 데스크톱 테이블
+                const users = await response.json();
                 const tbody = document.getElementById('user-list-body');
                 tbody.innerHTML = '';
 
-                // 모바일 카드 컨테이너
-                const mobileCards = document.getElementById('mobile-user-cards');
-                mobileCards.innerHTML = '';
+                document.getElementById('total-users').innerText = users.length;
 
-                uniqueUsers.forEach(user => {
-                    const isAdmin = user.is_admin === 1;
-                    const adminBadge = isAdmin ? `<span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em;">${user.admin_role || '관리자'}</span>` : '';
-
-                    let actionButtons = '';
-
-                    if (isAdmin) {
-                        // 관리자인 경우: 권한 해제 버튼만 표시
-                        actionButtons = `
-                            <button class="action-btn" style="background: #f59e0b;" onclick="toggleAdmin(${user.id}, '${user.user_id}', 'revoke')">권한해제</button>
-                        `;
-                    } else {
-                        // 일반 유저인 경우: 제재, 삭제, 권한부여 버튼 표시
-                        actionButtons = `
-                            <button class="action-btn" onclick="banUser(${user.id}, '${user.user_id}')">제재</button>
-                            <button class="action-btn" style="background: #dc2626; margin-left: 5px;" onclick="deleteUser(${user.id}, '${user.user_id}')">삭제</button>
-                            <button class="action-btn" style="background: #10b981; margin-left: 5px;" onclick="toggleAdmin(${user.id}, '${user.user_id}', 'grant')">관리자임명</button>
-                        `;
-                    }
-
-                    // 데스크톱 테이블 행 생성
+                users.forEach(user => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${user.user_id || 'N/A'} ${adminBadge}</td>
-                        <td>${user.nickname || 'N/A'}</td>
-                        <td>Lv.${user.level || 1}</td>
-                        <td>${user.gold || 0} G</td>
-                        <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
-                        <td>${actionButtons}</td>
+                        <td>${user.user_id}</td>
+                        <td>${user.nickname}</td>
+                        <td>Lv.${user.level}</td>
+                        <td>${user.gold} G</td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td><button class="action-btn">제재</button></td>
                     `;
                     tbody.appendChild(tr);
-
-                    // 모바일 카드 생성
-                    const card = document.createElement('div');
-                    card.className = 'user-card';
-                    card.innerHTML = `
-                        <div class="user-card-header">
-                            <h4>${user.user_id || 'N/A'} ${adminBadge}</h4>
-                            <small>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</small>
-                        </div>
-                        <div class="user-card-info">
-                            <div><span>닉네임:</span> <span>${user.nickname || 'N/A'}</span></div>
-                            <div><span>레벨:</span> <span>Lv.${user.level || 1}</span></div>
-                            <div><span>골드:</span> <span>${user.gold || 0} G</span></div>
-                            <div><span>상태:</span> <span>${isAdmin ? '관리자' : '일반유저'}</span></div>
-                        </div>
-                        <div class="user-card-actions">
-                            ${actionButtons}
-                        </div>
-                    `;
-                    mobileCards.appendChild(card);
                 });
             } catch (err) {
-                console.error('사용자 목록 로드 실패:', err);
-                // 사용자에게 에러 표시
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #ef4444; padding: 40px;">
-                            <i class="fas fa-exclamation-triangle"></i><br>
-                            사용자 목록을 불러올 수 없습니다.<br>
-                            <small>${err.message}</small>
-                        </td>
-                    </tr>
-                `;
-                document.getElementById('total-users').innerText = '오류';
-            } finally {
-                // 로딩 상태 해제
-                isLoadingUsers = false;
+                console.error(err);
             }
         }
 
@@ -689,71 +376,6 @@
             } catch (err) {
                 console.error(err);
                 alert("등록 실패");
-            }
-        }
-
-        async function banUser(userId, userIdStr) {
-            if (!confirm(`사용자 "${userIdStr}"을(를) 제재하시겠습니까?\n(현재는 UI만 구현되어 있습니다)`)) {
-                return;
-            }
-            // TODO: 제재 API 구현
-            alert("제재 기능은 추후 구현 예정입니다.");
-        }
-
-        async function deleteUser(userId, userIdStr) {
-            if (!confirm(`정말로 사용자 "${userIdStr}"을(를) 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다!`)) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/api/admin/users/delete/${userId}`, {
-                    method: 'GET',
-                    headers: { 'ngrok-skip-browser-warning': '69420' }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`삭제 실패: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                alert(data.message || "사용자가 성공적으로 삭제되었습니다.");
-                fetchUsers(); // 목록 새로고침
-            } catch (err) {
-                console.error('사용자 삭제 실패:', err);
-                alert(`사용자 삭제에 실패했습니다: ${err.message}`);
-            }
-        }
-
-        async function toggleAdmin(userId, userIdStr, action) {
-            const actionText = action === 'grant' ? '부여' : '해제';
-            const confirmText = action === 'grant'
-                ? `사용자 "${userIdStr}"에게 관리자 권한을 ${actionText}하시겠습니까?`
-                : `사용자 "${userIdStr}"의 관리자 권한을 ${actionText}하시겠습니까?`;
-
-            if (!confirm(confirmText)) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/api/admin/users/${userId}/toggle-admin`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': '69420'
-                    },
-                    body: JSON.stringify({ action })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`${actionText} 실패: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                alert(data.message || `관리자 권한이 성공적으로 ${actionText}되었습니다.`);
-                fetchUsers(); // 목록 새로고침
-            } catch (err) {
-                console.error(`관리자 권한 ${actionText} 실패:`, err);
-                alert(`관리자 권한 ${actionText}에 실패했습니다: ${err.message}`);
             }
         }
     </script>
