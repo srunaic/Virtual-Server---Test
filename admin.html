@@ -22,6 +22,31 @@
             color: var(--text);
             display: flex;
             min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Login Overlay */
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
         }
 
         /* Sidebar */
@@ -30,7 +55,8 @@
             background: var(--card-bg);
             border-right: 1px solid #334155;
             padding: 20px;
-            display: flex;
+            display: none;
+            /* 숨김 */
             flex-direction: column;
         }
 
@@ -66,6 +92,8 @@
             flex: 1;
             padding: 40px;
             overflow-y: auto;
+            display: none;
+            /* 숨김 */
         }
 
         .header {
@@ -148,6 +176,7 @@
             border: 1px solid #334155;
             background: #0f172a;
             color: white;
+            box-sizing: border-box;
         }
 
         button.btn-primary {
@@ -157,12 +186,25 @@
             padding: 12px 24px;
             border-radius: 8px;
             cursor: pointer;
+            width: 100%;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
-    <div class="sidebar">
+    <!-- Login Modal -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="color: var(--primary); margin-bottom: 30px;">Admin Login</h2>
+            <input type="text" id="admin-id" placeholder="관리자 ID (admin)">
+            <input type="password" id="admin-pw" placeholder="비밀번호 (1234)">
+            <button class="btn-primary" onclick="adminLogin()">Log In</button>
+            <p id="login-error" style="color: #ef4444; margin-top: 15px; font-size: 0.9rem;"></p>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
         <div class="logo">
             <i class="fas fa-gamepad"></i> AG Admin
         </div>
@@ -175,9 +217,12 @@
         <div class="nav-item" onclick="showSection('notice')">
             <i class="fas fa-bullhorn"></i> 공지사항 관리
         </div>
+        <div class="nav-item" onclick="location.reload()" style="margin-top: auto; color: #94a3b8;">
+            <i class="fas fa-sign-out-alt"></i> 로그아웃
+        </div>
     </div>
 
-    <div class="main-content">
+    <div class="main-content" id="main-content">
         <!-- Dashboard Section -->
         <div id="dashboard" class="notice-section active-section">
             <div class="header">
@@ -237,7 +282,37 @@
     </div>
 
     <script>
-        const API_URL = "https://fluffy-apes-create.loca.lt";
+        const API_URL = "https://virtual-server-admin-test.loca.lt";
+
+        async function adminLogin() {
+            const admin_id = document.getElementById('admin-id').value;
+            const password = document.getElementById('admin-pw').value;
+            const errorElement = document.getElementById('login-error');
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_id, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 로그인 성공 시 UI 전환
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('sidebar').style.display = 'flex';
+                    document.getElementById('main-content').style.display = 'block';
+                    document.body.style.overflow = 'auto';
+                    fetchUsers(); // 대시보드 데이터 로드
+                } else {
+                    errorElement.innerText = data.error || "로그인 실패";
+                }
+            } catch (err) {
+                console.error(err);
+                errorElement.innerText = "서버 연결 오류 (Localtunnel 확인 필요)";
+            }
+        }
 
         function showSection(id) {
             document.querySelectorAll('.notice-section').forEach(s => s.classList.remove('active-section'));
@@ -295,9 +370,6 @@
                 alert("등록 실패");
             }
         }
-
-        // 초기 데이터 로드
-        fetchUsers();
     </script>
 </body>
 

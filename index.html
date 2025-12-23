@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,16 +15,22 @@
             height: 100vh;
             margin: 0;
         }
+
         .container {
             background: white;
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             text-align: center;
             max-width: 500px;
             width: 100%;
         }
-        h1 { color: #2c3e50; margin-bottom: 1.5rem; }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
         #status-card {
             padding: 1rem;
             border-radius: 8px;
@@ -32,12 +39,14 @@
             color: #2980b9;
             font-weight: bold;
         }
+
         .data-list {
             text-align: left;
             margin-top: 1rem;
             border-top: 1px solid #eee;
             padding-top: 1rem;
         }
+
         .user-item {
             background: #f9f9f9;
             padding: 0.5rem;
@@ -45,14 +54,19 @@
             border-radius: 4px;
             font-size: 0.9rem;
         }
-        .error { background: #fde8e8 !important; color: #c0392b !important; }
+
+        .error {
+            background: #fde8e8 !important;
+            color: #c0392b !important;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>자체 서버 연동 테스트</h1>
         <div id="status-card">서버 연결 시도 중...</div>
-        
+
         <div class="data-list" id="user-list">
             <!-- 데이터가 여기에 표시됩니다 -->
         </div>
@@ -60,7 +74,7 @@
 
     <script>
         // localtunnel에서 생성된 API 주소
-        const API_URL = "https://fluffy-apes-create.loca.lt";
+        const API_URL = "https://virtual-server-admin-test.loca.lt";
 
         async function init() {
             const statusCard = document.getElementById('status-card');
@@ -106,4 +120,5 @@
         init();
     </script>
 </body>
+
 </html>

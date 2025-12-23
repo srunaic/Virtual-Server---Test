@@ -28,5 +28,13 @@ CREATE TABLE IF NOT EXISTS admins (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 초기 관리자 데이터 예시 (비밀번호는 예시입니다)
--- INSERT INTO admins (admin_id, password, role) VALUES ('admin', 'hashed_password', 'admin');
+-- 3. 공지사항 테이블
+CREATE TABLE IF NOT EXISTS notices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 초기 관리자 데이터 삽입 (비밀번호: 1234)
+INSERT IGNORE INTO admins (admin_id, password, role) VALUES ('admin', '1234', 'superadmin');
