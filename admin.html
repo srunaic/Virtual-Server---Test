@@ -540,7 +540,17 @@
             if (id === 'users') fetchUsers();
         }
 
+        // 중복 호출 방지 변수
+        let isLoadingUsers = false;
+
         async function fetchUsers() {
+            // 이미 로딩 중이면 중복 호출 방지
+            if (isLoadingUsers) {
+                return;
+            }
+
+            isLoadingUsers = true;
+
             try {
                 const response = await fetch(`${API_URL}/api/admin/users`, {
                     headers: { 'ngrok-skip-browser-warning': '69420' }
@@ -570,6 +580,11 @@
                     throw new Error('서버에서 잘못된 데이터 형식을 반환했습니다.');
                 }
 
+                // 중복 유저 제거 (user_id 기준)
+                const uniqueUsers = users.filter((user, index, self) =>
+                    index === self.findIndex(u => u.user_id === user.user_id)
+                );
+
                 // 데스크톱 테이블
                 const tbody = document.getElementById('user-list-body');
                 tbody.innerHTML = '';
@@ -578,7 +593,7 @@
                 const mobileCards = document.getElementById('mobile-user-cards');
                 mobileCards.innerHTML = '';
 
-                users.forEach(user => {
+                uniqueUsers.forEach(user => {
                     const isAdmin = user.is_admin === 1;
                     const adminBadge = isAdmin ? `<span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em;">${user.admin_role || '관리자'}</span>` : '';
 
@@ -643,6 +658,9 @@
                     </tr>
                 `;
                 document.getElementById('total-users').innerText = '오류';
+            } finally {
+                // 로딩 상태 해제
+                isLoadingUsers = false;
             }
         }
 
