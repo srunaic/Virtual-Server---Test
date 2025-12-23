@@ -67,6 +67,60 @@
             letter-spacing: -1px;
         }
 
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--glass);
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-text {
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .user-menu {
+            display: flex;
+            gap: 10px;
+        }
+
+        .profile-btn, .logout-btn {
+            background: none;
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .profile-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+            transform: translateY(-1px);
+        }
+
         .server-status {
             font-size: 0.9rem;
             display: flex;
@@ -224,6 +278,130 @@
             min-height: 1.5rem;
         }
 
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .close-modal {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: white;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--glass);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #888;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .cancel-btn, .save-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: white;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #7c3aed;
+            transform: translateY(-1px);
+        }
+
         /* Features */
         .features {
             padding: 100px 5%;
@@ -273,9 +451,27 @@
 
     <nav>
         <div class="brand">AIAgentGame</div>
-        <div class="server-status" id="server-status-pill">
-            <div class="dot" id="status-dot"></div>
-            <span id="status-text">Server Offline</span>
+        <div class="nav-right">
+            <!-- 로그인 전: 서버 상태만 표시 -->
+            <div class="server-status" id="server-status-pill">
+                <div class="dot" id="status-dot"></div>
+                <span id="status-text">Server Offline</span>
+            </div>
+
+            <!-- 로그인 후: 사용자 정보 표시 -->
+            <div class="user-info" id="user-info" style="display: none;">
+                <span class="welcome-text">
+                    환영합니다, <span id="user-nickname">닉네임</span>님
+                </span>
+                <div class="user-menu">
+                    <button class="profile-btn" onclick="openProfileModal()">
+                        <i class="fas fa-user-edit"></i> 프로필 수정
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> 로그아웃
+                    </button>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -545,8 +741,18 @@
                 const data = await res.json();
                 
                 if(res.ok) {
+                    // 세션 저장
+                    saveUserSession(data.user);
+
+                    // UI 업데이트
+                    updateUIForLoggedInUser(data.user);
+
                     showMsg(msg, `${data.user.nickname}님, 환영합니다!`, true);
-                    // 추후 게임 실행이나 프로필 페이지 이동 로직 추가 가능
+
+                    // Socket.io 사용자 온라인 상태 업데이트
+                    if (socket && socket.connected) {
+                        socket.emit('user_online', { user_id: data.user.user_id });
+                    }
                 } else {
                     showMsg(msg, data.error, false);
                 }
@@ -597,9 +803,206 @@
             el.style.color = isSuccess ? "#10b981" : "#ef4444";
         }
 
+        // 세션 관리 함수들
+        function saveUserSession(userData) {
+            localStorage.setItem('user_session', JSON.stringify({
+                user_id: userData.user_id,
+                nickname: userData.nickname,
+                level: userData.level,
+                gold: userData.gold,
+                login_time: Date.now()
+            }));
+        }
+
+        function getUserSession() {
+            const session = localStorage.getItem('user_session');
+            return session ? JSON.parse(session) : null;
+        }
+
+        function clearUserSession() {
+            localStorage.removeItem('user_session');
+        }
+
+        function updateUIForLoggedInUser(userData) {
+            // 로그인 폼 숨기기
+            const authForms = document.querySelectorAll('.auth-form');
+            authForms.forEach(form => form.style.display = 'none');
+
+            // 사용자 정보 표시
+            const userInfo = document.getElementById('user-info');
+            const userNickname = document.getElementById('user-nickname');
+
+            userNickname.textContent = userData.nickname;
+            userInfo.style.display = 'flex';
+
+            // 서버 상태 숨기기 (선택사항)
+            document.getElementById('server-status-pill').style.display = 'none';
+        }
+
+        function updateUIForLoggedOutUser() {
+            // 로그인 폼 표시
+            const authForms = document.querySelectorAll('.auth-form');
+            authForms.forEach(form => form.style.display = 'block');
+
+            // 사용자 정보 숨기기
+            const userInfo = document.getElementById('user-info');
+            userInfo.style.display = 'none';
+
+            // 서버 상태 표시
+            document.getElementById('server-status-pill').style.display = 'flex';
+        }
+
+        // 프로필 모달 함수들
+        function openProfileModal() {
+            const userSession = getUserSession();
+            if (!userSession) return;
+
+            // 현재 정보로 폼 채우기
+            document.getElementById('profile-nickname').value = userSession.nickname;
+            document.getElementById('profile-email').value = '';
+
+            // 모달 표시
+            document.getElementById('profile-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+
+            // 폼 초기화
+            document.getElementById('profile-form').reset();
+            document.getElementById('profile-msg').style.display = 'none';
+        }
+
+        // 로그아웃 함수
+        function logout() {
+            if (confirm('정말 로그아웃하시겠습니까?')) {
+                clearUserSession();
+                updateUIForLoggedOutUser();
+
+                // Socket.io 연결 해제
+                if (socket) {
+                    socket.disconnect();
+                }
+
+                // 성공 메시지
+                showMsg(document.getElementById('login-msg'), '로그아웃되었습니다.', true);
+            }
+        }
+
+        // 페이지 로드 시 세션 체크
+        function checkUserSession() {
+            const userSession = getUserSession();
+            if (userSession) {
+                // 세션 유효성 확인 (24시간)
+                const sessionAge = Date.now() - userSession.login_time;
+                const maxAge = 24 * 60 * 60 * 1000; // 24시간
+
+                if (sessionAge < maxAge) {
+                    updateUIForLoggedInUser(userSession);
+                } else {
+                    // 세션 만료
+                    clearUserSession();
+                    updateUIForLoggedOutUser();
+                }
+            } else {
+                updateUIForLoggedOutUser();
+            }
+        }
+
+        // 프로필 수정 폼 제출
+        document.getElementById('profile-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const userSession = getUserSession();
+            if (!userSession) return;
+
+            const newNickname = document.getElementById('profile-nickname').value.trim();
+            const newEmail = document.getElementById('profile-email').value.trim();
+            const newPassword = document.getElementById('profile-password').value;
+            const msgElement = document.getElementById('profile-msg');
+
+            if (!newNickname) {
+                showMsg(msgElement, '닉네임을 입력해주세요.', false);
+                return;
+            }
+
+            try {
+                // 프로필 업데이트 API 호출
+                const updateData = {
+                    user_id: userSession.user_id,
+                    nickname: newNickname,
+                    email: newEmail || null
+                };
+
+                if (newPassword) {
+                    updateData.new_password = newPassword;
+                }
+
+                const res = await makeCorsRequest(`${API_URL}/api/profile/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || '프로필 업데이트 실패');
+                }
+
+                // 세션 업데이트
+                userSession.nickname = newNickname;
+                saveUserSession(userSession);
+
+                // UI 업데이트
+                document.getElementById('user-nickname').textContent = newNickname;
+
+                showMsg(msgElement, '프로필이 성공적으로 업데이트되었습니다!', true);
+                setTimeout(() => closeProfileModal(), 2000);
+
+            } catch (error) {
+                console.error('프로필 업데이트 오류:', error);
+                showMsg(msgElement, '프로필 업데이트 중 오류가 발생했습니다.', false);
+            }
+        });
+
         // Initial check
         checkStatus();
+        checkUserSession(); // 세션 체크 추가
         setInterval(checkStatus, 30000);
     </script>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>프로필 수정</h3>
+                <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="profile-nickname">닉네임</label>
+                        <input type="text" id="profile-nickname" placeholder="새 닉네임 입력" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-email">이메일</label>
+                        <input type="email" id="profile-email" placeholder="이메일 주소">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-password">새 비밀번호 (선택사항)</label>
+                        <input type="password" id="profile-password" placeholder="변경하지 않으려면 비워두세요">
+                    </div>
+                    <div id="profile-msg" class="message" style="display: none;"></div>
+                    <div class="modal-actions">
+                        <button type="button" onclick="closeProfileModal()" class="cancel-btn">취소</button>
+                        <button type="submit" class="save-btn">저장</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

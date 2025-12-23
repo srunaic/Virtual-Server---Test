@@ -150,6 +150,69 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
+// 2.5. 프로필 업데이트 API
+app.post('/api/profile/update', async (req, res) => {
+    const { user_id, nickname, email, new_password } = req.body;
+
+    try {
+        // 사용자 확인
+        pool.query('SELECT id FROM users WHERE user_id = ?', [user_id], async (err, results) => {
+            if (err) {
+                console.error("프로필 조회 DB 오류:", err);
+                return res.status(500).json({ error: "서버 오류" });
+            }
+
+            if (results.length === 0) {
+                return res.status(400).json({ error: "사용자를 찾을 수 없습니다." });
+            }
+
+            const userId = results[0].id;
+            let updateFields = [];
+            let updateValues = [];
+
+            // 닉네임 업데이트
+            if (nickname) {
+                updateFields.push('nickname = ?');
+                updateValues.push(nickname);
+            }
+
+            // 이메일 업데이트
+            if (email !== undefined) {
+                updateFields.push('email = ?');
+                updateValues.push(email);
+            }
+
+            // 비밀번호 업데이트
+            if (new_password) {
+                const hashedPassword = await bcrypt.hash(new_password, 10);
+                updateFields.push('password = ?');
+                updateValues.push(hashedPassword);
+            }
+
+            if (updateFields.length === 0) {
+                return res.status(400).json({ error: "업데이트할 내용이 없습니다." });
+            }
+
+            updateValues.push(userId);
+            const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
+
+            pool.query(updateQuery, updateValues, (err, result) => {
+                if (err) {
+                    console.error("프로필 업데이트 DB 오류:", err);
+                    return res.status(500).json({ error: "프로필 업데이트 실패" });
+                }
+
+                console.log(`프로필 업데이트: ${user_id}`);
+                res.json({ message: "프로필이 성공적으로 업데이트되었습니다." });
+            });
+        });
+
+    } catch (error) {
+        console.error("프로필 업데이트 처리 오류:", error);
+        res.status(500).json({ error: "서버 오류가 발생했습니다." });
+    }
+});
+
 // 2. 로그인 API
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
