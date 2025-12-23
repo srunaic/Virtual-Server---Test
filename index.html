@@ -340,6 +340,36 @@
             min-height: 1.5rem;
         }
 
+        /* 프로필 모달 스타일 */
+        .profile-info {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-row span:first-child {
+            color: #94a3b8;
+        }
+
+        .info-row span:last-child {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
         /* Features */
         .features {
             padding: 100px 5%;
@@ -376,6 +406,63 @@
             border-top: 1px solid var(--glass-border);
             color: #64748b;
             font-size: 0.9rem;
+        }
+
+        /* 태블릿 및 중간 크기 화면 (769px - 1024px) */
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 25px;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 25px;
+            }
+
+            .feature-card {
+                padding: 25px;
+            }
+        }
+
+        /* 태블릿 세로 및 중간 크기 (769px - 900px) */
+        @media (max-width: 900px) {
+            .hero {
+                padding: 60px 30px;
+            }
+
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .btn {
+                min-width: 200px;
+            }
+
+            .stats {
+                padding: 50px 30px;
+            }
+
+            .features {
+                padding: 50px 30px;
+            }
+
+            .auth-container {
+                max-width: 450px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -545,9 +632,11 @@
                 gap: 15px;
             }
 
-            .auth-container {
+            .auth-container, #profile-modal {
                 padding: 25px 15px;
                 margin: 1rem;
+                max-height: 90vh;
+                overflow-y: auto;
             }
 
             .tabs {
@@ -557,6 +646,21 @@
             .tab {
                 padding: 10px 15px;
                 font-size: 0.85rem;
+            }
+
+            .profile-info {
+                padding: 15px;
+                margin-top: 15px;
+            }
+
+            .info-row {
+                font-size: 0.9rem;
+                margin-bottom: 8px;
+            }
+
+            .info-row:last-child {
+                margin-bottom: 0;
+            }
             }
 
             .input-group {
@@ -602,6 +706,7 @@
             <!-- 로그인 상태 표시 영역 -->
             <div id="user-info" class="user-info" style="display: none;">
                 <span id="welcome-msg" class="welcome-msg"></span>
+                <button onclick="showProfileModal()" class="btn btn-secondary" style="margin-right: 10px;">내 프로필</button>
                 <a id="admin-link" href="https://srunaic.github.io/Virtual-Server---Test/admin.html" class="btn btn-secondary" style="display: none; margin-right: 10px;">관리자 페이지</a>
                 <button onclick="handleLogout()" class="btn btn-outline">로그아웃</button>
             </div>
@@ -683,6 +788,36 @@
                     <div id="register-msg" class="message"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- 프로필 모달 -->
+        <div id="profile-modal" class="auth-container" style="display: none;">
+            <button class="close-btn" onclick="closeProfileModal()">&times;</button>
+            <h2 style="text-align: center; margin-bottom: 30px; color: white;">내 프로필</h2>
+
+            <div class="form-group">
+                <label>아이디</label>
+                <input type="text" id="profile-userid" readonly style="background: rgba(255,255,255,0.1); cursor: not-allowed;">
+            </div>
+
+            <div class="form-group">
+                <label>닉네임</label>
+                <input type="text" id="profile-nickname" placeholder="변경할 닉네임을 입력하세요">
+            </div>
+
+            <div class="profile-info">
+                <div class="info-row">
+                    <span>레벨:</span>
+                    <span id="profile-level">1</span>
+                </div>
+                <div class="info-row">
+                    <span>골드:</span>
+                    <span id="profile-gold">0</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="updateNickname()" style="width: 100%; margin-top: 20px;">닉네임 변경</button>
+            <div id="profile-msg" class="message" style="margin-top: 15px;"></div>
         </div>
     </section>
 
@@ -961,6 +1096,69 @@
         function showMsg(el, text, isSuccess) {
             el.innerText = text;
             el.style.color = isSuccess ? "#10b981" : "#ef4444";
+        }
+
+        // 프로필 모달 표시
+        function showProfileModal() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            document.getElementById('profile-userid').value = userData.user_id || '';
+            document.getElementById('profile-nickname').value = userData.nickname || '';
+            document.getElementById('profile-level').textContent = userData.level || 1;
+            document.getElementById('profile-gold').textContent = (userData.gold || 0).toLocaleString();
+            document.getElementById('profile-modal').style.display = 'flex';
+        }
+
+        // 프로필 모달 닫기
+        function closeProfileModal() {
+            document.getElementById('profile-modal').style.display = 'none';
+        }
+
+        // 닉네임 변경 처리
+        async function updateNickname() {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const newNickname = document.getElementById('profile-nickname').value.trim();
+            const msg = document.getElementById('profile-msg');
+
+            if (!newNickname) {
+                showMsg(msg, "닉네임을 입력하세요.", false);
+                return;
+            }
+
+            if (newNickname.length < 2 || newNickname.length > 20) {
+                showMsg(msg, "닉네임은 2-20자 사이여야 합니다.", false);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/user/update-nickname`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userData.user_id,
+                        new_nickname: newNickname
+                    })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    // 로컬 데이터 업데이트
+                    userData.nickname = newNickname;
+                    localStorage.setItem('userData', JSON.stringify(userData));
+
+                    // UI 업데이트
+                    document.getElementById('welcome-msg').textContent = `${newNickname}님 환영합니다!`;
+                    showMsg(msg, "닉네임이 변경되었습니다!", true);
+
+                    // 2초 후 모달 닫기
+                    setTimeout(() => {
+                        closeProfileModal();
+                    }, 2000);
+                } else {
+                    showMsg(msg, data.error, false);
+                }
+            } catch (e) {
+                showMsg(msg, "서버 연결 오류", false);
+            }
         }
 
         // Initial check

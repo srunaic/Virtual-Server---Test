@@ -562,6 +562,48 @@ app.post('/api/admin/notices', (req, res) => {
     });
 });
 
+// 10. 닉네임 변경 API
+app.post('/api/user/update-nickname', (req, res) => {
+    const { user_id, new_nickname } = req.body;
+
+    if (!user_id || !new_nickname) {
+        return res.status(400).json({ error: "사용자 ID와 새 닉네임이 필요합니다." });
+    }
+
+    if (new_nickname.length < 2 || new_nickname.length > 20) {
+        return res.status(400).json({ error: "닉네임은 2-20자 사이여야 합니다." });
+    }
+
+    // 닉네임 중복 체크
+    pool.query('SELECT id FROM users WHERE nickname = ? AND user_id != ?', [new_nickname, user_id], (err, results) => {
+        if (err) {
+            console.error("닉네임 중복 체크 DB 오류:", err);
+            return res.status(500).json({ error: "닉네임 변경 중 오류 발생" });
+        }
+
+        if (results.length > 0) {
+            return res.status(400).json({ error: "이미 사용중인 닉네임입니다." });
+        }
+
+        // 닉네임 업데이트
+        pool.query('UPDATE users SET nickname = ? WHERE user_id = ?', [new_nickname, user_id], (updateErr, updateResult) => {
+            if (updateErr) {
+                console.error("닉네임 업데이트 DB 오류:", updateErr);
+                return res.status(500).json({ error: "닉네임 변경 중 오류 발생" });
+            }
+
+            if (updateResult.affectedRows === 0) {
+                return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
+            }
+
+            res.json({
+                message: "닉네임이 성공적으로 변경되었습니다.",
+                new_nickname: new_nickname
+            });
+        });
+    });
+});
+
 app.listen(port, '0.0.0.0', () => {
     console.log(`서버가 http://0.0.0.0:${port} 에서 실행 중입니다.`);
 });
