@@ -121,13 +121,17 @@ app.post('/api/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // 아이디 중복 확인
+        console.log(`[REGISTER DEBUG] 중복 확인 시작: user_id="${user_id}"`);
         pool.query('SELECT id FROM users WHERE user_id = ?', [user_id], (err, results) => {
             if (err) {
-                console.error("중복 확인 DB 오류:", err);
+                console.error("[REGISTER] 중복 확인 DB 오류:", err);
                 return res.status(500).json({ error: "서버 오류" });
             }
 
+            console.log(`[REGISTER DEBUG] 쿼리 결과: ${results.length}개 행, 데이터:`, JSON.stringify(results));
+
             if (results.length > 0) {
+                console.log(`[REGISTER] 중복 발견! 기존 ID: ${results[0].id}`);
                 return res.status(400).json({ error: "이미 존재하는 아이디입니다." });
             }
 
