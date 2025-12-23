@@ -602,6 +602,7 @@
             <!-- 로그인 상태 표시 영역 -->
             <div id="user-info" class="user-info" style="display: none;">
                 <span id="welcome-msg" class="welcome-msg"></span>
+                <a id="admin-link" href="https://srunaic.github.io/Virtual-Server---Test/admin.html" class="btn btn-secondary" style="display: none; margin-right: 10px;">관리자 페이지</a>
                 <button onclick="handleLogout()" class="btn btn-outline">로그아웃</button>
             </div>
 
@@ -832,9 +833,21 @@
 
         // 로그인 상태 표시
         function showLoggedInState(nickname) {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            const isAdmin = userData.is_admin;
+
             document.getElementById('user-info').style.display = 'flex';
             document.getElementById('login-btn').style.display = 'none';
             document.getElementById('welcome-msg').textContent = `${nickname}님 환영합니다!`;
+
+            // 관리자인 경우 관리자 페이지 링크 표시
+            const adminLink = document.getElementById('admin-link');
+            if (isAdmin) {
+                adminLink.style.display = 'inline-block';
+            } else {
+                adminLink.style.display = 'none';
+            }
+
             document.getElementById('login-modal').style.display = 'none';
         }
 
