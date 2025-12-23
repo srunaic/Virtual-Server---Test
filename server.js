@@ -335,7 +335,7 @@ app.post('/api/admin/notices', (req, res) => {
 });
 
 // 서버 시작
-server.listen(port, '0.0.0.0', () => {
+server.listen(port, '127.0.0.1', () => {
     console.log(`🚀 서버가 포트 ${port}에서 실행 중입니다.`);
     console.log(`🌐 http://localhost:${port}`);
     console.log(`🔌 Socket.io 실시간 연결 활성화`);
