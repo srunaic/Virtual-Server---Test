@@ -426,7 +426,7 @@
                 </div>
                 <div class="stat-card">
                     <div style="color: #94a3b8;">오늘 신규 유저</div>
-                    <div class="stat-value">--</div>
+                    <div class="stat-value" id="new-users-today">--</div>
                 </div>
                 <div class="stat-card">
                     <div style="color: #94a3b8;">서버 상태</div>
@@ -550,14 +550,25 @@
                     throw new Error(`서버 응답 오류: ${response.status} ${response.statusText}`);
                 }
 
-                const users = await response.json();
+                const data = await response.json();
 
-                // users가 배열인지 확인
-                if (!Array.isArray(users)) {
+                // API 응답 형식 확인 (새로운 형식: {users: [...], stats: {...}})
+                let users;
+                if (data.users && Array.isArray(data.users)) {
+                    users = data.users;
+                    // 통계 정보 표시
+                    if (data.stats) {
+                        document.getElementById('total-users').innerText = data.stats.total_users || users.length;
+                        document.getElementById('new-users-today').innerText = data.stats.new_users_today || 0;
+                    }
+                } else if (Array.isArray(data)) {
+                    // 구형식 지원 (배열 직접 반환)
+                    users = data;
+                    document.getElementById('total-users').innerText = users.length;
+                    document.getElementById('new-users-today').innerText = '--';
+                } else {
                     throw new Error('서버에서 잘못된 데이터 형식을 반환했습니다.');
                 }
-
-                document.getElementById('total-users').innerText = users.length;
 
                 // 데스크톱 테이블
                 const tbody = document.getElementById('user-list-body');

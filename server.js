@@ -173,8 +173,13 @@ app.get('/api/admin/users', (req, res) => {
         });
     }
 
+    // 오늘 날짜 계산 (KST 기준)
+    const today = new Date();
+    today.setHours(today.getHours() + 9); // KST로 변환
+    const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+
     // 유저 정보와 관리자 여부를 함께 조회
-    const query = `
+    const userQuery = `
         SELECT
             u.id, u.user_id, u.nickname, u.level, u.gold, u.created_at,
             CASE WHEN a.admin_id IS NOT NULL THEN 1 ELSE 0 END as is_admin,
@@ -184,21 +189,48 @@ app.get('/api/admin/users', (req, res) => {
         ORDER BY u.created_at DESC
     `;
 
-    pool.query(query, (err, results) => {
-        if (err) {
-            console.error("유저 조회 DB 오류:", err);
-            console.error("에러 상세:", err);
-            return res.status(500).json({
-                error: "데이터 조회 실패",
-                details: err.message,
-                sqlState: err.sqlState,
-                errno: err.errno
-            });
-        }
+    // 오늘 가입한 유저 수 계산
+    const newUsersQuery = `
+        SELECT COUNT(*) as new_users_today
+        FROM users
+        WHERE DATE(created_at) = ?
+    `;
 
-        console.log("조회된 데이터:", results);
-        console.log(`사용자 ${results.length}명 조회 완료`);
-        res.json(results);
+    // 두 쿼리를 동시에 실행
+    Promise.all([
+        new Promise((resolve, reject) => {
+            pool.query(userQuery, (err, results) => {
+                if (err) reject(err);
+                else resolve(results);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            pool.query(newUsersQuery, [todayStr], (err, results) => {
+                if (err) reject(err);
+                else resolve(results[0].new_users_today);
+            });
+        })
+    ]).then(([users, newUsersCount]) => {
+        console.log(`사용자 ${users.length}명 조회 완료, 오늘 가입: ${newUsersCount}명`);
+
+        // 응답에 통계 정보 추가
+        const response = {
+            users: users,
+            stats: {
+                total_users: users.length,
+                new_users_today: newUsersCount
+            }
+        };
+
+        res.json(response);
+    }).catch(err => {
+        console.error("유저 조회 DB 오류:", err);
+        return res.status(500).json({
+            error: "데이터 조회 실패",
+            details: err.message,
+            sqlState: err.sqlState,
+            errno: err.errno
+        });
     });
 });
 
