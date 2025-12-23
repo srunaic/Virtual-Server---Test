@@ -8,6 +8,33 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // 미들웨어 설정
+// CORS 설정 강화
+app.use((req, res, next) => {
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'https://srunaic.github.io',
+        'https://hornless-yer-scleritic.ngrok-free.dev',
+        'https://srunaic.github.io'
+    ];
+
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
+
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, ngrok-skip-browser-warning');
+    res.header('Access-Control-Allow-Credentials', 'true');
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+        return;
+    }
+
+    next();
+});
+
 app.use(cors({
     origin: [
         'http://localhost:3000',
