@@ -36,5 +36,5 @@ CREATE TABLE IF NOT EXISTS notices (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 초기 관리자 데이터 삽입 (비밀번호: 1234)
-INSERT IGNORE INTO admins (admin_id, password, role) VALUES ('admin', '1234', 'superadmin');
+-- 사용자 설정 관리자 데이터 삽입
+INSERT IGNORE INTO admins (admin_id, password, role) VALUES ('victoryka123', 'Tpdlflszkdltm1@', 'superadmin');
