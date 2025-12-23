@@ -341,7 +341,7 @@
         }
 
         /* 프로필 모달 스타일 */
-        .profile-info {
+        .profile-info-card {
             background: var(--glass);
             border: 1px solid var(--glass-border);
             border-radius: 12px;
@@ -349,25 +349,47 @@
             margin-top: 20px;
         }
 
-        .info-row {
+        .profile-info-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-size: 1rem;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .info-row:last-child {
+        .profile-info-row:last-child {
             margin-bottom: 0;
+            border-bottom: none;
         }
 
-        .info-row span:first-child {
+        .info-label {
             color: #94a3b8;
+            font-weight: 500;
+            min-width: 80px;
         }
 
-        .info-row span:last-child {
+        .profile-info-row span:last-child {
             color: var(--primary);
             font-weight: 600;
+        }
+
+        .nickname-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 0.9rem;
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .nickname-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
         }
 
         /* Features */
@@ -648,18 +670,30 @@
                 font-size: 0.85rem;
             }
 
-            .profile-info {
+            .profile-info-card {
                 padding: 15px;
                 margin-top: 15px;
             }
 
-            .info-row {
+            .profile-info-row {
                 font-size: 0.9rem;
-                margin-bottom: 8px;
+                margin-bottom: 12px;
+                padding: 6px 0;
             }
 
-            .info-row:last-child {
+            .profile-info-row:last-child {
                 margin-bottom: 0;
+            }
+
+            .info-label {
+                min-width: 60px;
+                font-size: 0.85rem;
+            }
+
+            .nickname-input {
+                font-size: 0.85rem;
+                padding: 6px 8px;
+                margin-left: 8px;
             }
             }
 
@@ -793,25 +827,27 @@
         <!-- 프로필 모달 -->
         <div id="profile-modal" class="auth-container" style="display: none;">
             <button class="close-btn" onclick="closeProfileModal()">&times;</button>
-            <h2 style="text-align: center; margin-bottom: 30px; color: white;">내 프로필</h2>
+            <h2 style="margin-bottom: 20px; color: white;">내 프로필</h2>
 
-            <div class="form-group">
-                <label>아이디</label>
-                <input type="text" id="profile-userid" readonly style="background: rgba(255,255,255,0.1); cursor: not-allowed;">
-            </div>
+            <!-- 프로필 정보 표시 영역 -->
+            <div class="profile-info-card">
+                <div class="profile-info-row">
+                    <span class="info-label">아이디:</span>
+                    <span id="profile-userid-display">사용자아이디</span>
+                </div>
 
-            <div class="form-group">
-                <label>닉네임</label>
-                <input type="text" id="profile-nickname" placeholder="변경할 닉네임을 입력하세요">
-            </div>
+                <div class="profile-info-row">
+                    <span class="info-label">닉네임:</span>
+                    <input type="text" id="profile-nickname" placeholder="변경할 닉네임을 입력하세요" class="nickname-input">
+                </div>
 
-            <div class="profile-info">
-                <div class="info-row">
-                    <span>레벨:</span>
+                <div class="profile-info-row">
+                    <span class="info-label">레벨:</span>
                     <span id="profile-level">1</span>
                 </div>
-                <div class="info-row">
-                    <span>골드:</span>
+
+                <div class="profile-info-row">
+                    <span class="info-label">골드:</span>
                     <span id="profile-gold">0</span>
                 </div>
             </div>
@@ -1101,7 +1137,7 @@
         // 프로필 모달 표시
         function showProfileModal() {
             const userData = JSON.parse(localStorage.getItem('userData') || '{}');
-            document.getElementById('profile-userid').value = userData.user_id || '';
+            document.getElementById('profile-userid-display').textContent = userData.user_id || '';
             document.getElementById('profile-nickname').value = userData.nickname || '';
             document.getElementById('profile-level').textContent = userData.level || 1;
             document.getElementById('profile-gold').textContent = (userData.gold || 0).toLocaleString();
