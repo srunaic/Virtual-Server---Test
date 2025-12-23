@@ -12,8 +12,9 @@
   "name": "ai-agent-software",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
+    "launcher": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "node server.js"
@@ -23,6 +24,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "electron": "^39.2.7",
     "ngrok": "^5.0.0-beta.2"
   }
 }

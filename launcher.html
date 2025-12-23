@@ -331,7 +331,7 @@
                 <i class="fas fa-cog"></i>
             </div>
             <div style="flex: 1;"></div>
-            <div class="sidebar-item" onclick="window.close()" title="종료">
+            <div class="sidebar-item" onclick="closeApp()" title="종료">
                 <i class="fas fa-power-off"></i>
             </div>
         </div>
@@ -430,6 +430,12 @@
 
     <script>
         let isInstalling = false;
+        const isElectron = typeof process !== 'undefined' && process.versions && process.versions.electron;
+        let ipcRenderer = null;
+
+        if (isElectron) {
+            ipcRenderer = require('electron').ipcRenderer;
+        }
 
         function showView(view) {
             document.getElementById('home-view').style.display = view === 'home' ? 'flex' : 'none';
@@ -471,7 +477,7 @@
                 }
                 prog.style.width = progress + '%';
                 statusText.innerText = `리소스 다운로드 중... (${Math.floor(progress)}%)`;
-            }, 150);
+            }, 100);
         }
 
         function completeInstall() {
@@ -485,17 +491,33 @@
             isInstalling = false;
 
             btn.onclick = () => {
-                alert('게임 실행 파일(AngelKitty.exe)을 찾을 수 없습니다.\n현재는 런처 UI 데모 모드입니다.');
+                if (isElectron) {
+                    alert('게임 실행 파일(AngelKitty.exe)을 찾을 수 없습니다.\n본격적인 게임 실행 기능은 추후 연동됩니다.');
+                } else {
+                    alert('브라우저 버전에서는 게임 실행이 제한됩니다.\n런처를 설치해 주세요.');
+                }
             };
         }
 
         function openFolder() {
-            alert('게임 설치 폴더를 엽니다.\n(D:\\AntiGravity AI File\\AI-Agent-SoftWare)');
+            if (isElectron) {
+                ipcRenderer.send('open-folder');
+            } else {
+                alert('게임 설치 폴더를 엽니다.\n(D:\\AntiGravity AI File\\AI-Agent-SoftWare)');
+            }
         }
 
         function clearCache() {
             if (confirm('모든 캐시 데이터를 삭제하시겠습니까?')) {
                 alert('캐시 정리가 완료되었습니다. (245MB 확보)');
+            }
+        }
+
+        function closeApp() {
+            if (isElectron) {
+                ipcRenderer.send('close-app');
+            } else {
+                window.close();
             }
         }
     </script>
