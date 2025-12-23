@@ -134,7 +134,62 @@ app.get('/api/admin/users', (req, res) => {
     });
 });
 
-// 5. 공지사항 등록
+// 5. 특정 유저 삭제 (어드민 전용)
+app.delete('/api/admin/users/:id', (req, res) => {
+    const userId = req.params.id;
+
+    console.log(`사용자 삭제 요청: ID ${userId}`);
+
+    // 데이터베이스 연결 상태 확인
+    if (!pool) {
+        console.error('데이터베이스 풀 연결 없음');
+        return res.status(500).json({
+            error: "데이터베이스 연결 실패",
+            details: "데이터베이스 풀 연결이 설정되지 않았습니다."
+        });
+    }
+
+    // 먼저 사용자가 존재하는지 확인
+    pool.query('SELECT user_id FROM users WHERE id = ?', [userId], (err, results) => {
+        if (err) {
+            console.error("유저 조회 DB 오류:", err);
+            return res.status(500).json({
+                error: "사용자 조회 실패",
+                details: err.message
+            });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: "존재하지 않는 사용자입니다." });
+        }
+
+        const userIdStr = results[0].user_id;
+
+        // 사용자를 삭제
+        pool.query('DELETE FROM users WHERE id = ?', [userId], (err, result) => {
+            if (err) {
+                console.error("유저 삭제 DB 오류:", err);
+                return res.status(500).json({
+                    error: "사용자 삭제 실패",
+                    details: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: "삭제할 사용자를 찾을 수 없습니다." });
+            }
+
+            console.log(`사용자 삭제 완료: ${userIdStr} (ID: ${userId})`);
+            res.json({
+                message: `사용자 "${userIdStr}"이(가) 성공적으로 삭제되었습니다.`,
+                deletedUserId: userId,
+                deletedUserName: userIdStr
+            });
+        });
+    });
+});
+
+// 6. 공지사항 등록
 app.post('/api/admin/notices', (req, res) => {
     const { title, content } = req.body;
     pool.query('INSERT INTO notices (title, content) VALUES (?, ?)', [title, content], (err, result) => {

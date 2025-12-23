@@ -355,7 +355,10 @@
                         <td>Lv.${user.level || 1}</td>
                         <td>${user.gold || 0} G</td>
                         <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}</td>
-                        <td><button class="action-btn">제재</button></td>
+                        <td>
+                            <button class="action-btn" onclick="banUser(${user.id}, '${user.user_id}')">제재</button>
+                            <button class="action-btn" style="background: #dc2626; margin-left: 5px;" onclick="deleteUser(${user.id}, '${user.user_id}')">삭제</button>
+                        </td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -398,6 +401,38 @@
             } catch (err) {
                 console.error(err);
                 alert("등록 실패");
+            }
+        }
+
+        async function banUser(userId, userIdStr) {
+            if (!confirm(`사용자 "${userIdStr}"을(를) 제재하시겠습니까?\n(현재는 UI만 구현되어 있습니다)`)) {
+                return;
+            }
+            // TODO: 제재 API 구현
+            alert("제재 기능은 추후 구현 예정입니다.");
+        }
+
+        async function deleteUser(userId, userIdStr) {
+            if (!confirm(`정말로 사용자 "${userIdStr}"을(를) 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다!`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'ngrok-skip-browser-warning': '69420' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`삭제 실패: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                alert(data.message || "사용자가 성공적으로 삭제되었습니다.");
+                fetchUsers(); // 목록 새로고침
+            } catch (err) {
+                console.error('사용자 삭제 실패:', err);
+                alert(`사용자 삭제에 실패했습니다: ${err.message}`);
             }
         }
     </script>
