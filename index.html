@@ -371,9 +371,35 @@
 
     <script>
         // 환경에 따른 API URL 자동 설정
-        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://hornless-yer-scleritic.ngrok-free.dev';
+            : 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://hornless-yer-scleritic.ngrok-free.dev');
+
+        // CORS 우회를 위한 함수들
+        async function makeCorsRequest(url, options = {}) {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                // 로컬에서는 직접 요청
+                return fetch(url, options);
+            } else {
+                // GitHub Pages에서는 CORS 우회
+                try {
+                    // 첫 번째 시도: allorigins.win 프록시
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+                    const response = await fetch(proxyUrl, {
+                        ...options,
+                        headers: {
+                            ...options.headers,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    return response;
+                } catch (error) {
+                    console.warn('CORS proxy failed, trying direct connection:', error);
+                    // 프록시 실패 시 직접 연결 시도 (실패할 수 있음)
+                    return fetch(url, options);
+                }
+            }
+        }
 
         // Tab Switching
         function switchTab(type) {
@@ -394,7 +420,7 @@
             const dot = document.getElementById('status-dot');
             const text = document.getElementById('status-text');
             try {
-                const res = await fetch(`${API_URL}/api/test`, {
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://hornless-yer-scleritic.ngrok-free.dev'}/api/test`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 if(res.ok) {
@@ -416,7 +442,7 @@
             if(!user_id || !password) return showMsg(msg, "아이디와 비번을 입력하세요.", false);
 
             try {
-                const res = await fetch(`${API_URL}/api/login`, {
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://hornless-yer-scleritic.ngrok-free.dev'}/api/login`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -448,7 +474,7 @@
             if(!user_id || !nickname || !password) return showMsg(msg, "필수 항목을 모두 입력하세요.", false);
 
             try {
-                const res = await fetch(`${API_URL}/api/register`, {
+                const res = await makeCorsRequest(`${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://hornless-yer-scleritic.ngrok-free.dev'}/api/register`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',

@@ -8,8 +8,46 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // 미들웨어 설정
-app.use(cors()); // 모든 도메인 허용 (GitHub Pages 연동을 위해 필요)
 app.use(express.json());
+
+// CORS 설정 강화 - GitHub Pages 및 로컬 개발 지원
+app.use((req, res, next) => {
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'https://srunaic.github.io',
+        'https://hornless-yer-scleritic.ngrok-free.dev',
+        // 새로운 ngrok URL 패턴 추가
+        /^https:\/\/[a-z0-9]+\.ngrok(?:-free)?\.app$/,
+        /^https:\/\/[a-z0-9]+\.ngrok(?:-free)?\.dev$/
+    ];
+
+    const origin = req.headers.origin;
+
+    // Origin이 허용된 도메인 목록에 있는지 확인
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+        if (typeof allowedOrigin === 'string') {
+            return allowedOrigin === origin;
+        } else if (allowedOrigin instanceof RegExp) {
+            return allowedOrigin.test(origin);
+        }
+        return false;
+    });
+
+    if (isAllowed || !origin) {
+        res.header('Access-Control-Allow-Origin', origin || '*');
+    }
+
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, ngrok-skip-browser-warning');
+    res.header('Access-Control-Allow-Credentials', 'true');
+
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+        return;
+    }
+
+    next();
+});
 
 // MySQL 연결 풀 생성 (연결 관리가 더 효율적임)
 const pool = mysql.createPool({
