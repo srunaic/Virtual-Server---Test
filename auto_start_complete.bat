@@ -31,7 +31,7 @@ set DB_NAME=virtual_server
 echo ✓ Environment variables configured
 echo.
 
-echo [4/5] Starting NexusVerse server...
+echo [4/6] Starting NexusVerse server...
 cd /d "D:\AntiGravity AI File\AI-Agent-SoftWare"
 if not exist "server.js" (
     echo ✗ server.js not found in current directory
@@ -44,20 +44,39 @@ start /b node server.js > server_log.txt 2>&1
 echo ✓ Server started in background
 echo.
 
-echo [5/5] Verifying server startup...
-timeout /t 3 /nobreak >nul
+echo [5/6] Starting localtunnel for external access...
+start /b npx localtunnel --port 3000 > tunnel_log.txt 2>&1
+echo ✓ Localtunnel started in background
+echo.
+
+echo [6/6] Verifying connections...
+timeout /t 8 /nobreak >nul
 
 curl -s http://localhost:3000/api/test >nul 2>&1
 if %errorlevel% equ 0 (
-    echo ✓ Server is responding correctly
+    echo ✓ Local server is responding correctly
+
+    REM Check if tunnel URL was generated
+    findstr "your url is:" tunnel_log.txt >nul 2>&1
+    if %errorlevel% equ 0 (
+        echo ✓ External tunnel established
+        for /f "tokens=4" %%i in ('findstr "your url is:" tunnel_log.txt') do set TUNNEL_URL=%%i
+        echo 🌐 External URL: !TUNNEL_URL!
+    ) else (
+        echo ⚠ External tunnel may not be ready yet
+        echo Check tunnel_log.txt for tunnel URL
+    )
+
     echo.
     echo ================================
     echo     NexusVerse Started Successfully!
     echo ================================
     echo.
-    echo 🌐 Server URL: http://localhost:3000
+    echo 🌐 Local Server: http://localhost:3000
+    if defined TUNNEL_URL echo 🌐 External URL: !TUNNEL_URL!
     echo 🔑 Admin Login: Check .env file for credentials
-    echo 📝 Log file: server_log.txt
+    echo 📝 Server Log: server_log.txt
+    echo 📝 Tunnel Log: tunnel_log.txt
     echo.
     echo Opening browser in 3 seconds...
     timeout /t 3 /nobreak >nul
@@ -66,9 +85,10 @@ if %errorlevel% equ 0 (
     echo ✗ Server failed to respond
     echo Check server_log.txt for error details
     echo.
-    echo Press any key to view log file...
+    echo Press any key to view log files...
     pause >nul
     notepad server_log.txt
+    notepad tunnel_log.txt
 )
 
 echo.
