@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - AIAgentGame</title>
+    <meta name="description" content="Join the vast open world of AIAgentGame. Create your account now!">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --bg: #030712;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: white;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, .brand {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Navbar */
+        nav {
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            background: rgba(3, 7, 18, 0.5);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            background: var(--glass);
+        }
+
+        .server-status {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: var(--glass);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff4444;
+            transition: background 0.3s ease;
+        }
+
+        .dot.online {
+            background: #00ff00;
+        }
+
+        /* Main Content */
+        .register-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 5% 50px;
+            min-height: 100vh;
+        }
+
+        .register-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .register-header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .register-header p {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-group input::placeholder {
+            color: #888;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+            min-height: 1.2rem;
+            font-weight: 500;
+        }
+
+        .message.success {
+            color: #00ff88;
+        }
+
+        .message.error {
+            color: #ff4444;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .login-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .register-card {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            .register-header h2 {
+                font-size: 1.6rem;
+            }
+
+            nav {
+                padding: 1rem 5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="brand">AIAgentGame</a>
+        <div class="nav-links">
+            <a href="index.html">로그인</a>
+            <div class="server-status" id="server-status-pill" style="display: none;">
+                <div class="dot" id="status-dot"></div>
+                <span id="status-text">Server Offline</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <h2>회원가입</h2>
+                <p>새 계정을 만들어 오픈월드를 탐험하세요</p>
+            </div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="user-id">아이디</label>
+                    <input type="text" id="user-id" placeholder="아이디 입력 (3-20자)" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nickname">닉네임</label>
+                    <input type="text" id="nickname" placeholder="닉네임 입력" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">이메일 (선택사항)</label>
+                    <input type="email" id="email" placeholder="이메일 주소">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" placeholder="비밀번호 입력 (최소 6자)" required>
+                </div>
+
+                <button type="submit" class="btn-primary" id="register-btn">
+                    회원가입
+                </button>
+
+                <div id="register-msg" class="message"></div>
+            </form>
+
+            <div class="login-link">
+                이미 계정이 있으신가요? <a href="index.html">로그인</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 환경에 따른 API URL 자동 설정
+let API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : 'https://hornless-yer-scleritic.ngrok-free.dev'; // GitHub Pages에서는 ngrok URL 사용
+
+        // CORS 우회를 위한 함수들
+        async function makeCorsRequest(url, options = {}) {
+            // ngrok-skip-browser-warning 헤더 제거 (CORS 문제 유발)
+            const cleanOptions = { ...options };
+            if (cleanOptions.headers) {
+                delete cleanOptions.headers['ngrok-skip-browser-warning'];
+            }
+
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                // 로컬에서는 직접 요청
+                return fetch(url, cleanOptions);
+            } else {
+                // GitHub Pages에서는 현재 활성화된 터널 URL 사용 (프록시 없이 직접 연결)
+                console.log('Using direct connection to tunnel URL...');
+
+                // 현재 설정된 API_URL 사용 (항상 터널 URL)
+                const tunnelUrl = API_URL;
+                const finalUrl = url.replace('http://localhost:3000', tunnelUrl);
+
+                console.log('Request URL:', finalUrl);
+                return fetch(finalUrl, cleanOptions);
+            }
+        }
+
+        // 메시지 표시 함수
+        function showMsg(element, message, isSuccess = false) {
+            element.textContent = message;
+            element.className = `message ${isSuccess ? 'success' : 'error'}`;
+            element.style.display = 'block';
+
+            // 5초 후 자동 숨김 (성공 메시지만)
+            if (isSuccess) {
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // 서버 상태 체크 함수
+        async function checkStatus() {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+
+            // 모든 환경에서 서버 연결 시도 (cloudflared 터널 사용)
+            try {
+                const testUrl = `${API_URL}/api/test`;
+
+                const res = await makeCorsRequest(testUrl);
+                if(res.ok) {
+                    dot.classList.add('online');
+                    text.innerText = "서버 온라인";
+                } else {
+                    throw new Error('HTTP 응답 실패');
+                }
+            } catch (e) {
+                console.error('서버 연결 실패:', e);
+                dot.classList.remove('online');
+                text.innerText = "서버 오프라인";
+            }
+        }
+
+        // 회원가입 핸들러
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const userId = document.getElementById('user-id').value.trim();
+            const nickname = document.getElementById('nickname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('register-btn');
+            const msg = document.getElementById('register-msg');
+
+            // 유효성 검사
+            if (!userId || !nickname || !password) {
+                showMsg(msg, "모든 필수 항목을 입력해주세요.", false);
+                return;
+            }
+
+            if (userId.length < 3 || userId.length > 20) {
+                showMsg(msg, "아이디는 3-20자 사이여야 합니다.", false);
+                return;
+            }
+
+            if (password.length < 6) {
+                showMsg(msg, "비밀번호는 최소 6자 이상이어야 합니다.", false);
+                return;
+            }
+
+            // 버튼 로딩 상태
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loading"></div>회원가입 중...';
+
+            try {
+                const res = await makeCorsRequest(`${API_URL}/api/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        password: password,
+                        nickname: nickname,
+                        email: email || null
+                    })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showMsg(msg, "회원가입이 완료되었습니다! 로그인 페이지로 이동하세요.", true);
+
+                    // 2초 후 로그인 페이지로 리다이렉트
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    showMsg(msg, data.error || "회원가입에 실패했습니다.", false);
+                }
+            } catch (error) {
+                console.error('회원가입 오류:', error);
+                showMsg(msg, "네트워크 오류가 발생했습니다. 다시 시도해주세요.", false);
+            } finally {
+                // 버튼 원래 상태로 복원
+                btn.disabled = false;
+                btn.innerHTML = '회원가입';
+            }
+        });
+
+        // 초기화
+        checkStatus();
+        setInterval(checkStatus, 30000);
+    </script>
+</body>
+</html>

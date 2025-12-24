@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 | Angel Kitty</title>
+    <link rel="stylesheet" href="angelic.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Admin Overrides to fit angelic theme */
+        .sidebar-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-soft);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            background: var(--angel-pink);
+            color: var(--text-main);
+        }
+
+        .stat-card-title {
+            font-size: 14px;
+            color: var(--text-soft);
+            margin-bottom: 10px;
+        }
+
+        .stat-card-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--angel-pink-deep);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .admin-table th {
+            text-align: left;
+            padding: 15px;
+            color: var(--text-soft);
+            border-bottom: 2px solid var(--angel-pink);
+        }
+
+        .admin-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-online {
+            background: #e6fffa;
+            color: #319795;
+        }
+
+        .section-panel {
+            display: none;
+        }
+
+        .section-panel.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="angelic-bg"></div>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="modal-overlay" style="display: flex;">
+        <div class="glass-card modal-content" style="width: 450px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <i class="fas fa-crown" style="font-size: 40px; color: var(--angel-gold);"></i>
+                <h2 style="color: var(--angel-pink-deep); margin-top: 15px;">Admin Login</h2>
+                <p style="color: var(--text-soft);">Virtual Server Management</p>
+            </div>
+            <form onsubmit="adminLogin(event)">
+                <div class="form-group">
+                    <label>Admin ID</label>
+                    <input type="text" id="admin-id" placeholder="관리자 계정" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="admin-pw" placeholder="비밀번호" required>
+                </div>
+                <button type="submit" class="btn-submit">Log In</button>
+            </form>
+            <p id="login-error" style="color: #ff6b6b; text-align: center; margin-top: 15px; font-size: 14px;"></p>
+        </div>
+    </div>
+
+    <div class="admin-container" id="admin-view" style="display: none;">
+        <div class="admin-sidebar">
+            <div style="margin-bottom: 40px; text-align: center;">
+                <h3 style="color: var(--angel-pink-deep);">AG Admin</h3>
+            </div>
+            <div class="sidebar-item active" onclick="showSection('dashboard', this)">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </div>
+            <div class="sidebar-item" onclick="showSection('users', this)">
+                <i class="fas fa-users"></i> Users
+            </div>
+            <div class="sidebar-item" onclick="showSection('notices', this)">
+                <i class="fas fa-bullhorn"></i> Notices
+            </div>
+            <div class="sidebar-item" style="margin-top: auto; color: #ff6b6b;" onclick="location.href='index.html'">
+                <i class="fas fa-sign-out-alt"></i> Exit to Site
+            </div>
+        </div>
+
+        <main class="admin-main">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+                <h2 id="section-title">Dashboard</h2>
+                <div class="user-info">
+                    <span id="admin-display-name">SuperAdmin</span>
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <div id="dashboard" class="section-panel active">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <div class="glass-card" style="padding: 25px;">
+                        <div class="stat-card-title">Total Users</div>
+                        <div class="stat-card-value" id="total-users">0</div>
+                    </div>
+                    <div class="glass-card" style="padding: 25px;">
+                        <div class="stat-card-title">Server Status</div>
+                        <div class="stat-card-value"><span class="badge-status badge-online">Online</span></div>
+                    </div>
+                    <div class="glass-card" style="padding: 25px;">
+                        <div class="stat-card-title">Active Now</div>
+                        <div class="stat-card-value">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users -->
+            <div id="users" class="section-panel">
+                <div class="glass-card" style="padding: 30px;">
+                    <h3 style="margin-bottom: 20px;">User Management</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nickname</th>
+                                <th>Level</th>
+                                <th>Gold</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-list-body">
+                            <!-- JS fill -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Notices -->
+            <div id="notices" class="section-panel">
+                <div class="glass-card" style="padding: 30px; max-width: 600px;">
+                    <h3 style="margin-bottom: 20px;">Post New Notice</h3>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" id="notice-title" placeholder="공지 사항 제목">
+                    </div>
+                    <div class="form-group">
+                        <label>Content</label>
+                        <textarea id="notice-content" rows="6"
+                            style="width: 100%; border-radius: 12px; border: 1px solid var(--glass-border); padding: 15px; outline: none;"></textarea>
+                    </div>
+                    <button class="btn-submit" onclick="postNotice()">Publish Notice</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = "https://hornless-yer-scleritic.ngrok-free.dev"; // Live Ngrok URL
+
+        async function adminLogin(event) {
+            event.preventDefault();
+            const admin_id = document.getElementById('admin-id').value;
+            const password = document.getElementById('admin-pw').value;
+            const errorElement = document.getElementById('login-error');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_id, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('admin', JSON.stringify(data.admin));
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('admin-view').style.display = 'flex';
+                    document.getElementById('admin-display-name').innerText = data.admin.admin_id;
+                    fetchUsers();
+                } else {
+                    errorElement.innerText = data.error || "로그인 실패";
+                }
+            } catch (err) {
+                console.error(err);
+                errorElement.innerText = "서버 연결 오류";
+            }
+        }
+
+        function showSection(id, btn) {
+            document.querySelectorAll('.section-panel').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            document.getElementById('section-title').innerText = id.charAt(0).toUpperCase() + id.slice(1);
+
+            if (id === 'users') fetchUsers();
+        }
+
+        async function fetchUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/users`);
+                const users = await response.json();
+                const tbody = document.getElementById('user-list-body');
+                tbody.innerHTML = '';
+
+                document.getElementById('total-users').innerText = users.length;
+
+                users.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${user.user_id}</td>
+                        <td>${user.nickname}</td>
+                        <td>Lv.${user.level}</td>
+                        <td>${user.gold} G</td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td><button class="btn-auth btn-login" style="padding: 4px 10px; font-size: 12px;">Manage</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function postNotice() {
+            const title = document.getElementById('notice-title').value;
+            const content = document.getElementById('notice-content').value;
+
+            if (!title || !content) return alert("제목과 내용을 입력하세요.");
+
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/notices`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content })
+                });
+                const data = await response.json();
+                alert(data.message);
+                document.getElementById('notice-title').value = '';
+                document.getElementById('notice-content').value = '';
+            } catch (err) {
+                console.error(err);
+                alert("등록 실패");
+            }
+        }
+
+        // Check Admin Session
+        window.onload = function () {
+            const admin = JSON.parse(localStorage.getItem('admin'));
+            if (admin) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('admin-view').style.display = 'flex';
+                document.getElementById('admin-display-name').innerText = admin.admin_id;
+                fetchUsers();
+            }
+        }
+    </script>
+</body>
+
+</html>

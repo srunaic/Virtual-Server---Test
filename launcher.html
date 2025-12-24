@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angel Kitty - Premium Launcher</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Dancing+Script:wght@600&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --p-pink: #ffdaeb;
+            --p-pink-deep: #ffb3d9;
+            --p-gold: #ffd700;
+            --p-blue: #e3f2fd;
+            --text-main: #4a4a4a;
+            --text-soft: #7a7a7a;
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background: #fdf2f8;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        .launcher-window {
+            width: 1000px;
+            height: 650px;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            -webkit-app-region: drag;
+            /* Window is now draggable */
+        }
+
+        /* Sidebar Settings */
+        .sidebar {
+            width: 80px;
+            background: rgba(255, 255, 255, 0.5);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 0;
+            gap: 30px;
+            z-index: 10;
+        }
+
+        .sidebar-item,
+        .btn-main,
+        .close-btn,
+        .action-icon,
+        .settings-card,
+        .main-container input,
+        .main-container button {
+            -webkit-app-region: no-drag;
+            /* Interactive elements must be clickable */
+        }
+
+        .sidebar-item {
+            font-size: 24px;
+            color: var(--text-soft);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            color: var(--p-pink-deep);
+            transform: scale(1.1);
+        }
+
+        .sidebar-item.active::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 20px;
+            background: var(--p-pink-deep);
+            border-radius: 2px;
+        }
+
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            height: 60px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 30px;
+            gap: 20px;
+        }
+
+        .win-btn {
+            font-size: 18px;
+            color: var(--text-soft);
+            cursor: pointer;
+        }
+
+        /* Content Area */
+        .hero-view {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: url('launcher_bg.jpg') center center no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        .hero-view::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, transparent 60%);
+            z-index: 1;
+        }
+
+        .game-info {
+            position: relative;
+            z-index: 2;
+            color: white;
+            max-width: 450px;
+        }
+
+        .game-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 64px;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-desc {
+            font-size: 18px;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        /* Action Panel */
+        .action-panel {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+
+        .play-btn-box {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .play-button {
+            width: 240px;
+            height: 70px;
+            background: linear-gradient(45deg, var(--p-pink-deep), #d4a5ff);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(255, 179, 217, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(255, 179, 217, 0.6);
+        }
+
+        .play-button:active {
+            transform: scale(0.98);
+        }
+
+        .play-button.disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-container {
+            width: 400px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--p-gold);
+            transition: width 0.3s;
+        }
+
+        .status-text {
+            color: white;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Settings View */
+        .settings-view {
+            position: absolute;
+            inset: 0;
+            background: var(--glass);
+            z-index: 5;
+            padding: 60px;
+            display: none;
+            flex-direction: column;
+            gap: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .view-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--p-pink-deep);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--p-pink);
+            padding-bottom: 10px;
+        }
+
+        .setting-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .setting-info h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .setting-info p {
+            font-size: 14px;
+            color: var(--text-soft);
+        }
+
+        .small-btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--p-pink);
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .small-btn:hover {
+            background: var(--p-pink);
+        }
+
+        /* Stats Tab */
+        .stats-view {
+            position: absolute;
+            inset: 0;
+            background: var(--glass);
+            z-index: 5;
+            padding: 60px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .close-view {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="launcher-window">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-item active" onclick="showView('home')" title="홈">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="sidebar-item" onclick="showView('stats')" title="데이터">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="sidebar-item" onclick="showView('settings')" title="설정">
+                <i class="fas fa-cog"></i>
+            </div>
+            <div style="flex: 1;"></div>
+            <div class="sidebar-item" onclick="closeApp()" title="종료">
+                <i class="fas fa-power-off"></i>
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="main-container">
+            <!-- Home View -->
+            <div id="home-view" class="hero-view">
+                <div class="game-info">
+                    <h1 class="game-title">Angel Kitty</h1>
+                    <p class="game-desc">지상으로 강등된 천사냥이 루미와의 가슴 설레는 일상. 그녀의 비밀을 풀고 잃어버린 날개를 찾아주세요.</p>
+                    <div style="display: flex; gap: 15px; margin-top: 10px;">
+                        <span
+                            style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 14px;">Version
+                            1.0.2</span>
+                        <span
+                            style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 14px;">Online</span>
+                    </div>
+                </div>
+
+                <div class="action-panel">
+                    <div class="play-btn-box">
+                        <div class="progress-container" id="prog-container">
+                            <div class="progress-bar" id="prog-bar"></div>
+                        </div>
+                        <div class="status-text" id="status-text">파일 검사 중...</div>
+                        <button class="play-button" id="main-action-btn" onclick="handleMainAction()">
+                            <i class="fas fa-play"></i> <span>GAME START</span>
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 20px; color: white;">
+                        <div style="text-align: right;">
+                            <div style="font-size: 12px; opacity: 0.7;">Last Update</div>
+                            <div style="font-size: 14px; font-weight: 600;">2025.12.24</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 12px; opacity: 0.7;">Server Status</div>
+                            <div style="color: #4ade80; font-size: 14px; font-weight: 600;">Stable</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settings-view" class="settings-view">
+                <div class="close-view" onclick="showView('home')"><i class="fas fa-times"></i></div>
+                <h2 class="view-title">Launcher Settings</h2>
+
+                <div class="setting-card">
+                    <div class="setting-info">
+                        <h4>설치 폴더 정정</h4>
+                        <p>게임 데이터가 설치된 경로를 변경하거나 폴더를 엽니다.</p>
+                    </div>
+                    <button class="small-btn" onclick="openFolder()">폴더 열기</button>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-info">
+                        <h4>캐시 데이터 관리</h4>
+                        <p>임시 파일 및 캐시를 삭제하여 공간을 확보하고 오류를 수정합니다.</p>
+                    </div>
+                    <button class="small-btn" onclick="clearCache()">캐시 정리</button>
+                </div>
+
+                <div class="setting-card">
+                    <div class="setting-info">
+                        <h4>자동 업데이트</h4>
+                        <p>런처 실행 시 항상 최신 버전으로 유지합니다.</p>
+                    </div>
+                    <div style="color: var(--p-pink-deep); font-weight: 600;">활성화됨</div>
+                </div>
+
+                <div style="margin-top: auto; text-align: center; font-size: 12px; opacity: 0.5;">
+                    &copy; 2025 나노도로시. All Rights Reserved.
+                </div>
+            </div>
+
+            <!-- Stats View -->
+            <div id="stats-view" class="stats-view">
+                <div class="close-view" onclick="showView('home')"><i class="fas fa-times"></i></div>
+                <h2 class="view-title">My Records</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="setting-card" style="flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 14px; color: var(--text-soft);">총 플레이 시간</span>
+                        <span style="font-size: 24px; font-weight: 700;">12h 45m</span>
+                    </div>
+                    <div class="setting-card" style="flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 14px; color: var(--text-soft);">엔딩 수집률</span>
+                        <span style="font-size: 24px; font-weight: 700;">2 / 8</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isInstalling = false;
+        const isElectron = typeof process !== 'undefined' && process.versions && process.versions.electron;
+        let ipcRenderer = null;
+
+        if (isElectron) {
+            ipcRenderer = require('electron').ipcRenderer;
+
+            // Auto Update Listeners
+            ipcRenderer.on('update-status', (event, text) => {
+                const statusText = document.getElementById('status-text');
+                statusText.style.display = 'block';
+                statusText.innerText = text;
+            });
+
+            ipcRenderer.on('update-progress', (event, percent) => {
+                const prog = document.getElementById('prog-bar');
+                const container = document.getElementById('prog-container');
+                container.style.display = 'block';
+                prog.style.width = percent + '%';
+            });
+        }
+
+        function showView(view) {
+            document.getElementById('home-view').style.display = view === 'home' ? 'flex' : 'none';
+            document.getElementById('settings-view').style.display = view === 'settings' ? 'flex' : 'none';
+            document.getElementById('stats-view').style.display = view === 'stats' ? 'flex' : 'none';
+
+            // Sidebar Icons
+            const items = document.querySelectorAll('.sidebar-item');
+            items.forEach(item => item.classList.remove('active'));
+            if (view === 'home') items[0].classList.add('active');
+            if (view === 'stats') items[1].classList.add('active');
+            if (view === 'settings') items[2].classList.add('active');
+        }
+
+        function handleMainAction() {
+            const btn = document.getElementById('main-action-btn');
+            const prog = document.getElementById('prog-bar');
+            const container = document.getElementById('prog-container');
+            const statusText = document.getElementById('status-text');
+
+            if (isInstalling) return;
+
+            // Scenario: First time or Update needed
+            isInstalling = true;
+            btn.classList.add('disabled');
+            btn.querySelector('span').innerText = 'INSTALLING...';
+            btn.querySelector('i').className = 'fas fa-spinner fa-spin';
+
+            container.style.display = 'block';
+            statusText.style.display = 'block';
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    completeInstall();
+                }
+                prog.style.width = progress + '%';
+                statusText.innerText = `리소스 다운로드 중... (${Math.floor(progress)}%)`;
+            }, 100);
+        }
+
+        function completeInstall() {
+            const btn = document.getElementById('main-action-btn');
+            const statusText = document.getElementById('status-text');
+
+            btn.classList.remove('disabled');
+            btn.querySelector('span').innerText = 'GAME START';
+            btn.querySelector('i').className = 'fas fa-play';
+            statusText.innerText = '설치 완료! 게임을 시작할 준비가 되었습니다.';
+            isInstalling = false;
+
+            btn.onclick = () => {
+                if (isElectron) {
+                    alert('게임 실행 파일(AngelKitty.exe)을 찾을 수 없습니다.\n본격적인 게임 실행 기능은 추후 연동됩니다.');
+                } else {
+                    alert('브라우저 버전에서는 게임 실행이 제한됩니다.\n런처를 설치해 주세요.');
+                }
+            };
+        }
+
+        function openFolder() {
+            if (isElectron) {
+                ipcRenderer.send('open-folder');
+            } else {
+                alert('게임 설치 폴더를 엽니다.\n(D:\\AntiGravity AI File\\AI-Agent-SoftWare)');
+            }
+        }
+
+        function clearCache() {
+            if (confirm('모든 캐시 데이터를 삭제하시겠습니까?')) {
+                alert('캐시 정리가 완료되었습니다. (245MB 확보)');
+            }
+        }
+
+        function closeApp() {
+            if (isElectron) {
+                ipcRenderer.send('close-app');
+            } else {
+                window.close();
+            }
+        }
+    </script>
+</body>
+
+</html>
