@@ -1,78 +1,47 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 chcp 65001 >nul
-title Angel Kitty Premium Launcher - Bootstrapping...
-
-set "REPO_URL=https://raw.githubusercontent.com/srunaic/Virtual-Server---Test/main/"
-set "FILES=package.json main.js launcher.html launcher_bg.jpg"
+title Angel Kitty Premium Launcher
 
 echo.
-echo ╔══════════════════════════════════════════════════════════════╗
-echo ║                                                              ║
-echo ║          🐱 Angel Kitty Premium Launcher 🐱                  ║
-echo ║              환경 구성 및 부트스트래핑                       ║
-echo ║                                                              ║
-echo ╚══════════════════════════════════════════════════════════════╝
+echo ==========================================
+echo   Angel Kitty Premium Launcher Setup
+echo ==========================================
 echo.
 
-REM 0. Check for write permissions
-echo [INFO] 권한 확인 중...
-copy /y nul .test >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [ERROR] 현재 폴더에 파일을 쓸 권한이 없습니다!
-    echo 관리자 권한으로 실행하거나 다른 폴더(예: 바탕 화면)로 옮겨서 실행해 주세요.
-    pause
-    exit /b
-)
-del .test
-
-REM 1. Node.js check
-echo [INFO] Node.js 엔진 확인 중...
+REM 1. Check for Node.js
+echo [1/3] Node.js 엔진 확인 중...
 node -v >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] Node.js가 설치되어 있지 않습니다!
-    echo 이 런처를 실행하려면 Node.js 설치가 필요합니다.
-    echo 설치 페이지를 여시겠습니까? (Y/N)
-    set /p choice=선택: 
-    if /i "!choice!"=="Y" start "" "https://nodejs.org/"
+    echo [ERROR] Node.js가 필요합니다.
+    echo https://nodejs.org/ 에서 LTS 버전을 설치해주세요.
     pause
     exit /b
 )
 
-REM 2. Download missing files using PowerShell (More robust than curl)
-for %%f in (%FILES%) do (
-    if not exist "%%f" (
-        echo [INFO] %%f 파일이 없습니다. 다운로드 중...
-        powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('%REPO_URL%%%f', '%%f')"
-        if !errorlevel! neq 0 (
-            echo [ERROR] %%f 다운로드 실패! (Error Code: !errorlevel!)
-            echo 인터넷 연결을 확인하거나 보안 소프트를 잠시 꺼보세요.
-            pause
-            exit /b
-        )
-    )
-)
-
-REM 3. Install dependencies if node_modules missing
-if not exist "node_modules\" (
-    echo [INFO] 필요한 패키지를 설치하는 중... (최초 1회)
-    echo 이 작업은 1~2분 정도 소용될 수 있습니다. 잠시만 기다려 주세요.
-    cmd /c "npm install --no-package-lock"
-    if !errorlevel! neq 0 (
-        echo [ERROR] 패키지 설치 실패! (Error Code: !errorlevel!)
-        pause
-        exit /b
-    )
-)
-
-REM 4. Run Launcher
-echo.
-echo [OK] 런처 준비 완료! 앱을 실행합니다...
-npm run launcher
-
+REM 2. Download missing files using PowerShell (One-liner for stability)
+echo [2/3] 필수 파일 다운로드/검토 중...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$files = @('package.json', 'main.js', 'launcher.html', 'launcher_bg.jpg'); $repo = 'https://raw.githubusercontent.com/srunaic/Virtual-Server---Test/main/'; foreach ($f in $files) { if (!(Test-Path $f)) { Write-Host \"Downloading $f...\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri ($repo + $f) -OutFile $f } }"
 if %errorlevel% neq 0 (
-    echo [ERROR] 런처 실행 중 오류가 발생했습니다. (Error Code: %errorlevel%)
+    echo [ERROR] 파일 다운로드 중 오류가 발생했습니다.
+    pause
+    exit /b
+)
+
+REM 3. Install & Run
+if not exist "node_modules" (
+    echo [3/3] 패키지 설치 중 (최초 1회)...
+    call npm install --no-package-lock
+) else (
+    echo [3/3] 패키지 확인 완료.
+)
+
+echo.
+echo [OK] 실행 중...
+call npm run launcher
+if %errorlevel% neq 0 (
+    echo [ERROR] 앱 실행 실패 (Error Code: %errorlevel%)
     pause
 )
 
-exit
+exit /b
