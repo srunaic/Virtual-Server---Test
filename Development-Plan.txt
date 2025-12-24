@@ -1,0 +1,391 @@
+# Angel Kitty (천사 냥이) - Visual Novel Game Development Plan
+## Project Overview
+**Genre:** Visual Novel (VN)
+**Platform:** Unity Engine based PC Game
+**Target:** Gamers who enjoy emotional stories
+**Theme:** Contract between angel and human, weight of love and choice
+
+## World Setting
+### Divine Realm (World of Gods)
+- **Direct Intervention Prohibited:** Gods only observe the earth
+- **Area Division:** Human Area, Angel Area, God Area
+- **God Classification:**
+  - Angel Management God: Manages angel order
+  - God who manages human life and order
+  - God who manages animal life and order
+
+### Demon Realm (Irregular World)
+- **Demon King:** Maintains order through force and survival of the fittest
+- **Class System:** Demons (fallen angels), Monsters (fallen animals)
+
+### Angel Kitty
+- **Definition:** Small guardian angels created by god who manages animal order
+- **Characteristics:** Can be demoted to earth if mission fails or develops emotions
+- **Ability:** Can contract as guardian to specific humans/creatures
+
+## Main Characters
+### Lumi (Angel Kitty → Earth Demotion)
+- **Personality:** Initially bureaucratic, gradually develops emotions
+- **Abilities:** Life maintenance assistance, slows disease progression
+- **Weakness:** Love emotion = violation of divine realm rules
+
+### Male Protagonist (Human)
+- **Setting:** Terminally ill young man with lung cancer, lives alone, cat lover
+- **Personality:** Quiet and gentle
+- **Characteristics:** Takes responsibility for cats until the end, worries about others before himself
+
+## Core Systems
+### Guardian Contract Rules
+- **Condition:** Human must not have given up the will to live
+- **Form:** Automatic establishment when lives choose each other (no explanation/spell)
+- **Price:** Other lives are consumed as much as lives are maintained (balance maintenance)
+
+### Meaning of Emotions
+- **Angel's Perspective:** Emotion = Favoritism = Possibility of order collapse
+- **Lumi's Logic:** "Having emotions doesn't necessarily destroy order. You can also choose to protect it."
+
+---
+
+# Phase 1: Basic Construction (Completed ✅)
+## 1. Project Foundation & Canvas Configuration
+### Goal
+Create necessary folder structure and generate Canvas that will be parent of all UI.
+
+### Main Tasks
+- ✅ Created detailed folders in Assets/Scripts
+  - Managers: Game managers (GameManager, DialogueManager, etc.)
+  - Characters: Character-related logic
+  - Systems: Game systems
+  - Data: Data management (ScriptableObject)
+  - UI/Dialogue: Dialogue-related
+  - UI/Effects: UI effects
+- ✅ Created detailed folders in Assets/Resources
+  - Dialogue: Dialogue data storage
+  - Audio: BGM/SFX
+  - Fonts: Font files
+  - Effects: Effect resources
+- ✅ Created Managers folder in Assets/Prefabs
+- ✅ Auto-generate UI_Canvas & set 1920x1080 resolution
+- ✅ Place Background layer objects
+
+### Implemented Files
+```
+Assets/Scripts/Managers/
+├── GameManager.cs          # Main game manager (Singleton)
+├── GameInitializer.cs      # Initialization on game start
+├── DialogueManager.cs      # Dialogue window management system
+├── CharacterManager.cs     # Character display/management
+└── NarrativeManager.cs     # Scenario progress control
+
+Assets/Scripts/Data/
+└── DialogueData.cs         # Dialogue data (ScriptableObject)
+
+Assets/Scripts/
+└── TestDialogueRunner.cs   # Test script
+```
+
+---
+
+# Phase 2: System Development (Completed ✅)
+## 2. Dialogue UI Design
+### Goal
+Create layout for dialogue window and apply Glassmorphism style.
+
+### Main Tasks
+- ✅ Create Glassmorphism style bottom main panel
+  - Semi-transparent black background (80% transparency)
+  - Rounded corners and soft border effects
+- ✅ Set up TextMeshPro based text areas
+  - Name text: Top-left, 24pt font
+  - Main text: Main area, 28pt font, auto line break
+- ✅ Add 'Next' button for dialogue progress
+  - Bottom-right placement, semi-transparent white background
+  - Display "다음" text
+- ✅ Support click/touch interaction
+
+### Technical Features
+- **Resolution Support:** Auto-sizing via Canvas Scaler
+- **Layer Management:** Dialogue Canvas displayed at top with sortingOrder 100
+- **Responsive Design:** Auto-adjustment based on screen size
+
+---
+
+## 3. Character Placement & Expression System
+### Goal
+Create areas for placing Lumi's cat form and humanoid form, implement display/management functions.
+
+### Main Tasks
+- ✅ Character slot system (Left, Center, Right)
+  - Left Slot: 20% left of screen
+  - Center Slot: 50% center of screen
+  - Right Slot: 80% right of screen
+- ✅ Character image replacement system
+  - Sprite-based character display
+  - Preserve Aspect ratio maintenance
+  - Auto-sizing (400x600 default size)
+- ✅ Character show/hide/move functions
+  - ShowCharacter(): Display character in specified slot
+  - HideCharacter(): Hide character in specified slot
+  - MoveCharacter(): Move character between slots
+
+### Implemented Methods
+```csharp
+// Show character
+CharacterManager.Instance.ShowCharacter("Center", characterSprite, "Lumi");
+
+// Hide character
+CharacterManager.Instance.HideCharacter("Left");
+
+// Move character
+CharacterManager.Instance.MoveCharacter("Left", "Center");
+```
+
+---
+
+## 4. Scenario Engine Development (ScriptableObject)
+### Goal
+Build system to manage dialogue data like Excel without code modification.
+
+### Main Tasks
+- ✅ Create DialogueData ScriptableObject
+  - Data structure per dialogue line
+  - Character info, text, sprites, effects, etc.
+- ✅ Implement NarrativeManager
+  - Load dialogue data and control progress
+  - Event system (start/end/complete callbacks)
+- ✅ Input sample data for Episode 1 "Beyond Order"
+  - 4 lines of God's voice narration
+  - Typing effects and delay settings
+
+### Data Structure
+```csharp
+[CreateAssetMenu(fileName = "New Dialogue", menuName = "Angel Kitty/Dialogue Data")]
+public class DialogueData : ScriptableObject
+{
+    public string dialogueTitle;
+    public string episodeName;
+    public List<DialogueLine> dialogueLines;
+
+    [Serializable]
+    public class DialogueLine
+    {
+        public string characterName;
+        public CharacterPosition characterPosition;
+        public string dialogueText;
+        public Sprite characterSprite;
+        public float displayDelay;
+        public DialogueEffect effect;
+    }
+}
+```
+
+---
+
+## 5. Text Typing Effects & Integration
+### Goal
+Apply letter-by-letter typing effects for emotional direction and integrate all systems.
+
+### Main Tasks
+- ✅ Letter-by-letter typing effects
+  - typingSpeed: Display letters at 0.05 second intervals
+  - enableTypingEffect: Enable/disable typing effects
+- ✅ User input processing
+  - Spacebar/Click: Proceed to next line or complete typing immediately
+  - ESC key: Force end dialogue
+- ✅ Complete integration with NarrativeManager
+  - Automate character display/background change/effect application
+  - Scalable event-based system
+
+### Typing Effect Logic
+```csharp
+private IEnumerator TypeText(string fullText)
+{
+    isTyping = true;
+    mainText.text = "";
+
+    foreach (char letter in fullText)
+    {
+        mainText.text += letter;
+        yield return new WaitForSeconds(typingSpeed);
+    }
+
+    isTyping = false;
+}
+```
+
+---
+
+# Phase 3: Content Creation (In Progress 🚧)
+## 6. Episodes 1-8 Scenario Data Input
+### Planned Episodes
+- **Episode 1: 「Beyond Order」** ✅ Sample implementation completed
+- **Episode 2: 「Demotion」** ⏳ Pending
+- **Episode 3: 「Rainy Alley」** ⏳ Pending
+- **Episode 4: 「Guardian Contract」** ⏳ Pending
+- **Episode 5: 「Forbidden Emotions」** ⏳ Pending
+- **Episode 6: 「Guardian」** ⏳ Pending
+- **Episode 7: 「Price of Contract」** ⏳ Pending
+- **Episode 8: 「Morning Temperature」** ⏳ Pending
+
+### Key Events Per Episode
+1. Divine realm observation → Lumi's emotion development
+2. Earth demotion decision
+3. First meeting with protagonist
+4. Guardian contract establishment
+5. Growth of emotions
+6. Demon realm threat hints
+7. Explanation of contract price
+8. Humanoid transformation hints & comedy episode
+
+---
+
+# Phase 4: Advanced Features (Planned 🎯)
+## 7. Choice System Implementation
+### Goal
+Build system where player choices affect the story.
+
+### Main Features
+- Choice UI display
+- Story branching based on choices
+- Favorability system integration
+- Choice save/load
+
+## 8. Multiple Ending System
+### Goal
+Implement system showing different endings based on choices.
+
+### Ending Categories
+- Happy Ending: Completion of love between Lumi and protagonist
+- Bad Ending: Contract failure or death
+- True Ending: Reconciliation with divine realm
+
+## 9. BGM & SFX Integration
+### Goal
+Build audio system for emotional expression.
+
+### Audio Elements
+- Background Music: Situation-based BGM changes
+- Sound Effects: Character display, button clicks, etc.
+- Voice Acting: Character-specific voices (optional)
+
+---
+
+# Technology Stack & Requirements
+## Development Environment
+- **Engine:** Unity 2022.3+
+- **Language:** C# (.NET)
+- **UI:** Unity UI + TextMeshPro
+- **Version Control:** Git
+
+## Required Packages
+- TextMeshPro (Built-in Unity)
+- (Optional) Unity Addressables (Asset management)
+- (Optional) DOTween (Animation)
+
+## Recommended Specifications
+- **Development:** Windows 10/11, 16GB RAM+
+- **Target Platform:** Windows 10+
+- **Resolution:** 1920x1080 (16:9), responsive support
+
+---
+
+# Project Structure (Final)
+```
+Assets/
+├── Scripts/
+│   ├── Managers/           # Game managers
+│   ├── Characters/         # Character-related logic
+│   ├── Systems/            # Game systems
+│   ├── Data/               # ScriptableObject data
+│   ├── UI/
+│   │   ├── Dialogue/       # Dialogue-related
+│   │   └── Effects/        # UI effects
+│   └── Utils/              # Utility functions
+├── Resources/
+│   ├── Dialogue/           # Dialogue data files
+│   ├── Audio/              # BGM/SFX
+│   ├── Fonts/              # Font files
+│   └── Effects/            # Effect resources
+├── Prefabs/
+│   ├── Managers/           # Manager prefabs
+│   ├── UI/                 # UI prefabs
+│   └── Characters/         # Character prefabs
+├── Scenes/                 # Game scenes
+├── Sprites/                # Image files
+└── Animations/             # Animation clips
+```
+
+---
+
+# Development Schedule & Milestones
+## Phase 1 (Completed): 2025.01.01 - 2025.01.15
+- ✅ Project foundation construction
+- ✅ UI Canvas system
+- ✅ Basic managers implementation
+
+## Phase 2 (Completed): 2025.01.16 - 2025.02.01
+- ✅ Dialogue system completion
+- ✅ Character display system
+- ✅ Scenario engine construction
+- ✅ Typing effects integration
+
+## Phase 3 (In Progress): 2025.02.01 - 2025.03.01
+- 🚧 Episodes 1-8 scenario data input
+- ⏳ Character illustration work
+- ⏳ Background image production
+- ⏳ BGM/SFX addition
+
+## Phase 4 (Planned): 2025.03.01 - 2025.04.01
+- 🎯 Choice system implementation
+- 🎯 Multiple ending system
+- 🎯 Save/load functionality
+- 🎯 UI/UX final improvements
+
+---
+
+# Testing & Quality Assurance
+## Test Cases
+1. **Basic Dialogue Progress:** Typing effects, next button, ESC termination
+2. **Character Display:** Left/center/right slots, show/hide/move
+3. **Scenario Progress:** Dialogue data loading, event callbacks
+4. **UI Responsive:** Display verification at various resolutions
+
+## Debug Features
+- Test methods via ContextMenu
+- System status logging via Debug.Log
+- Real-time setting changes in Inspector
+
+---
+
+# Future Expansion Plans
+## Mobile Support
+- Touch input optimization
+- Improved resolution support
+- Mobile UI guidelines application
+
+## Multi-language Support
+- Dialogue data localization system
+- Automatic font switching
+- RTL language support
+
+## Additional Modes
+- Free Mode: Unlock all choices
+- Gallery Mode: Illustration/voice collection
+- Settings Mode: Volume control, typing speed adjustment
+
+---
+
+# Conclusion
+Angel Kitty project is a visual novel game combining emotional storytelling with modern UI/UX. Core systems of Phase 1-2 are completed with stable foundation, and Phase 3 will begin full content production.
+
+**Key Strengths:**
+- Flexible data management based on ScriptableObject
+- Scalable event-based architecture
+- Modern UI with Glassmorphism style
+- Emotional typing effects and storytelling
+
+**Development Goal:** Release demo version with high completion in first half of 2025
+
+---
+*Document Date: January 25, 2025*
+*Next Update: According to Phase 3 progress*
