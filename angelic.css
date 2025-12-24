@@ -218,18 +218,6 @@ section {
     font-weight: 600;
 }
 
-.novel-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: var(--angel-gold);
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 700;
-    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4);
-}
 
 /* Auth & Modal Styles */
 .auth-buttons {
@@ -726,10 +714,6 @@ footer p {
         font-size: 30px;
     }
 
-    .novel-badge {
-        font-size: 10px;
-        padding: 3px 8px;
-    }
 
     footer {
         padding: 30px 4%;
