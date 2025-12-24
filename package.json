@@ -17,7 +17,28 @@
     "launcher": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.nanodorothy.angelkitty",
+    "productName": "AngelKittyLauncher",
+    "copyright": "Copyright © 2025 나노도로시",
+    "files": [
+      "main.js",
+      "launcher.html",
+      "launcher_bg.jpg",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "launcher_bg.jpg"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Angel Kitty Launcher"
+    }
   },
   "keywords": [],
   "author": "",
@@ -25,6 +46,7 @@
   "type": "commonjs",
   "devDependencies": {
     "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
     "ngrok": "^5.0.0-beta.2"
   }
 }
