@@ -21,7 +21,7 @@ if %errorlevel% neq 0 (
 
 REM 2. Download missing files using PowerShell (One-liner for stability)
 echo [2/3] 필수 파일 다운로드/검토 중...
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$files = @('package.json', 'main.js', 'launcher.html', 'launcher_bg.jpg'); $repo = 'https://raw.githubusercontent.com/srunaic/Virtual-Server---Test/main/'; foreach ($f in $files) { if (!(Test-Path $f)) { Write-Host \"Downloading $f...\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri ($repo + $f) -OutFile $f } }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$files = @('package.json', 'main.js', 'launcher.html', 'launcher_bg.jpg', 'rumi.jpg'); $repo = 'https://raw.githubusercontent.com/srunaic/Virtual-Server---Test/main/'; foreach ($f in $files) { if (!(Test-Path $f)) { Write-Host \"Downloading $f...\"; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri ($repo + $f) -OutFile $f } }"
 if %errorlevel% neq 0 (
     echo [ERROR] 파일 다운로드 중 오류가 발생했습니다.
     pause
