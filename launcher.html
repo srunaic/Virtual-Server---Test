@@ -435,6 +435,20 @@
 
         if (isElectron) {
             ipcRenderer = require('electron').ipcRenderer;
+
+            // Auto Update Listeners
+            ipcRenderer.on('update-status', (event, text) => {
+                const statusText = document.getElementById('status-text');
+                statusText.style.display = 'block';
+                statusText.innerText = text;
+            });
+
+            ipcRenderer.on('update-progress', (event, percent) => {
+                const prog = document.getElementById('prog-bar');
+                const container = document.getElementById('prog-container');
+                container.style.display = 'block';
+                prog.style.width = percent + '%';
+            });
         }
 
         function showView(view) {
