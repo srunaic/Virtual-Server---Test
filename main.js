@@ -7,14 +7,15 @@ function createWindow() {
         height: 650,
         frame: false,
         resizable: false,
+        show: true, // Ensure it shows up immediately
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false // For ease of communication in this demo, but usually not recommended for production
-        },
-        icon: path.join(__dirname, 'launcher_bg.jpg') // Temporary icon
+            contextIsolation: false,
+            enableRemoteModule: true
+        }
     });
 
-    win.loadFile('launcher.html');
+    win.loadFile(path.join(__dirname, 'launcher.html'));
 
     // Optional: win.webContents.openDevTools();
 }
