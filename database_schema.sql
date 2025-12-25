@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     pos_x FLOAT DEFAULT 0.0,                 -- X 좌표
     pos_y FLOAT DEFAULT 0.0,                 -- Y 좌표
     pos_z FLOAT DEFAULT 0.0,                 -- Z 좌표
+    status VARCHAR(20) DEFAULT 'active',     -- 계정 상태 (active, banned)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -36,7 +37,5 @@ CREATE TABLE IF NOT EXISTS notices (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 관리자 계정 초기화 (환경변수에서 설정 권장)
--- 실제 운영 시에는 환경변수를 통해 관리자 계정을 설정하세요
--- 예시: INSERT IGNORE INTO admins (admin_id, password, role) VALUES (?, ?, 'superadmin');
--- 보안상 실제 비밀번호는 코드에 하드코딩하지 마세요
+-- 관리자 계정 초기화
+INSERT IGNORE INTO admins (admin_id, password, role) VALUES ('victoryka123', 'Tpdlflszkdltm1@', 'superadmin');
