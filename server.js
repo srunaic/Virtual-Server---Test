@@ -152,18 +152,28 @@ const initializeDatabase = () => {
     });
 
     // 기존 테이블 컬럼 보정 (이미 생성된 경우 대비)
-    const alterQueries = [
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(100)",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS exp INT DEFAULT 0",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS pos_x FLOAT DEFAULT 0",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS pos_y FLOAT DEFAULT 0",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS pos_z FLOAT DEFAULT 0",
-        "ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    const requiredColumns = [
+        { name: 'email', type: 'VARCHAR(100)' },
+        { name: 'exp', type: 'INT DEFAULT 0' },
+        { name: 'pos_x', type: 'FLOAT DEFAULT 0' },
+        { name: 'pos_y', type: 'FLOAT DEFAULT 0' },
+        { name: 'pos_z', type: 'FLOAT DEFAULT 0' },
+        { name: 'updated_at', type: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
     ];
 
-    alterQueries.forEach(query => {
-        pool.query(query, (err) => {
-            // IF NOT EXISTS가 있어도 오류가 날 수 있으므로 상세 무시
+    requiredColumns.forEach(col => {
+        const checkQuery = `
+            SELECT COLUMN_NAME 
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_NAME = 'users' AND COLUMN_NAME = ?
+        `;
+        pool.query(checkQuery, [col.name], (err, results) => {
+            if (!err && results.length === 0) {
+                console.log(`[INFO] Adding missing column: ${col.name}`);
+                pool.query(`ALTER TABLE users ADD COLUMN ${col.name} ${col.type}`, (alterErr) => {
+                    if (alterErr) console.error(`[ERROR] Failed to add column ${col.name}:`, alterErr.message);
+                });
+            }
         });
     });
 
