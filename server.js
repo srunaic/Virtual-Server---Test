@@ -561,6 +561,57 @@ app.post('/api/admin/inquiries/:id/read', (req, res) => {
     });
 });
 
+// 7. [관리자] 데이터 마이그레이션 도구 (로컬 -> 클라우드)
+app.post('/api/admin/import-data', (req, res) => {
+    const { auth_key, data } = req.body;
+
+    // 보안을 위해 알려주신 비번을 인증키로 사용
+    const adminPassword = 'Tpdlflszkdltm1@';
+    if (auth_key !== adminPassword) {
+        return res.status(403).json({ error: "인증 실패" });
+    }
+
+    if (!data || !data.users) {
+        return res.status(400).json({ error: "데이터가 유효하지 않습니다." });
+    }
+
+    // 사용자 데이터 복구
+    const importUsers = () => {
+        return new Promise((resolve) => {
+            const users = data.users;
+            if (users.length === 0) return resolve();
+
+            let count = 0;
+            users.forEach(user => {
+                const query = `
+                    INSERT INTO users (user_id, password, email, nickname, level, exp, gold, status, pos_x, pos_y, pos_z) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON DUPLICATE KEY UPDATE 
+                    email=VALUES(email), nickname=VALUES(nickname), level=VALUES(level), 
+                    gold=VALUES(gold), status=VALUES(status)
+                `;
+                const params = [
+                    user.user_id, user.password, user.email, user.nickname,
+                    user.level, user.exp, user.gold, user.status,
+                    user.pos_x, user.pos_y, user.pos_z
+                ];
+
+                pool.query(query, params, (err) => {
+                    count++;
+                    if (err) console.error(`User ${user.user_id} import fail:`, err);
+                    if (count === users.length) resolve();
+                });
+            });
+        });
+    };
+
+    importUsers().then(() => {
+        res.json({ message: "데이터 이사가 성공적으로 완료되었습니다.", users_count: data.users.length });
+    }).catch(err => {
+        res.status(500).json({ error: "마이그레이션 중 오류 발생", detail: err.message });
+    });
+});
+
 // 서버 시작 - Railway 등 클라우드 환경을 위해 0.0.0.0 바인딩
 const HOST = '0.0.0.0';
 server.listen(port, HOST, () => {
