@@ -19,7 +19,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "electron-builder"
+    "build:launcher": "electron-builder"
   },
   "build": {
     "appId": "com.nanodorothy.angelkitty",
