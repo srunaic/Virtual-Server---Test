@@ -237,13 +237,16 @@ app.post('/api/login', async (req, res) => {
             try {
                 const isMatch = await bcrypt.compare(password, user.password);
                 if (!isMatch) {
+                    console.warn(`로그인 실패: ${user_id} - 비밀번호 불일치`);
                     return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
                 }
 
                 if (user.status === 'banned') {
+                    console.warn(`로그인 실패: ${user_id} - 정지된 계정`);
                     return res.status(403).json({ error: "정지된 계정입니다. 관리자에게 문의하세요." });
                 }
 
+                console.log(`로그인 성공: ${user_id}`);
                 res.json({
                     message: "로그인 성공!",
                     user: {
@@ -382,6 +385,7 @@ app.post('/api/admin/notices', (req, res) => {
 
 // 1. 문의 작성
 app.post('/api/inquiries', (req, res) => {
+    console.log("문의 작성 요청 바디:", req.body);
     const { user_id, nickname, title, content } = req.body;
     if (!user_id || !title || !content) {
         return res.status(400).json({ error: "필수 정보가 누락되었습니다." });
