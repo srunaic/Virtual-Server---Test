@@ -20,6 +20,11 @@ function createWindow() {
 
     mainWindow.loadFile(path.join(__dirname, 'launcher.html'));
 
+    // Send version to UI
+    mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.webContents.send('app-version', app.getVersion());
+    });
+
     // Check for updates after window is ready
     mainWindow.once('ready-to-show', () => {
         autoUpdater.checkForUpdatesAndNotify();

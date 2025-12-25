@@ -11,7 +11,7 @@
     "socket.io": "^4.8.2"
   },
   "name": "ai-agent-software",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "",
   "main": "main.js",
   "scripts": {
