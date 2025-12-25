@@ -88,17 +88,46 @@ const pool = mysql.createPool({
     keepAliveInitialDelay: 0
 });
 
-// 연결 상태 모니터링
-pool.on('connection', (connection) => {
-    console.log('MySQL 연결됨 - ID:', connection.threadId);
-});
+// 데이터베이스 초기화 (테이블 자동 생성)
+const initializeDatabase = () => {
+    const queries = [
+        `CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id VARCHAR(50) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            nickname VARCHAR(50) NOT NULL,
+            gold INT DEFAULT 0,
+            level INT DEFAULT 1,
+            status VARCHAR(20) DEFAULT 'active',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+        `CREATE TABLE IF NOT EXISTS inquiries (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id VARCHAR(50) NOT NULL,
+            nickname VARCHAR(50) NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )`,
+        `CREATE TABLE IF NOT EXISTS notices (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`
+    ];
 
-pool.on('error', (err) => {
-    console.error('MySQL 풀 에러:', err);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-        console.log('MySQL 연결 재시도...');
-    }
-});
+    queries.forEach(query => {
+        pool.query(query, (err) => {
+            if (err) console.error('[ERROR] 테이블 생성 실패:', err.message);
+        });
+    });
+    console.log('[INFO] 데이터베이스 초기화 확인 완료');
+};
+
+initializeDatabase();
 
 
 // 1. 회원가입 API
