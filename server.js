@@ -88,7 +88,7 @@ const mysql_url = getEnv('MYSQLURL') || getEnv('DATABASEURL');
 const poolConfig = mysql_url ? mysql_url : {
     host: getEnv('MYSQLHOST') || getEnv('DBHOST') || 'localhost',
     user: getEnv('MYSQLUSER') || getEnv('DBUSER') || 'root',
-    password: getEnv('MYSQLPASSWORD') || getEnv('MYSQL_PASSWORD') || getEnv('DBPASSWORD') || '',
+    password: getEnv('MYSQLPASSWORD') || getEnv('MYSQL_PASSWORD') || getEnv('MYSQLROOTPASSWORD') || getEnv('DBPASSWORD') || '',
     database: getEnv('MYSQLDATABASE') || getEnv('DBNAME') || 'virtual_server',
     port: parseInt(getEnv('MYSQLPORT') || getEnv('DBPORT')) || 3306,
 };
