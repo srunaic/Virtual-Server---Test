@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inquiry Board - Angel Kitty</title>
+    <link rel="stylesheet" href="angelic.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .inquiry-container {
+            max-width: 1000px;
+            margin: 120px auto 50px;
+            padding: 0 20px;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-write {
+            background: var(--angel-pink-deep);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-write:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .inquiry-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .inquiry-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            transition: 0.3s;
+        }
+
+        .inquiry-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .inquiry-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--angel-pink-deep);
+        }
+
+        .inquiry-meta {
+            font-size: 0.9rem;
+            color: var(--text-soft);
+        }
+
+        .inquiry-content {
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-unread {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748b;
+        }
+
+        .status-read {
+            background: rgba(49, 151, 149, 0.1);
+            color: #319795;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-soft);
+            transition: 0.2s;
+        }
+
+        .btn-action:hover {
+            color: var(--angel-pink-deep);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            border-radius: 30px;
+            position: relative;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="angelic-bg"></div>
+
+    <header>
+        <a href="index.html" class="logo">Angel Kitty</a>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="inquiry.html" class="active">Support</a>
+        </nav>
+        <div id="user-status">
+            <!-- JS fill -->
+        </div>
+    </header>
+
+    <div class="inquiry-container">
+        <div class="board-header">
+            <div>
+                <h1 style="color: var(--angel-pink-deep);">문의 게시판</h1>
+                <p style="color: var(--text-soft);">도움이 필요하신 내용을 남겨주세요.</p>
+            </div>
+            <button class="btn-write" onclick="openModal()">
+                <i class="fas fa-edit"></i> 문의하기
+            </button>
+        </div>
+
+        <div id="inquiry-list" class="inquiry-list">
+            <!-- JS fill -->
+            <div class="glass-card" style="padding: 50px; text-align: center;">
+                <p>로딩 중...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inquiry Modal -->
+    <div id="inquiry-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title" style="margin-bottom: 25px; color: var(--angel-pink-deep);">문의 작성</h2>
+            <form id="inquiry-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label>제목</label>
+                    <input type="text" id="title" placeholder="문의 제목을 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label>내용</label>
+                    <textarea id="content" rows="8" placeholder="상세 내용을 적어주세요. 24시간 내에는 수정 및 삭제가 가능합니다."
+                        required></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn-write" style="flex: 1;">제출하기</button>
+                    <button type="button" class="btn-write" style="background: #e2e8f0; color: #64748b; flex: 1;"
+                        onclick="closeModal()">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:3000";
+        let currentUser = JSON.parse(localStorage.getItem('user'));
+
+        if (!currentUser) {
+            alert("로그인이 필요한 페이지입니다.");
+            location.href = "index.html";
+        }
+
+        async function fetchInquiries() {
+            try {
+                const response = await fetch(`${API_BASE}/api/inquiries/${currentUser.user_id}`);
+                const data = await response.json();
+                renderInquiries(data);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('inquiry-list').innerHTML = '<p>데이터를 불러오지 못했습니다.</p>';
+            }
+        }
+
+        function renderInquiries(inquiries) {
+            const list = document.getElementById('inquiry-list');
+            if (inquiries.length === 0) {
+                list.innerHTML = '<div class="glass-card" style="padding: 50px; text-align: center;"><p>작성된 문의가 없습니다.</p></div>';
+                return;
+            }
+
+            list.innerHTML = inquiries.map(item => {
+                const isRead = item.is_read;
+                const createdAt = new Date(item.created_at);
+                const now = new Date();
+                const diffHours = (now - createdAt) / (1000 * 60 * 60);
+                const canEdit = diffHours < 24;
+
+                return `
+                    <div class="inquiry-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="inquiry-title">${item.title}</div>
+                                <div class="inquiry-meta">${createdAt.toLocaleString()}</div>
+                            </div>
+                            <span class="status-badge ${isRead ? 'status-read' : 'status-unread'}">
+                                ${isRead ? '<i class="fas fa-check-circle"></i> 관리자 읽음' : '대기 중'}
+                            </span>
+                        </div>
+                        <div class="inquiry-content">${item.content}</div>
+                        <div class="card-actions">
+                            ${canEdit ? `
+                                <button class="btn-action" onclick="editInquiry(${item.id}, '${item.title.replace(/'/g, "\\'")}', '${item.content.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')">
+                                    <i class="fas fa-pen"></i> 수정
+                                </button>
+                                <button class="btn-action" onclick="deleteInquiry(${item.id})">
+                                    <i class="fas fa-trash"></i> 삭제
+                                </button>
+                            ` : '<span style="font-size: 0.8rem; color: #94a3b8;">작성 후 24시간이 경과하여 수정/삭제가 불가합니다.</span>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openModal(id = null, title = '', content = '') {
+            document.getElementById('inquiry-modal').style.display = 'flex';
+            document.getElementById('edit-id').value = id || '';
+            document.getElementById('title').value = title;
+            document.getElementById('content').value = content;
+            document.getElementById('modal-title').innerText = id ? '문의 수정' : '문의 작성';
+        }
+
+        function closeModal() {
+            document.getElementById('inquiry-modal').style.display = 'none';
+        }
+
+        document.getElementById('inquiry-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            const url = id ? `${API_BASE}/api/inquiries/${id}` : `${API_BASE}/api/inquiries`;
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: currentUser.user_id,
+                        nickname: currentUser.nickname,
+                        title,
+                        content
+                    })
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    fetchInquiries();
+                } else {
+                    alert("처리 중 오류가 발생했습니다.");
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        async function editInquiry(id, title, content) {
+            openModal(id, title, content);
+        }
+
+        async function deleteInquiry(id) {
+            if (!confirm("정말 삭제하시겠습니까? (삭제 시 관리자 페이지에서도 사라집니다)")) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/inquiries/${id}`, { method: 'DELETE' });
+                if (response.ok) fetchInquiries();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Initialize header status
+        const statusDiv = document.getElementById('user-status');
+        if (currentUser) {
+            statusDiv.innerHTML = `<span style="color: var(--angel-pink-deep); font-weight: bold; margin-right: 15px;">${currentUser.nickname}님</span>
+                                   <button onclick="localStorage.removeItem('user'); location.href='index.html';" class="btn-download" style="padding: 8px 15px; font-size: 13px;">Logout</button>`;
+        }
+
+        fetchInquiries();
+    </script>
+</body>
+
+</html>

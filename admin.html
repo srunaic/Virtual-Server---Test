@@ -125,6 +125,9 @@
             <div class="sidebar-item" onclick="showSection('notices', this)">
                 <i class="fas fa-bullhorn"></i> Notices
             </div>
+            <div class="sidebar-item" onclick="showSection('inquiries', this)">
+                <i class="fas fa-question-circle"></i> Inquiries
+            </div>
             <div class="sidebar-item" style="margin-top: auto; color: #ff6b6b;" onclick="location.href='index.html'">
                 <i class="fas fa-sign-out-alt"></i> Exit to Site
             </div>
@@ -213,6 +216,27 @@
                     <button class="btn-submit" onclick="postNotice()">Publish Notice</button>
                 </div>
             </div>
+            <!-- Inquiries Management -->
+            <div id="inquiries" class="section-panel">
+                <div class="glass-card" style="padding: 30px;">
+                    <h3 style="margin-bottom: 20px;">User Inquiries</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Nickname</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inquiry-list-body">
+                            <!-- JS fill -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -263,6 +287,7 @@
             document.getElementById('section-title').innerText = id.charAt(0).toUpperCase() + id.slice(1);
 
             if (id === 'users') fetchUsers();
+            if (id === 'inquiries') fetchAdminInquiries();
         }
 
         let allUsers = [];
@@ -278,6 +303,15 @@
             } catch (err) {
                 console.error(err);
             }
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('user-search').value.toLowerCase();
+            const filteredUsers = allUsers.filter(user =>
+                user.nickname.toLowerCase().includes(searchTerm) ||
+                user.user_id.toLowerCase().includes(searchTerm)
+            );
+            renderUserTable(filteredUsers);
         }
 
         function renderUserTable(usersToRender) {
@@ -315,13 +349,65 @@
             });
         }
 
-        function filterUsers() {
-            const searchTerm = document.getElementById('user-search').value.toLowerCase();
-            const filteredUsers = allUsers.filter(user =>
-                user.nickname.toLowerCase().includes(searchTerm) ||
-                user.user_id.toLowerCase().includes(searchTerm)
-            );
-            renderUserTable(filteredUsers);
+        // --- Admin Inquiry Management ---
+
+        async function fetchAdminInquiries() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/inquiries`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const inquiries = await response.json();
+                renderAdminInquiries(inquiries);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderAdminInquiries(inquiries) {
+            const tbody = document.getElementById('inquiry-list-body');
+            tbody.innerHTML = '';
+
+            inquiries.forEach(item => {
+                const tr = document.createElement('tr');
+                if (!item.is_read) tr.style.background = 'rgba(255,179,217,0.05)';
+
+                tr.innerHTML = `
+                    <td>${item.user_id}</td>
+                    <td>${item.nickname}</td>
+                    <td style="max-width: 200px; cursor: pointer;" onclick="viewInquiryDetail(${item.id}, '${item.content.replace(/'/g, "\\'")}')">
+                        <strong>${item.title}</strong>
+                    </td>
+                    <td>
+                        <span class="status-badge ${item.is_read ? 'badge-online' : 'badge-offline'} .badge-status" 
+                              style="background: ${item.is_read ? 'rgba(49,151,149,0.1)' : 'rgba(100,116,139,0.1)'}; 
+                                     color: ${item.is_read ? '#319795' : '#64748b'}; padding: 5px 10px; border-radius: 20px; font-size: 11px;">
+                            ${item.is_read ? 'Read' : 'Unread'}
+                        </span>
+                    </td>
+                    <td>${new Date(item.created_at).toLocaleString()}</td>
+                    <td>
+                        ${!item.is_read ? `<button class="btn-auth btn-login" onclick="markAsRead(${item.id})" style="padding: 4px 10px; font-size: 11px; background: var(--angel-pink-deep); border:none; color:white; border-radius:5px; cursor:pointer;">Mark as Read</button>` : 'Checked'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function markAsRead(id) {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/inquiries/${id}/read`, {
+                    method: 'POST',
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                if (response.ok) fetchAdminInquiries();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function viewInquiryDetail(id, content) {
+            alert("Inquiry Content:\n\n" + content);
+            markAsRead(id);
         }
 
         async function updateUserStatus(user_id, status) {

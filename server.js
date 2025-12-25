@@ -378,6 +378,69 @@ app.post('/api/admin/notices', (req, res) => {
     });
 });
 
+// --- 유저 문의(Inquiry) API ---
+
+// 1. 문의 작성
+app.post('/api/inquiries', (req, res) => {
+    const { user_id, nickname, title, content } = req.body;
+    if (!user_id || !title || !content) {
+        return res.status(400).json({ error: "필수 정보가 누락되었습니다." });
+    }
+    pool.query('INSERT INTO inquiries (user_id, nickname, title, content) VALUES (?, ?, ?, ?)',
+        [user_id, nickname || 'anonymous', title, content], (err, result) => {
+            if (err) {
+                console.error("문의 저장 오류:", err);
+                return res.status(500).json({ error: "문의 저장 실패" });
+            }
+            res.json({ message: "문의가 등록되었습니다.", id: result.insertId });
+        });
+});
+
+// 2. 본인 문의 내역 조회
+app.get('/api/inquiries/:user_id', (req, res) => {
+    const { user_id } = req.params;
+    pool.query('SELECT * FROM inquiries WHERE user_id = ? ORDER BY created_at DESC', [user_id], (err, results) => {
+        if (err) return res.status(500).json({ error: "조회 실패" });
+        res.json(results);
+    });
+});
+
+// 3. 문의 수정
+app.put('/api/inquiries/:id', (req, res) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    pool.query('UPDATE inquiries SET title = ?, content = ? WHERE id = ?', [title, content, id], (err, result) => {
+        if (err) return res.status(500).json({ error: "수정 실패" });
+        res.json({ message: "문의가 수정되었습니다." });
+    });
+});
+
+// 4. 문의 삭제
+app.delete('/api/inquiries/:id', (req, res) => {
+    const { id } = req.params;
+    pool.query('DELETE FROM inquiries WHERE id = ?', [id], (err, result) => {
+        if (err) return res.status(500).json({ error: "삭제 실패" });
+        res.json({ message: "문의가 삭제되었습니다." });
+    });
+});
+
+// 5. [관리자] 전체 문의 조회
+app.get('/api/admin/inquiries', (req, res) => {
+    pool.query('SELECT * FROM inquiries ORDER BY created_at DESC', (err, results) => {
+        if (err) return res.status(500).json({ error: "조회 실패" });
+        res.json(results);
+    });
+});
+
+// 6. [관리자] 문의 읽음 처리
+app.post('/api/admin/inquiries/:id/read', (req, res) => {
+    const { id } = req.params;
+    pool.query('UPDATE inquiries SET is_read = TRUE WHERE id = ?', [id], (err, result) => {
+        if (err) return res.status(500).json({ error: "상태 변경 실패" });
+        res.json({ message: "읽음 처리되었습니다." });
+    });
+});
+
 // 서버 시작
 server.listen(port, '127.0.0.1', () => {
     console.log(`🚀 서버가 포트 ${port}에서 실행 중입니다.`);
