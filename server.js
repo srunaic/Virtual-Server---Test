@@ -235,6 +235,7 @@ app.post('/api/login', async (req, res) => {
             const user = results[0];
 
             try {
+                const isMatch = await bcrypt.compare(password, user.password);
                 if (!isMatch) {
                     return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
                 }
