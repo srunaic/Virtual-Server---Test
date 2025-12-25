@@ -71,11 +71,10 @@ io.on('connection', (socket) => {
     });
 });
 
-// MySQL 연결 풀 생성
-const poolConfig = process.env.MYSQL_URL ? process.env.MYSQL_URL : {
+const poolConfig = process.env.MYSQL_URL || process.env.DATABASE_URL ? (process.env.MYSQL_URL || process.env.DATABASE_URL) : {
     host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
     user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+    password: process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
     database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'virtual_server',
     port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT) || 3306,
 };
@@ -366,11 +365,14 @@ app.get('/api/debug/db', (req, res) => {
             error: errorDetail,
             env_check: {
                 MYSQL_URL: process.env.MYSQL_URL ? 'PRESENT' : 'MISSING',
+                DATABASE_URL: process.env.DATABASE_URL ? 'PRESENT' : 'MISSING',
                 MYSQLHOST: process.env.MYSQLHOST ? 'PRESENT' : 'MISSING',
                 MYSQLUSER: process.env.MYSQLUSER ? 'PRESENT' : 'MISSING',
                 MYSQLPORT: process.env.MYSQLPORT ? 'PRESENT' : 'MISSING',
                 MYSQLDATABASE: process.env.MYSQLDATABASE ? 'PRESENT' : 'MISSING',
-                MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'PRESENT' : 'MISSING'
+                MYSQL_DATABASE: process.env.MYSQL_DATABASE ? 'PRESENT' : 'MISSING',
+                MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'PRESENT' : 'MISSING',
+                MYSQL_PASSWORD: process.env.MYSQL_PASSWORD ? 'PRESENT' : 'MISSING'
             },
             pool_using_config: config
         });
