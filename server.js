@@ -374,6 +374,9 @@ app.get('/api/debug/db', (req, res) => {
                 MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'PRESENT' : 'MISSING',
                 MYSQL_PASSWORD: process.env.MYSQL_PASSWORD ? 'PRESENT' : 'MISSING'
             },
+            all_env_keys: Object.keys(process.env).filter(key =>
+                key.includes('MYSQL') || key.includes('DB') || key.includes('PASS') || key.includes('URL')
+            ),
             pool_using_config: config
         });
     });
