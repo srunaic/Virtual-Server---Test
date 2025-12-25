@@ -77,13 +77,15 @@ const pool = mysql.createPool({
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'virtual_server',
+    port: process.env.DB_PORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
     connectTimeout: 60000,
     acquireTimeout: 60000,
     timeout: 60000,
-    reconnect: true
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
 });
 
 // 연결 상태 모니터링
@@ -445,12 +447,11 @@ app.post('/api/admin/inquiries/:id/read', (req, res) => {
     });
 });
 
-// 서버 시작
-server.listen(port, '127.0.0.1', () => {
-    console.log(`🚀 서버가 포트 ${port}에서 실행 중입니다.`);
-    console.log(`🌐 http://localhost:${port}`);
+// 서버 시작 - Railway 등 클라우드 환경을 위해 0.0.0.0 바인딩
+const HOST = '0.0.0.0';
+server.listen(port, HOST, () => {
+    console.log(`🚀 서버가 포트 ${port}에서 실행 중입니다. (${HOST})`);
     console.log(`🔌 Socket.io 실시간 연결 활성화`);
-    console.log(`📊 연결된 클라이언트 수: ${io.engine.clientsCount}`);
 });
 
 // 서버 상태 모니터링
