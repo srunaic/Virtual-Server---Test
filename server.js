@@ -71,12 +71,26 @@ io.on('connection', (socket) => {
     });
 });
 
-const poolConfig = process.env.MYSQL_URL || process.env.DATABASE_URL ? (process.env.MYSQL_URL || process.env.DATABASE_URL) : {
-    host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
-    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-    password: process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
-    database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'virtual_server',
-    port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT) || 3306,
+// 환경변수 유연하게 찾기 (초보자 실수 방지: 공백, 대소문자, 언더바 등)
+const getEnv = (key) => {
+    const normalizedKey = key.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    for (const envKey in process.env) {
+        const normalizedEnvKey = envKey.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (normalizedEnvKey === normalizedKey) {
+            return process.env[envKey];
+        }
+    }
+    return null;
+};
+
+// MySQL 연결 풀 생성
+const mysql_url = getEnv('MYSQLURL') || getEnv('DATABASEURL');
+const poolConfig = mysql_url ? mysql_url : {
+    host: getEnv('MYSQLHOST') || getEnv('DBHOST') || 'localhost',
+    user: getEnv('MYSQLUSER') || getEnv('DBUSER') || 'root',
+    password: getEnv('MYSQLPASSWORD') || getEnv('MYSQL_PASSWORD') || getEnv('DBPASSWORD') || '',
+    database: getEnv('MYSQLDATABASE') || getEnv('DBNAME') || 'virtual_server',
+    port: parseInt(getEnv('MYSQLPORT') || getEnv('DBPORT')) || 3306,
 };
 
 const pool = mysql.createPool({
@@ -363,16 +377,13 @@ app.get('/api/debug/db', (req, res) => {
             },
             connection_test: status,
             error: errorDetail,
-            env_check: {
-                MYSQL_URL: process.env.MYSQL_URL ? 'PRESENT' : 'MISSING',
-                DATABASE_URL: process.env.DATABASE_URL ? 'PRESENT' : 'MISSING',
-                MYSQLHOST: process.env.MYSQLHOST ? 'PRESENT' : 'MISSING',
-                MYSQLUSER: process.env.MYSQLUSER ? 'PRESENT' : 'MISSING',
-                MYSQLPORT: process.env.MYSQLPORT ? 'PRESENT' : 'MISSING',
-                MYSQLDATABASE: process.env.MYSQLDATABASE ? 'PRESENT' : 'MISSING',
-                MYSQL_DATABASE: process.env.MYSQL_DATABASE ? 'PRESENT' : 'MISSING',
-                MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'PRESENT' : 'MISSING',
-                MYSQL_PASSWORD: process.env.MYSQL_PASSWORD ? 'PRESENT' : 'MISSING'
+            env_check_fuzzy: {
+                MYSQL_URL: getEnv('MYSQLURL') ? 'FOUND' : 'MISSING',
+                MYSQLHOST: getEnv('MYSQLHOST') ? 'FOUND' : 'MISSING',
+                MYSQLUSER: getEnv('MYSQLUSER') ? 'FOUND' : 'MISSING',
+                MYSQLPORT: getEnv('MYSQLPORT') ? 'FOUND' : 'MISSING',
+                MYSQLDATABASE: getEnv('MYSQLDATABASE') ? 'FOUND' : 'MISSING',
+                MYSQLPASSWORD: getEnv('MYSQLPASSWORD') ? 'FOUND' : 'MISSING'
             },
             all_env_keys: Object.keys(process.env).filter(key =>
                 key.includes('MYSQL') || key.includes('DB') || key.includes('PASS') || key.includes('URL')
