@@ -619,9 +619,10 @@ app.post('/api/admin/import-data', (req, res) => {
 
     // 사용자 데이터 복구
     const importUsers = () => {
+        const errors = [];
         return new Promise((resolve) => {
             const users = data.users;
-            if (users.length === 0) return resolve();
+            if (users.length === 0) return resolve(errors);
 
             let count = 0;
             users.forEach(user => {
@@ -630,7 +631,7 @@ app.post('/api/admin/import-data', (req, res) => {
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON DUPLICATE KEY UPDATE 
                     email=VALUES(email), nickname=VALUES(nickname), level=VALUES(level), 
-                    gold=VALUES(gold), status=VALUES(status)
+                    gold=VALUES(gold), status=VALUES(status), exp=VALUES(exp), pos_x=VALUES(pos_x), pos_y=VALUES(pos_y), pos_z=VALUES(pos_z)
                 `;
                 const params = [
                     user.user_id, user.password, user.email, user.nickname,
@@ -640,17 +641,24 @@ app.post('/api/admin/import-data', (req, res) => {
 
                 pool.query(query, params, (err) => {
                     count++;
-                    if (err) console.error(`User ${user.user_id} import fail:`, err);
-                    if (count === users.length) resolve();
+                    if (err) {
+                        console.error(`User ${user.user_id} import fail:`, err.message);
+                        errors.push({ user_id: user.user_id, error: err.message });
+                    }
+                    if (count === users.length) resolve(errors);
                 });
             });
         });
     };
 
-    importUsers().then(() => {
-        res.json({ message: "데이터 이사가 성공적으로 완료되었습니다.", users_count: data.users.length });
+    importUsers().then((errors) => {
+        res.json({
+            message: "데이터 이사가 전송되었습니다.",
+            users_count: data.users.length,
+            errors: errors
+        });
     }).catch(err => {
-        res.status(500).json({ error: "마이그레이션 중 오류 발생", detail: err.message });
+        res.status(500).json({ error: "마이그레이션 중 치명적 오류 발생", detail: err.message });
     });
 });
 
