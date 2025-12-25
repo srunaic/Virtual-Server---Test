@@ -271,6 +271,8 @@
                 users.forEach(user => {
                     const tr = document.createElement('tr');
                     const statusColor = user.status === 'banned' ? '#ff6b6b' : '#319795';
+                    const isAdmin = (user.user_id === 'admin' || user.user_id === 'victoryka123');
+
                     tr.innerHTML = `
                         <td>${user.user_id}</td>
                         <td>${user.nickname}</td>
@@ -279,11 +281,16 @@
                         <td style="color: ${statusColor}; font-weight: bold;">${user.status || 'active'}</td>
                         <td>${new Date(user.created_at).toLocaleDateString()}</td>
                         <td>
-                            ${(user.status || 'active') === 'active'
-                            ? `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'banned')" style="padding: 4px 10px; font-size: 12px; background: #ff6b6b; border:none; color:white; border-radius:5px; cursor:pointer;">Ban</button>`
-                            : `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'active')" style="padding: 4px 10px; font-size: 12px; background: #319795; border:none; color:white; border-radius:5px; cursor:pointer;">Unban</button>`
+                            ${isAdmin
+                            ? `<span style="color: var(--angel-gold); font-weight: bold; font-size: 11px;"><i class="fas fa-shield-alt"></i> MASTER</span>`
+                            : `
+                                    ${(user.status || 'active') === 'active'
+                                ? `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'banned')" style="padding: 4px 10px; font-size: 11px; background: #ff6b6b; border:none; color:white; border-radius:5px; cursor:pointer;">Ban</button>`
+                                : `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'active')" style="padding: 4px 10px; font-size: 11px; background: #319795; border:none; color:white; border-radius:5px; cursor:pointer;">Unban</button>`
+                            }
+                                    <button class="btn-auth btn-register" onclick="deleteUser('${user.user_id}')" style="padding: 4px 10px; font-size: 11px; background: #64748b; margin-left: 5px; border:none; color:white; border-radius:5px; cursor:pointer;">Delete</button>
+                                `
                         }
-                            <button class="btn-auth btn-register" onclick="deleteUser('${user.user_id}')" style="padding: 4px 10px; font-size: 12px; background: #64748b; margin-left: 5px; border:none; color:white; border-radius:5px; cursor:pointer;">Delete</button>
                         </td>
                     `;
                     tbody.appendChild(tr);

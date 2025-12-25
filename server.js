@@ -336,6 +336,12 @@ app.get('/api/admin/users', (req, res) => {
 // 5. 유저 상태 변경 (제재/해제)
 app.post('/api/admin/users/status', (req, res) => {
     const { user_id, status } = req.body;
+
+    // 관리자 계정 보호 로직
+    if (user_id === 'admin' || user_id === 'victoryka123') {
+        return res.status(403).json({ error: "관리자 계정은 제재할 수 없습니다." });
+    }
+
     pool.query('UPDATE users SET status = ? WHERE user_id = ?', [status, user_id], (err, result) => {
         if (err) {
             console.error("상태 변경 오류:", err);
@@ -348,6 +354,12 @@ app.post('/api/admin/users/status', (req, res) => {
 // 6. 유저 삭제
 app.delete('/api/admin/users/:user_id', (req, res) => {
     const { user_id } = req.params;
+
+    // 관리자 계정 보호 로직
+    if (user_id === 'admin' || user_id === 'victoryka123') {
+        return res.status(403).json({ error: "관리자 계정은 삭제할 수 없습니다." });
+    }
+
     pool.query('DELETE FROM users WHERE user_id = ?', [user_id], (err, result) => {
         if (err) {
             console.error("유저 삭제 오류:", err);
