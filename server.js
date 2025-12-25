@@ -115,11 +115,17 @@ const initializeDatabase = () => {
             id INT AUTO_INCREMENT PRIMARY KEY,
             user_id VARCHAR(50) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
+            email VARCHAR(100),
             nickname VARCHAR(50) NOT NULL,
             gold INT DEFAULT 0,
             level INT DEFAULT 1,
+            exp INT DEFAULT 0,
             status VARCHAR(20) DEFAULT 'active',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            pos_x FLOAT DEFAULT 0,
+            pos_y FLOAT DEFAULT 0,
+            pos_z FLOAT DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )`,
         `CREATE TABLE IF NOT EXISTS inquiries (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -141,7 +147,23 @@ const initializeDatabase = () => {
 
     queries.forEach(query => {
         pool.query(query, (err) => {
-            if (err) console.error('[ERROR] 테이블 생성 실패:', err.message);
+            if (err) console.error('[ERROR] 테이블 생성/수정 실패:', err.message);
+        });
+    });
+
+    // 기존 테이블 컬럼 보정 (이미 생성된 경우 대비)
+    const alterQueries = [
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(100)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS exp INT DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS pos_x FLOAT DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS pos_y FLOAT DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS pos_z FLOAT DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    ];
+
+    alterQueries.forEach(query => {
+        pool.query(query, (err) => {
+            // IF NOT EXISTS가 있어도 오류가 날 수 있으므로 상세 무시
         });
     });
 
