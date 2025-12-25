@@ -350,45 +350,65 @@ app.get('/api/test', (req, res) => {
 // 서버 시작 시간 기록
 const bootTime = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
 
-// 4. DB 연결 상태 디버깅 API (실제 연결 테스트 포함)
+// 4. DB 연결 상태 디버깅 API (실제 연결 테스트 및 데이터 확인 포함)
 app.get('/api/debug/db', (req, res) => {
     const config = {
-        host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
-        user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-        database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'virtual_server',
-        port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT) || 3306
+        host: getEnv('MYSQLHOST') || getEnv('DBHOST') || 'localhost',
+        user: getEnv('MYSQLUSER') || getEnv('DBUSER') || 'root',
+        database: getEnv('MYSQLDATABASE') || getEnv('DBNAME') || 'virtual_server',
+        port: parseInt(getEnv('MYSQLPORT') || getEnv('DBPORT')) || 3306
     };
 
     pool.getConnection((err, connection) => {
-        const status = err ? 'FAILED' : 'SUCCESS';
-        const errorDetail = err ? {
-            code: err.code,
-            errno: err.errno,
-            sqlState: err.sqlState,
-            message: err.message
-        } : null;
+        if (err) {
+            return res.json({
+                connection_test: 'FAILED',
+                error: {
+                    code: err.code,
+                    message: err.message
+                },
+                env_check_fuzzy: {
+                    MYSQL_URL: getEnv('MYSQLURL') ? 'FOUND' : 'MISSING',
+                    MYSQLHOST: getEnv('MYSQLHOST') ? 'FOUND' : 'MISSING',
+                    MYSQLUSER: getEnv('MYSQLUSER') ? 'FOUND' : 'MISSING',
+                    MYSQLDATABASE: getEnv('MYSQLDATABASE') ? 'FOUND' : 'MISSING',
+                    MYSQLPASSWORD: getEnv('MYSQLPASSWORD') || getEnv('MYSQLROOTPASSWORD') ? 'FOUND' : 'MISSING'
+                },
+                pool_using_config: config
+            });
+        }
 
-        if (connection) connection.release();
+        // 연결 성공 시 테이블 정보 조회
+        const stats = {};
+        const tables = ['users', 'inquiries', 'notices'];
+        let processed = 0;
 
-        res.json({
-            server_info: {
-                boot_time: bootTime,
-                current_time: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
-            },
-            connection_test: status,
-            error: errorDetail,
-            env_check_fuzzy: {
-                MYSQL_URL: getEnv('MYSQLURL') ? 'FOUND' : 'MISSING',
-                MYSQLHOST: getEnv('MYSQLHOST') ? 'FOUND' : 'MISSING',
-                MYSQLUSER: getEnv('MYSQLUSER') ? 'FOUND' : 'MISSING',
-                MYSQLPORT: getEnv('MYSQLPORT') ? 'FOUND' : 'MISSING',
-                MYSQLDATABASE: getEnv('MYSQLDATABASE') ? 'FOUND' : 'MISSING',
-                MYSQLPASSWORD: getEnv('MYSQLPASSWORD') ? 'FOUND' : 'MISSING'
-            },
-            all_env_keys: Object.keys(process.env).filter(key =>
-                key.includes('MYSQL') || key.includes('DB') || key.includes('PASS') || key.includes('URL')
-            ),
-            pool_using_config: config
+        tables.forEach(table => {
+            connection.query(`SELECT COUNT(*) as count FROM ${table}`, (err, results) => {
+                processed++;
+                if (!err) stats[table] = results[0].count;
+                else stats[table] = 'ERROR: ' + err.code;
+
+                if (processed === tables.length) {
+                    connection.release();
+                    res.json({
+                        server_info: {
+                            boot_time: bootTime,
+                            current_time: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
+                        },
+                        connection_test: 'SUCCESS',
+                        table_stats: stats,
+                        env_check_fuzzy: {
+                            MYSQL_URL: getEnv('MYSQLURL') ? 'FOUND' : 'MISSING',
+                            MYSQLHOST: getEnv('MYSQLHOST') ? 'FOUND' : 'MISSING',
+                            MYSQLUSER: getEnv('MYSQLUSER') ? 'FOUND' : 'MISSING',
+                            MYSQLDATABASE: getEnv('MYSQLDATABASE') ? 'FOUND' : 'MISSING',
+                            MYSQLPASSWORD: getEnv('MYSQLPASSWORD') || getEnv('MYSQLROOTPASSWORD') ? 'FOUND' : 'MISSING'
+                        },
+                        pool_using_config: config
+                    });
+                }
+            });
         });
     });
 });
