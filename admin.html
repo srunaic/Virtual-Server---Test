@@ -270,11 +270,11 @@
                     document.getElementById('welcome-admin-name').innerText = adminName;
                     fetchUsers();
                 } else {
-                    errorElement.innerText = data.error || "로그인 실패";
+                    errorElement.textContent = `오류 (${response.status}): ${data.error || '로그인 실패'} - ${data.details || ''}`;
                 }
             } catch (err) {
                 console.error(err);
-                errorElement.innerText = "서버 연결 오류";
+                errorElement.textContent = `서버 연결 실패: ${err.message}`;
             }
         }
 

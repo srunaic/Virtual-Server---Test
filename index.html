@@ -420,11 +420,11 @@
                     alert('로그인 성공!');
                     location.reload();
                 } else {
-                    alert(data.error || '로그인 실패');
+                    alert(`오류 (${response.status}): ${data.error || '로그인 실패'}\n상세: ${data.details || '없음'}`);
                 }
             } catch (err) {
                 console.error(err);
-                alert('서버 연결 오류');
+                alert(`서버 연결 실패: ${err.message}`);
             }
         }
 
@@ -450,11 +450,11 @@
                     closeModal('registerModal');
                     openModal('loginModal');
                 } else {
-                    alert(data.error || '회원가입 실패');
+                    alert(`오류 (${response.status}): ${data.error || '회원가입 실패'}\n상세: ${data.details || '없음'}`);
                 }
             } catch (err) {
                 console.error(err);
-                alert('서버 연결 오류');
+                alert(`서버 연결 실패: ${err.message}`);
             }
         }
 
