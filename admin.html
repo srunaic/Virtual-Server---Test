@@ -133,14 +133,23 @@
         <main class="admin-main">
             <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
                 <h2 id="section-title">Dashboard</h2>
-                <div class="user-info">
-                    <span id="admin-display-name">SuperAdmin</span>
-                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
+                    <div style="text-align: right;">
+                        <span id="admin-display-name"
+                            style="font-weight: 700; color: var(--angel-pink-deep);">Admin</span>
+                        <div style="font-size: 11px; color: var(--text-soft);">Authorized Management</div>
+                    </div>
+                    <div class="user-avatar" style="width: 45px; height: 45px;"><i class="fas fa-user-shield"></i></div>
                 </div>
             </header>
 
             <!-- Dashboard -->
             <div id="dashboard" class="section-panel active">
+                <div class="glass-card"
+                    style="padding: 30px; margin-bottom: 30px; background: linear-gradient(135deg, rgba(255,179,217,0.2), rgba(212,165,255,0.2));">
+                    <h2 style="color: var(--angel-pink-deep);">반갑습니다, <span id="welcome-admin-name">관리자</span>님!</h2>
+                    <p style="color: var(--text-soft); margin-top: 10px;">엔젤 키티 가상 서버 관리 대시보드에 오신 것을 환영합니다.</p>
+                </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                     <div class="glass-card" style="padding: 25px;">
                         <div class="stat-card-title">Total Users</div>
@@ -152,7 +161,7 @@
                     </div>
                     <div class="glass-card" style="padding: 25px;">
                         <div class="stat-card-title">Active Now</div>
-                        <div class="stat-card-value">--</div>
+                        <div class="stat-card-value">1</div>
                     </div>
                 </div>
             </div>
@@ -211,7 +220,10 @@
             try {
                 const response = await fetch(`${API_BASE}/api/admin/login`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
                     body: JSON.stringify({ admin_id, password })
                 });
 
@@ -221,7 +233,9 @@
                     localStorage.setItem('admin', JSON.stringify(data.admin));
                     document.getElementById('login-overlay').style.display = 'none';
                     document.getElementById('admin-view').style.display = 'flex';
-                    document.getElementById('admin-display-name').innerText = data.admin.admin_id;
+                    const adminName = data.admin.admin_id;
+                    document.getElementById('admin-display-name').innerText = adminName;
+                    document.getElementById('welcome-admin-name').innerText = adminName;
                     fetchUsers();
                 } else {
                     errorElement.innerText = data.error || "로그인 실패";
@@ -245,7 +259,9 @@
 
         async function fetchUsers() {
             try {
-                const response = await fetch(`${API_BASE}/api/admin/users`);
+                const response = await fetch(`${API_BASE}/api/admin/users`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
                 const users = await response.json();
                 const tbody = document.getElementById('user-list-body');
                 tbody.innerHTML = '';
@@ -335,6 +351,7 @@
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('admin-view').style.display = 'flex';
                 document.getElementById('admin-display-name').innerText = admin.admin_id;
+                document.getElementById('welcome-admin-name').innerText = admin.admin_id;
                 fetchUsers();
             }
         }
