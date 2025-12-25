@@ -540,12 +540,39 @@ app.delete('/api/admin/users/:user_id', (req, res) => {
     });
 });
 
-// 5. 공지사항 등록
+// 5. 공지사항 등록 (어드민)
 app.post('/api/admin/notices', (req, res) => {
     const { title, content } = req.body;
     pool.query('INSERT INTO notices (title, content) VALUES (?, ?)', [title, content], (err, result) => {
         if (err) return res.status(500).json({ error: "공지 저장 실패" });
-        res.json({ message: "공지사항이 등록되었습니다." });
+        res.json({ message: "공지사항이 등록되었습니다.", id: result.insertId });
+    });
+});
+
+// 5.1. 공지사항 전체 조회 (공개)
+app.get('/api/notices', (req, res) => {
+    pool.query('SELECT * FROM notices ORDER BY created_at DESC', (err, results) => {
+        if (err) return res.status(500).json({ error: "공지 조회 실패" });
+        res.json(results);
+    });
+});
+
+// 5.2. 공지사항 수정 (어드민)
+app.put('/api/admin/notices/:id', (req, res) => {
+    const { id } = req.params;
+    const { title, content } = req.body;
+    pool.query('UPDATE notices SET title = ?, content = ? WHERE id = ?', [title, content, id], (err, result) => {
+        if (err) return res.status(500).json({ error: "공지 수정 실패" });
+        res.json({ message: "공지사항이 수정되었습니다." });
+    });
+});
+
+// 5.3. 공지사항 삭제 (어드민)
+app.delete('/api/admin/notices/:id', (req, res) => {
+    const { id } = req.params;
+    pool.query('DELETE FROM notices WHERE id = ?', [id], (err, result) => {
+        if (err) return res.status(500).json({ error: "공지 삭제 실패" });
+        res.json({ message: "공지사항이 삭제되었습니다." });
     });
 });
 

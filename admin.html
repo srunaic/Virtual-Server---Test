@@ -213,7 +213,27 @@
                         <textarea id="notice-content" rows="6"
                             style="width: 100%; border-radius: 12px; border: 1px solid var(--glass-border); padding: 15px; outline: none;"></textarea>
                     </div>
-                    <button class="btn-submit" onclick="postNotice()">Publish Notice</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-submit" id="notice-submit-btn" onclick="postNotice()">Publish Notice</button>
+                        <button class="btn-auth" id="notice-cancel-btn" onclick="cancelNoticeEdit()"
+                            style="display: none; padding: 12px 20px; background: #94a3b8; border:none; color:white; border-radius:12px; cursor:pointer;">Cancel
+                            Edit</button>
+                    </div>
+
+                    <h3 style="margin-top: 40px; margin-bottom: 20px;">Existing Notices</h3>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="notice-list-body">
+                            <!-- JS fill -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <!-- Inquiries Management -->
@@ -295,6 +315,7 @@
 
             if (id === 'users') fetchUsers();
             if (id === 'inquiries') fetchAdminInquiries();
+            if (id === 'notices') fetchAdminNotices();
         }
 
         let allUsers = [];
@@ -473,25 +494,91 @@
                 console.error(err);
             }
         }
+
+        let editingNoticeId = null;
+
+        function editNotice(id, title, content) {
+            editingNoticeId = id;
+            document.getElementById('notice-title').value = title;
+            document.getElementById('notice-content').value = content;
+            document.getElementById('notice-submit-btn').innerText = 'Update Notice';
+            document.getElementById('notice-cancel-btn').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelNoticeEdit() {
+            editingNoticeId = null;
+            document.getElementById('notice-title').value = '';
+            document.getElementById('notice-content').value = '';
+            document.getElementById('notice-submit-btn').innerText = 'Publish Notice';
+            document.getElementById('notice-cancel-btn').style.display = 'none';
+        }
+
         async function postNotice() {
             const title = document.getElementById('notice-title').value;
             const content = document.getElementById('notice-content').value;
 
             if (!title || !content) return alert("제목과 내용을 입력하세요.");
 
+            const url = editingNoticeId ? `${API_BASE}/api/admin/notices/${editingNoticeId}` : `${API_BASE}/api/admin/notices`;
+            const method = editingNoticeId ? 'PUT' : 'POST';
+
             try {
-                const response = await fetch(`${API_BASE}/api/admin/notices`, {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title, content })
                 });
                 const data = await response.json();
                 alert(data.message);
-                document.getElementById('notice-title').value = '';
-                document.getElementById('notice-content').value = '';
+                cancelNoticeEdit();
+                fetchAdminNotices();
             } catch (err) {
                 console.error(err);
-                alert("등록 실패");
+                alert("처리 실패");
+            }
+        }
+
+        async function fetchAdminNotices() {
+            try {
+                const response = await fetch(`${API_BASE}/api/notices`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                const notices = await response.json();
+                renderAdminNotices(notices);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderAdminNotices(notices) {
+            const tbody = document.getElementById('notice-list-body');
+            tbody.innerHTML = '';
+            notices.forEach(notice => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${notice.id}</td>
+                    <td>Strong>${notice.title}</strong></td>
+                    <td>${new Date(notice.created_at).toLocaleDateString()}</td>
+                    <td style="display: flex; gap: 5px;">
+                        <button class="btn-auth" onclick="editNotice(${notice.id}, '${notice.title.replace(/'/g, "\\'")}', '${notice.content.replace(/'/g, "\\'").replace(/\n/g, "\\n")}')" style="padding: 4px 10px; font-size: 11px; background: #319795; border:none; color:white; border-radius:5px; cursor:pointer;">Edit</button>
+                        <button class="btn-auth" onclick="deleteNotice(${notice.id})" style="padding: 4px 10px; font-size: 11px; background: #ff6b6b; border:none; color:white; border-radius:5px; cursor:pointer;">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function deleteNotice(id) {
+            if (!confirm("공지사항을 삭제하시겠습니까?")) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/notices/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                if (response.ok) fetchAdminNotices();
+            } catch (err) {
+                console.error(err);
             }
         }
 
