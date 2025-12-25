@@ -77,7 +77,7 @@ const getEnv = (key) => {
     for (const envKey in process.env) {
         const normalizedEnvKey = envKey.toUpperCase().replace(/[^A-Z0-9]/g, '');
         if (normalizedEnvKey === normalizedKey) {
-            return process.env[envKey];
+            return process.env[envKey] ? process.env[envKey].trim() : null;
         }
     }
     return null;
