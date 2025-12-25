@@ -327,6 +327,26 @@ app.get('/api/test', (req, res) => {
     });
 });
 
+// 4. DB 연결 상태 디버깅 API (보안을 위해 비밀번호는 제외)
+app.get('/api/debug/db', (req, res) => {
+    res.json({
+        env: {
+            MYSQLHOST: process.env.MYSQLHOST ? 'SET' : 'MISSING',
+            MYSQLUSER: process.env.MYSQLUSER ? 'SET' : 'MISSING',
+            MYSQLPORT: process.env.MYSQLPORT ? 'SET' : 'MISSING',
+            MYSQLDATABASE: process.env.MYSQLDATABASE ? 'SET' : 'MISSING',
+            MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'SET' : 'HIDDEN',
+            DB_HOST: process.env.DB_HOST ? 'SET' : 'MISSING'
+        },
+        pool_config: {
+            host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+            user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+            database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'virtual_server',
+            port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT) || 3306
+        }
+    });
+});
+
 // 4. 어드민 로그인 API
 app.post('/api/admin/login', (req, res) => {
     const { admin_id, password } = req.body;
