@@ -27,7 +27,11 @@ function createWindow() {
 
     // Check for updates after window is ready
     mainWindow.once('ready-to-show', () => {
-        autoUpdater.checkForUpdatesAndNotify();
+        if (app.isPackaged) {
+            autoUpdater.checkForUpdatesAndNotify();
+        } else {
+            mainWindow.webContents.send('update-status', '개발 모드: 업데이트 기능을 패키징 후에 테스트 가능합니다.');
+        }
     });
 }
 
@@ -45,7 +49,12 @@ autoUpdater.on('update-not-available', (info) => {
 });
 
 autoUpdater.on('error', (err) => {
-    mainWindow.webContents.send('update-status', '업데이트 확인 오류');
+    console.error('Update Error:', err);
+    if (!app.isPackaged) {
+        mainWindow.webContents.send('update-status', '개발 환경: 업데이트 체크 스킵 (패키징 후 작동)');
+    } else {
+        mainWindow.webContents.send('update-status', `업데이트 오류: ${err.message.substring(0, 30)}...`);
+    }
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
