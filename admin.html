@@ -170,6 +170,14 @@
             <div id="users" class="section-panel">
                 <div class="glass-card" style="padding: 30px;">
                     <h3 style="margin-bottom: 20px;">User Management</h3>
+                    <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+                        <div style="position: relative; flex: 1;">
+                            <i class="fas fa-search"
+                                style="position: absolute; left: 15px; top: 12px; color: var(--text-soft);"></i>
+                            <input type="text" id="user-search" placeholder="검색할 닉네임을 입력하세요..." oninput="filterUsers()"
+                                style="width: 100%; padding: 10px 10px 10px 40px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.1); color: var(--text-dark); outline: none;">
+                        </div>
+                    </div>
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -257,47 +265,63 @@
             if (id === 'users') fetchUsers();
         }
 
+        let allUsers = [];
+
         async function fetchUsers() {
             try {
                 const response = await fetch(`${API_BASE}/api/admin/users`, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 const users = await response.json();
-                const tbody = document.getElementById('user-list-body');
-                tbody.innerHTML = '';
-
-                document.getElementById('total-users').innerText = users.length;
-
-                users.forEach(user => {
-                    const tr = document.createElement('tr');
-                    const statusColor = user.status === 'banned' ? '#ff6b6b' : '#319795';
-                    const isAdmin = (user.user_id === 'admin' || user.user_id === 'victoryka123');
-
-                    tr.innerHTML = `
-                        <td>${user.user_id}</td>
-                        <td>${user.nickname}</td>
-                        <td>Lv.${user.level}</td>
-                        <td>${user.gold} G</td>
-                        <td style="color: ${statusColor}; font-weight: bold;">${user.status || 'active'}</td>
-                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                        <td>
-                            ${isAdmin
-                            ? `<span style="color: var(--angel-gold); font-weight: bold; font-size: 11px;"><i class="fas fa-shield-alt"></i> MASTER</span>`
-                            : `
-                                    ${(user.status || 'active') === 'active'
-                                ? `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'banned')" style="padding: 4px 10px; font-size: 11px; background: #ff6b6b; border:none; color:white; border-radius:5px; cursor:pointer;">Ban</button>`
-                                : `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'active')" style="padding: 4px 10px; font-size: 11px; background: #319795; border:none; color:white; border-radius:5px; cursor:pointer;">Unban</button>`
-                            }
-                                    <button class="btn-auth btn-register" onclick="deleteUser('${user.user_id}')" style="padding: 4px 10px; font-size: 11px; background: #64748b; margin-left: 5px; border:none; color:white; border-radius:5px; cursor:pointer;">Delete</button>
-                                `
-                        }
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                allUsers = users;
+                renderUserTable(users);
             } catch (err) {
                 console.error(err);
             }
+        }
+
+        function renderUserTable(usersToRender) {
+            const tbody = document.getElementById('user-list-body');
+            tbody.innerHTML = '';
+
+            document.getElementById('total-users').innerText = usersToRender.length;
+
+            usersToRender.forEach(user => {
+                const tr = document.createElement('tr');
+                const statusColor = user.status === 'banned' ? '#ff6b6b' : '#319795';
+                const isAdmin = (user.user_id === 'admin' || user.user_id === 'victoryka123');
+
+                tr.innerHTML = `
+                    <td>${user.user_id}</td>
+                    <td>${user.nickname}</td>
+                    <td>Lv.${user.level}</td>
+                    <td>${user.gold} G</td>
+                    <td style="color: ${statusColor}; font-weight: bold;">${user.status || 'active'}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>
+                        ${isAdmin
+                        ? `<span style="color: var(--angel-gold); font-weight: bold; font-size: 11px;"><i class="fas fa-shield-alt"></i> MASTER</span>`
+                        : `
+                                ${(user.status || 'active') === 'active'
+                            ? `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'banned')" style="padding: 4px 10px; font-size: 11px; background: #ff6b6b; border:none; color:white; border-radius:5px; cursor:pointer;">Ban</button>`
+                            : `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'active')" style="padding: 4px 10px; font-size: 11px; background: #319795; border:none; color:white; border-radius:5px; cursor:pointer;">Unban</button>`
+                        }
+                                <button class="btn-auth btn-register" onclick="deleteUser('${user.user_id}')" style="padding: 4px 10px; font-size: 11px; background: #64748b; margin-left: 5px; border:none; color:white; border-radius:5px; cursor:pointer;">Delete</button>
+                            `
+                    }
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterUsers() {
+            const searchTerm = document.getElementById('user-search').value.toLowerCase();
+            const filteredUsers = allUsers.filter(user =>
+                user.nickname.toLowerCase().includes(searchTerm) ||
+                user.user_id.toLowerCase().includes(searchTerm)
+            );
+            renderUserTable(filteredUsers);
         }
 
         async function updateUserStatus(user_id, status) {
