@@ -330,23 +330,39 @@ app.get('/api/test', (req, res) => {
     });
 });
 
-// 4. DB 연결 상태 디버깅 API (보안을 위해 비밀번호는 제외)
+// 4. DB 연결 상태 디버깅 API (실제 연결 테스트 포함)
 app.get('/api/debug/db', (req, res) => {
-    res.json({
-        env: {
-            MYSQLHOST: process.env.MYSQLHOST ? 'SET' : 'MISSING',
-            MYSQLUSER: process.env.MYSQLUSER ? 'SET' : 'MISSING',
-            MYSQLPORT: process.env.MYSQLPORT ? 'SET' : 'MISSING',
-            MYSQLDATABASE: process.env.MYSQLDATABASE ? 'SET' : 'MISSING',
-            MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'SET' : 'HIDDEN',
-            DB_HOST: process.env.DB_HOST ? 'SET' : 'MISSING'
-        },
-        pool_config: {
-            host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
-            user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-            database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'virtual_server',
-            port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT) || 3306
-        }
+    const config = {
+        host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+        user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+        database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'virtual_server',
+        port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT) || 3306
+    };
+
+    pool.getConnection((err, connection) => {
+        const status = err ? 'FAILED' : 'SUCCESS';
+        const errorDetail = err ? {
+            code: err.code,
+            errno: err.errno,
+            sqlState: err.sqlState,
+            message: err.message
+        } : null;
+
+        if (connection) connection.release();
+
+        res.json({
+            connection_test: status,
+            error: errorDetail,
+            env: {
+                MYSQLHOST: process.env.MYSQLHOST ? 'SET' : 'MISSING',
+                MYSQLUSER: process.env.MYSQLUSER ? 'SET' : 'MISSING',
+                MYSQLPORT: process.env.MYSQLPORT ? 'SET' : 'MISSING',
+                MYSQLDATABASE: process.env.MYSQLDATABASE ? 'SET' : 'MISSING',
+                MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'SET' : 'HIDDEN',
+                DB_HOST: process.env.DB_HOST ? 'SET' : 'MISSING'
+            },
+            pool_config: config
+        });
     });
 });
 
