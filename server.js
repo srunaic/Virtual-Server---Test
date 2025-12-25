@@ -330,6 +330,9 @@ app.get('/api/test', (req, res) => {
     });
 });
 
+// 서버 시작 시간 기록
+const bootTime = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+
 // 4. DB 연결 상태 디버깅 API (실제 연결 테스트 포함)
 app.get('/api/debug/db', (req, res) => {
     const config = {
@@ -351,6 +354,10 @@ app.get('/api/debug/db', (req, res) => {
         if (connection) connection.release();
 
         res.json({
+            server_info: {
+                boot_time: bootTime,
+                current_time: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
+            },
             connection_test: status,
             error: errorDetail,
             env: {
