@@ -188,14 +188,6 @@
             <div class="user-avatar" id="user-avatar-initial">A</div>
             <span id="user-nickname">User</span>
             <div id="profile-dropdown" class="profile-dropdown">
-                <div class="user-stats"
-                    style="padding: 15px; border-bottom: 1px solid var(--glass-border); text-align: center;">
-                    <div style="font-size: 11px; color: var(--text-soft);">CHARACTER PROFILER</div>
-                    <div style="font-size: 18px; font-weight: 800; color: var(--angel-pink-deep); margin: 5px 0;">
-                        Lv.<span id="user-level">1</span></div>
-                    <div style="font-size: 13px; color: var(--angel-gold);"><i class="fas fa-coins"></i> <span
-                            id="user-gold">0</span> G</div>
-                </div>
                 <a href="#" class="dropdown-link" onclick="alert('Profile settings coming soon!')">Settings</a>
                 <a href="admin.html" id="admin-link" class="dropdown-link" style="display: none;">Admin Panel</a>
                 <a href="#" class="dropdown-link" onclick="logout()">Logout</a>
@@ -470,11 +462,9 @@
                 document.getElementById('user-section').style.display = 'flex';
                 document.getElementById('user-nickname').innerText = user.nickname;
                 document.getElementById('user-avatar-initial').innerText = user.nickname.charAt(0).toUpperCase();
-                document.getElementById('user-level').innerText = user.level || 1;
-                document.getElementById('user-gold').innerText = user.gold || 0;
 
-                // Show admin link if user is admin
-                if (user.user_id === 'admin' || user.user_id === 'victoryka123') {
+                // Show admin link if user is admin (simplified for demo, usually depends on database role)
+                if (user.user_id === 'admin') {
                     document.getElementById('admin-link').style.display = 'block';
                 }
             }

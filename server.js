@@ -235,12 +235,9 @@ app.post('/api/login', async (req, res) => {
             const user = results[0];
 
             try {
+                const isMatch = await bcrypt.compare(password, user.password);
                 if (!isMatch) {
                     return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
-                }
-
-                if (user.status === 'banned') {
-                    return res.status(403).json({ error: "정지된 계정입니다. 관리자에게 문의하세요." });
                 }
 
                 res.json({
@@ -323,7 +320,7 @@ app.post('/api/admin/login', (req, res) => {
 
 // 4. 모든 유저 정보 조회 (어드민 전용)
 app.get('/api/admin/users', (req, res) => {
-    pool.query('SELECT id, user_id, nickname, level, gold, status, created_at FROM users', (err, results) => {
+    pool.query('SELECT id, user_id, nickname, level, gold, created_at FROM users', (err, results) => {
         if (err) {
             console.error("유저 조회 DB 오류:", err);
             return res.status(500).json({ error: "데이터 조회 실패", details: err.message });
@@ -332,31 +329,7 @@ app.get('/api/admin/users', (req, res) => {
     });
 });
 
-// 5. 유저 상태 변경 (제재/해제)
-app.post('/api/admin/users/status', (req, res) => {
-    const { user_id, status } = req.body;
-    pool.query('UPDATE users SET status = ? WHERE user_id = ?', [status, user_id], (err, result) => {
-        if (err) {
-            console.error("상태 변경 오류:", err);
-            return res.status(500).json({ error: "상태 변경 실패" });
-        }
-        res.json({ message: `유저 상태가 ${status}(으)로 변경되었습니다.` });
-    });
-});
-
-// 6. 유저 삭제
-app.delete('/api/admin/users/:user_id', (req, res) => {
-    const { user_id } = req.params;
-    pool.query('DELETE FROM users WHERE user_id = ?', [user_id], (err, result) => {
-        if (err) {
-            console.error("유저 삭제 오류:", err);
-            return res.status(500).json({ error: "유저 삭제 실패" });
-        }
-        res.json({ message: "유저가 삭제되었습니다." });
-    });
-});
-
-// 7. 공지사항 등록
+// 5. 공지사항 등록
 app.post('/api/admin/notices', (req, res) => {
     const { title, content } = req.body;
     pool.query('INSERT INTO notices (title, content) VALUES (?, ?)', [title, content], (err, result) => {

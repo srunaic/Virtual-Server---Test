@@ -168,7 +168,6 @@
                                 <th>Nickname</th>
                                 <th>Level</th>
                                 <th>Gold</th>
-                                <th>Status</th>
                                 <th>Created</th>
                                 <th>Action</th>
                             </tr>
@@ -254,54 +253,16 @@
 
                 users.forEach(user => {
                     const tr = document.createElement('tr');
-                    const statusColor = user.status === 'banned' ? '#ff6b6b' : '#319795';
                     tr.innerHTML = `
                         <td>${user.user_id}</td>
                         <td>${user.nickname}</td>
                         <td>Lv.${user.level}</td>
                         <td>${user.gold} G</td>
-                        <td style="color: ${statusColor}; font-weight: bold;">${user.status}</td>
                         <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                        <td>
-                            ${user.status === 'active'
-                            ? `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'banned')" style="padding: 4px 10px; font-size: 12px; background: #ff6b6b;">Ban</button>`
-                            : `<button class="btn-auth btn-login" onclick="updateUserStatus('${user.user_id}', 'active')" style="padding: 4px 10px; font-size: 12px; background: #319795;">Unban</button>`
-                        }
-                            <button class="btn-auth btn-register" onclick="deleteUser('${user.user_id}')" style="padding: 4px 10px; font-size: 12px; background: #64748b; margin-left: 5px;">Delete</button>
-                        </td>
+                        <td><button class="btn-auth btn-login" style="padding: 4px 10px; font-size: 12px;">Manage</button></td>
                     `;
                     tbody.appendChild(tr);
                 });
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        async function updateUserStatus(user_id, status) {
-            if (!confirm(`해당 유저를 ${status === 'banned' ? '제재' : '해제'}하시겠습니까?`)) return;
-            try {
-                const response = await fetch(`${API_BASE}/api/admin/users/status`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
-                    body: JSON.stringify({ user_id, status })
-                });
-                if (response.ok) fetchUsers();
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        async function deleteUser(user_id) {
-            if (!confirm('해당 유저를 "영구 삭제"하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
-            try {
-                const response = await fetch(`${API_BASE}/api/admin/users/${user_id}`, {
-                    method: 'DELETE',
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-                if (response.ok) fetchUsers();
             } catch (err) {
                 console.error(err);
             }
