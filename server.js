@@ -613,6 +613,29 @@ app.post('/api/admin/inquiries/:id/read', (req, res) => {
     });
 });
 
+// 6.5. [관리자] 문의 개별 삭제
+app.delete('/api/admin/inquiries/:id', (req, res) => {
+    const { id } = req.params;
+    pool.query('DELETE FROM inquiries WHERE id = ?', [id], (err, result) => {
+        if (err) {
+            console.error("문의 삭제 오류:", err);
+            return res.status(500).json({ error: "삭제 실패" });
+        }
+        res.json({ message: "문의가 삭제되었습니다." });
+    });
+});
+
+// 6.6. [관리자] 문의 전체 삭제
+app.delete('/api/admin/inquiries', (req, res) => {
+    pool.query('DELETE FROM inquiries', (err, result) => {
+        if (err) {
+            console.error("문의 전체 삭제 오류:", err);
+            return res.status(500).json({ error: "전체 삭제 실패" });
+        }
+        res.json({ message: "모든 문의가 삭제되었습니다." });
+    });
+});
+
 // 7. [관리자] 데이터 마이그레이션 도구 (로컬 -> 클라우드)
 app.post('/api/admin/import-data', (req, res) => {
     const { auth_key, data } = req.body;

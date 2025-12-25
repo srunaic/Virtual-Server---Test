@@ -219,7 +219,14 @@
             <!-- Inquiries Management -->
             <div id="inquiries" class="section-panel">
                 <div class="glass-card" style="padding: 30px;">
-                    <h3 style="margin-bottom: 20px;">User Inquiries</h3>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0;">User Inquiries</h3>
+                        <button class="btn-auth" onclick="deleteAllInquiries()"
+                            style="padding: 6px 15px; font-size: 12px; background: #64748b; border:none; color:white; border-radius:8px; cursor:pointer;">
+                            <i class="fas fa-trash-alt"></i> Clear All
+                        </button>
+                    </div>
                     <table class="admin-table">
                         <thead>
                             <tr>
@@ -385,8 +392,9 @@
                         </span>
                     </td>
                     <td>${new Date(item.created_at).toLocaleString()}</td>
-                    <td>
-                        ${!item.is_read ? `<button class="btn-auth btn-login" onclick="markAsRead(${item.id})" style="padding: 4px 10px; font-size: 11px; background: var(--angel-pink-deep); border:none; color:white; border-radius:5px; cursor:pointer;">Mark as Read</button>` : 'Checked'}
+                    <td style="display: flex; gap: 5px;">
+                        ${!item.is_read ? `<button class="btn-auth btn-login" onclick="markAsRead(${item.id})" style="padding: 4px 10px; font-size: 11px; background: var(--angel-pink-deep); border:none; color:white; border-radius:5px; cursor:pointer;">Mark as Read</button>` : '<span style="font-size: 11px; color: #319795; font-weight: bold; margin-right: 5px;">Checked</span>'}
+                        <button class="btn-auth" onclick="deleteInquiry(${item.id})" style="padding: 4px 10px; font-size: 11px; background: #94a3b8; border:none; color:white; border-radius:5px; cursor:pointer;">Delete</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -408,6 +416,32 @@
         function viewInquiryDetail(id, content) {
             alert("Inquiry Content:\n\n" + content);
             markAsRead(id);
+        }
+
+        async function deleteInquiry(id) {
+            if (!confirm("해당 문의를 삭제하시겠습니까?")) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/inquiries/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                if (response.ok) fetchAdminInquiries();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteAllInquiries() {
+            if (!confirm("⚠️ 모든 문의 내용을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/inquiries`, {
+                    method: 'DELETE',
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                if (response.ok) fetchAdminInquiries();
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         async function updateUserStatus(user_id, status) {
