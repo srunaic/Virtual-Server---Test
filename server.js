@@ -222,51 +222,51 @@ app.post('/api/profile/update', async (req, res) => {
 // 2. 로그인 API
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
+    console.log(`[DEBUG] 로그인 시도: user_id=${user_id}`);
 
     try {
         pool.query('SELECT * FROM users WHERE user_id = ?', [user_id], async (err, results) => {
             if (err) {
-                console.error("로그인 DB 오류:", err);
-                return res.status(500).json({ error: "로그인 처리 중 오류 발생" });
+                console.error("[ERROR] DB 조회 오류 (Login):", err);
+                return res.status(500).json({ error: "데이터베이스 조회 중 오류가 발생했습니다.", details: err.message });
             }
 
             if (results.length === 0) {
-                return res.status(400).json({ error: "존재하지 않는 사용자입니다." });
+                console.warn(`[WARN] 로그인 실패: ${user_id} - 존재하지 않는 사용자`);
+                return res.status(400).json({ error: "사용자를 찾을 수 없습니다." });
             }
 
             const user = results[0];
-
             try {
                 const isMatch = await bcrypt.compare(password, user.password);
                 if (!isMatch) {
-                    console.warn(`로그인 실패: ${user_id} - 비밀번호 불일치`);
+                    console.warn(`[WARN] 로그인 실패: ${user_id} - 비밀번호 불일치`);
                     return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
                 }
 
                 if (user.status === 'banned') {
-                    console.warn(`로그인 실패: ${user_id} - 정지된 계정`);
+                    console.warn(`[WARN] 로그인 실패: ${user_id} - 정지된 계정`);
                     return res.status(403).json({ error: "정지된 계정입니다. 관리자에게 문의하세요." });
                 }
 
-                console.log(`로그인 성공: ${user_id}`);
+                console.log(`[SUCCESS] 로그인 성공: ${user_id}`);
                 res.json({
                     message: "로그인 성공!",
                     user: {
-                        id: user.id,
                         user_id: user.user_id,
                         nickname: user.nickname,
-                        level: user.level || 1,
-                        gold: user.gold || 0
+                        level: user.level,
+                        gold: user.gold
                     }
                 });
-            } catch (bcryptErr) {
-                console.error("bcrypt 비교 오류:", bcryptErr);
-                return res.status(500).json({ error: "비밀번호 검증 중 오류 발생" });
+            } catch (err) {
+                console.error("[ERROR] 비밀번호 비교 오류:", err);
+                res.status(500).json({ error: "인증 처리 중 오류가 발생했습니다." });
             }
         });
-    } catch (error) {
-        console.error("로그인 처리 오류:", error);
-        return res.status(500).json({ error: "서버 오류가 발생했습니다." });
+    } catch (err) {
+        console.error("[ERROR] 예기치 못한 로그인 오류:", err);
+        res.status(500).json({ error: "서버 내부 오류가 발생했습니다." });
     }
 });
 
