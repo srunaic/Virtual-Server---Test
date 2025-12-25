@@ -124,6 +124,25 @@ const initializeDatabase = () => {
             if (err) console.error('[ERROR] 테이블 생성 실패:', err.message);
         });
     });
+
+    // 기본 관리자 계정 생성 (테이블 생성 후 약간의 지연 후 실행)
+    setTimeout(async () => {
+        const adminId = 'admin';
+        const adminPw = 'admin1234';
+        const hashedPw = await bcrypt.hash(adminPw, 10);
+
+        pool.query('SELECT * FROM users WHERE user_id = ?', [adminId], (err, results) => {
+            if (err) return;
+            if (results.length === 0) {
+                pool.query('INSERT INTO users (user_id, password, nickname, level) VALUES (?, ?, ?, ?)',
+                    [adminId, hashedPw, '관리자', 999], (err) => {
+                        if (err) console.error('[ERROR] 관리자 생성 실패:', err.message);
+                        else console.log('[INFO] 기본 관리자 계정 생성 완료 (admin/admin1234)');
+                    });
+            }
+        });
+    }, 2000);
+
     console.log('[INFO] 데이터베이스 초기화 확인 완료');
 };
 
