@@ -71,13 +71,17 @@ io.on('connection', (socket) => {
     });
 });
 
-// MySQL 연결 풀 생성 (연결 관리가 더 효율적임)
-const pool = mysql.createPool({
+// MySQL 연결 풀 생성
+const poolConfig = process.env.MYSQL_URL ? process.env.MYSQL_URL : {
     host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
     user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
     password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
     database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'virtual_server',
     port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT) || 3306,
+};
+
+const pool = mysql.createPool({
+    ...(typeof poolConfig === 'string' ? { uri: poolConfig } : poolConfig),
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
@@ -360,15 +364,15 @@ app.get('/api/debug/db', (req, res) => {
             },
             connection_test: status,
             error: errorDetail,
-            env: {
-                MYSQLHOST: process.env.MYSQLHOST ? 'SET' : 'MISSING',
-                MYSQLUSER: process.env.MYSQLUSER ? 'SET' : 'MISSING',
-                MYSQLPORT: process.env.MYSQLPORT ? 'SET' : 'MISSING',
-                MYSQLDATABASE: process.env.MYSQLDATABASE ? 'SET' : 'MISSING',
-                MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'SET' : 'HIDDEN',
-                DB_HOST: process.env.DB_HOST ? 'SET' : 'MISSING'
+            env_check: {
+                MYSQL_URL: process.env.MYSQL_URL ? 'PRESENT' : 'MISSING',
+                MYSQLHOST: process.env.MYSQLHOST ? 'PRESENT' : 'MISSING',
+                MYSQLUSER: process.env.MYSQLUSER ? 'PRESENT' : 'MISSING',
+                MYSQLPORT: process.env.MYSQLPORT ? 'PRESENT' : 'MISSING',
+                MYSQLDATABASE: process.env.MYSQLDATABASE ? 'PRESENT' : 'MISSING',
+                MYSQLPASSWORD: process.env.MYSQLPASSWORD ? 'PRESENT' : 'MISSING'
             },
-            pool_config: config
+            pool_using_config: config
         });
     });
 });
