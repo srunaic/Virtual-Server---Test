@@ -85,7 +85,10 @@ const pool = mysql.createPool({
     acquireTimeout: 60000,
     timeout: 60000,
     enableKeepAlive: true,
-    keepAliveInitialDelay: 0
+    keepAliveInitialDelay: 0,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 // 데이터베이스 초기화 (테이블 자동 생성)
