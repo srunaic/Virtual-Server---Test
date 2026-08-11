@@ -142,6 +142,15 @@ const initializeDatabase = () => {
             title VARCHAR(255) NOT NULL,
             content TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+        `CREATE TABLE IF NOT EXISTS app_versions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            platform VARCHAR(20) NOT NULL,
+            version VARCHAR(50) NOT NULL,
+            url VARCHAR(255) NOT NULL,
+            changelog TEXT,
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`
     ];
 
@@ -660,6 +669,63 @@ app.delete('/api/admin/inquiries', (req, res) => {
             return res.status(500).json({ error: "전체 삭제 실패" });
         }
         res.json({ message: "모든 문의가 삭제되었습니다." });
+    });
+});
+
+// --- 앱 버전 및 업데이트(Release) API ---
+
+// 1. 최신 버전 조회 (클라이언트 전용)
+app.get('/api/version/:platform', (req, res) => {
+    const { platform } = req.params;
+    const query = 'SELECT version, url, changelog FROM app_versions WHERE platform = ? AND is_active = TRUE ORDER BY created_at DESC LIMIT 1';
+    pool.query(query, [platform], (err, results) => {
+        if (err) {
+            console.error("버전 조회 오류:", err);
+            return res.status(500).json({ error: "버전 조회 실패" });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: "등록된 버전 정보가 없습니다." });
+        }
+        res.json(results[0]);
+    });
+});
+
+// 2. 새 버전 배포 (관리자 전용 - 패스워드 필수)
+app.post('/api/admin/release', (req, res) => {
+    const { platform, version, url, changelog, admin_password } = req.body;
+
+    // 사용자님이 지정하신 비밀번호 확인
+    const REQUIRED_PASSWORD = 'Tpdlflszkdltm1@';
+    if (admin_password !== REQUIRED_PASSWORD) {
+        console.warn(`[WARN] 배포 시도 거부: 비밀번호 불일치 (플랫폼: ${platform})`);
+        return res.status(403).json({ error: "관리자 비밀번호가 일치하지 않아 배포할 수 없습니다." });
+    }
+
+    if (!platform || !version || !url) {
+        return res.status(400).json({ error: "필수 정보(플랫폼, 버전, URL)가 누락되었습니다." });
+    }
+
+    const query = 'INSERT INTO app_versions (platform, version, url, changelog) VALUES (?, ?, ?, ?)';
+    pool.query(query, [platform, version, url, changelog || ''], (err, result) => {
+        if (err) {
+            console.error("배포 데이터 저장 오류:", err);
+            return res.status(500).json({ error: "배포 정보 저장 실패" });
+        }
+        
+        console.log(`[SUCCESS] 새 버전 배포 완료: ${platform} v${version}`);
+        
+        // 소켓을 통해 연결된 모든 클라이언트에게 업데이트 알림 전송 (옵션)
+        io.emit('new_update', { platform, version, url });
+        
+        res.json({ message: `${platform} 버전 ${version} 배포가 성공적으로 활성화되었습니다.`, id: result.insertId });
+    });
+});
+
+// 3. 버전 히스토리 조회 (어드민)
+app.get('/api/admin/versions', (req, res) => {
+    pool.query('SELECT * FROM app_versions ORDER BY created_at DESC', (err, results) => {
+        if (err) return res.status(500).json({ error: "히스토리 조회 실패" });
+        res.json(results);
     });
 });
 
