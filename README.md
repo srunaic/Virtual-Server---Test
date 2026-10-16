@@ -1,15 +1,8 @@
 # 🐱‍👤 천사냥이 | 수호수의 계약
 
-<div align="center">
-
-![천사냥이 로고](https://img.shields.io/badge/🐱‍👤_천사냥이-수호수의_계약-pink?style=for-the-badge)
-![Unity](https://img.shields.io/badge/🎮_Unity-미연시_개발중-blue?style=for-the-badge)
-![Web](https://img.shields.io/badge/🌐_Web-스토리_체험-purple?style=for-the-badge)
-
-
 버튼을 클릭해주세요
 
-### [**🎮 웹에서 스토리 체험하기**](https://srunaic.github.io/Virtual-Server---Test/)
+<h1>### [**🎮 웹에서 스토리 체험하기**](https://srunaic.github.io/Virtual-Server---Test/) </h1>
 
 [![천사냥이 방문](https://img.shields.io/badge/🌟_천사냥이_방문-수호수의_이야기-ff69b4?style=for-the-badge&logo=github&logoColor=white)](https://srunaic.github.io/Virtual-Server---Test/)
 
