@@ -1,14 +1,5 @@
 # 🐱‍👤 천사냥이 | 수호수의 계약 (Angel Kitty)
 
-<div align="center">
-
-![License](https://img.shields.io/badge/License-All_Rights_Reserved-red?style=for-the-badge)
-![Status](https://img.shields.io/badge/Architecture-Skeleton_Specification-orange?style=for-the-badge)
-![Web](https://img.shields.io/badge/🌐_Web-공식_스토리_사이트-purple?style=for-the-badge)
-![Unity](https://img.shields.io/badge/🎮_Unity-인스톨러_배포-blue?style=for-the-badge)
-
-<br/>
-
 버튼을 클릭해주세요
 
 [**🎮 웹에서 스토리 체험하기**](https://srunaic.github.io/Virtual-Server---Test/)    
