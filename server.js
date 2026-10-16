@@ -1,802 +1,322 @@
+/**
+ * ============================================================================
+ * [PROPRIETARY & CONFIDENTIAL]
+ * Project: 우리 집 천사냥이 일상물 (Angel Kitty) - Backend Controller Interface
+ * Author: 모카 (srunaic)
+ * Copyright (c) 2026 모카. All Rights Reserved.
+ * License: UNLICENSED (Proprietary)
+ * ============================================================================
+ * 
+ * [SKELETON & SPECIFICATION NOTICE]
+ * 본 파일은 포트폴리오 및 아키텍처 명세(Controller Specification) 확인을 위한
+ * 스켈레톤(Skeleton) 인터페이스 파일입니다.
+ * 
+ * - 보안 및 지식재산권(IP) 보호를 위해 실제 데이터베이스 연동, 비밀번호 해싱,
+ *   내부 비즈니스 로직, 세션/토큰 암호화 및 쿼리 구현부는 로컬 비공개 백업에 격리 보관됩니다.
+ * - 본 명세를 무단 복제, 상업적/비상업적 도용, 재배포하는 행위는 엄격히 금지됩니다.
+ * ============================================================================
+ */
+
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["http://localhost:3000", "https://srunaic.github.io", "https://virtual-server-test-production.up.railway.app", "*"],
-        methods: ["GET", "POST"],
+        origin: ["https://srunaic.github.io", "http://localhost:3000", "*"],
+        methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
     }
 });
 
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Supabase 클라이언트 초기화 (폴백용)
-const supabase = createClient(
-    process.env.SUPABASE_URL || 'https://your-project.supabase.co',
-    process.env.SUPABASE_ANON_KEY || 'your-anon-key'
-);
-
-// 미들웨어 설정
+// Standard Middlewares
 app.use(express.json());
-
-// CORS 설정 - 완전 개방 (실시간 연결을 위해)
 app.use(cors({
-    origin: true, // 모든 오리진 허용
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With', 'ngrok-skip-browser-warning']
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
 }));
 
-// Socket.io 연결 처리
-io.on('connection', (socket) => {
-    console.log('클라이언트 연결됨:', socket.id);
-
-    // 서버 상태 실시간 전송
-    const statusInterval = setInterval(() => {
-        socket.emit('server_status', {
-            status: 'online',
-            timestamp: new Date().toISOString(),
-            uptime: process.uptime(),
-            connections: io.engine.clientsCount
-        });
-    }, 5000); // 5초마다 상태 전송
-
-    // 연결 해제 시 정리
-    socket.on('disconnect', () => {
-        console.log('클라이언트 연결 해제:', socket.id);
-        clearInterval(statusInterval);
+// Mock/Redacted Response Helper
+const proprietaryRedactedResponse = (res, endpointName) => {
+    return res.status(501).json({
+        status: "error",
+        code: "PROPRIETARY_LOGIC_REDACTED",
+        endpoint: endpointName,
+        message: "This repository is a skeletonized specification for architectural review. Core business logic and database executions are preserved on private infrastructure.",
+        copyright: "Copyright (c) 2026 모카 (srunaic). All Rights Reserved."
     });
+};
 
-    // 핑-퐁으로 연결 상태 확인
+/* ============================================================================
+ * 1. REALTIME WEBSOCKET (SOCKET.IO) INTERFACES
+ * ============================================================================ */
+io.on('connection', (socket) => {
+    // Client connection handler
+    // Handles server_status heartbeat, ping-pong latency check, and user_online presence
     socket.on('ping', () => {
         socket.emit('pong', { timestamp: Date.now() });
     });
 
-    // 사용자 온라인 상태 업데이트
     socket.on('user_online', (data) => {
+        // Broadcasts user activity state
         socket.broadcast.emit('user_status_update', {
-            user_id: data.user_id,
+            user_id: data?.user_id,
             status: 'online',
             timestamp: new Date().toISOString()
         });
     });
+
+    socket.on('disconnect', () => {
+        // Handles connection cleanup
+    });
 });
 
-// 환경변수 유연하게 찾기 (초보자 실수 방지: 공백, 대소문자, 언더바 등)
-const getEnv = (key) => {
-    const normalizedKey = key.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    for (const envKey in process.env) {
-        const normalizedEnvKey = envKey.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        if (normalizedEnvKey === normalizedKey) {
-            return process.env[envKey] ? process.env[envKey].trim() : null;
-        }
-    }
-    return null;
-};
+/* ============================================================================
+ * 2. AUTHENTICATION & USER CONTROLLER INTERFACES
+ * ============================================================================ */
 
-// MySQL 연결 풀 생성
-const mysql_url = getEnv('MYSQLURL') || getEnv('DATABASEURL');
-const poolConfig = mysql_url ? mysql_url : {
-    host: getEnv('MYSQLHOST') || getEnv('DBHOST') || 'localhost',
-    user: getEnv('MYSQLUSER') || getEnv('DBUSER') || 'root',
-    password: getEnv('MYSQLPASSWORD') || getEnv('MYSQL_PASSWORD') || getEnv('MYSQLROOTPASSWORD') || getEnv('DBPASSWORD') || '',
-    database: getEnv('MYSQLDATABASE') || getEnv('DBNAME') || 'virtual_server',
-    port: parseInt(getEnv('MYSQLPORT') || getEnv('DBPORT')) || 3306,
-};
-
-const pool = mysql.createPool({
-    ...(typeof poolConfig === 'string' ? { uri: poolConfig } : poolConfig),
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    connectTimeout: 60000,
-    acquireTimeout: 60000,
-    timeout: 60000,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
-
-// 데이터베이스 초기화 (테이블 자동 생성)
-const initializeDatabase = () => {
-    const queries = [
-        `CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id VARCHAR(50) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            email VARCHAR(100),
-            nickname VARCHAR(50) NOT NULL,
-            gold INT DEFAULT 0,
-            level INT DEFAULT 1,
-            exp INT DEFAULT 0,
-            status VARCHAR(20) DEFAULT 'active',
-            pos_x FLOAT DEFAULT 0,
-            pos_y FLOAT DEFAULT 0,
-            pos_z FLOAT DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS inquiries (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user_id VARCHAR(50) NOT NULL,
-            nickname VARCHAR(50) NOT NULL,
-            title VARCHAR(255) NOT NULL,
-            content TEXT NOT NULL,
-            is_read BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS notices (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`,
-        `CREATE TABLE IF NOT EXISTS app_versions (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            platform VARCHAR(20) NOT NULL,
-            version VARCHAR(50) NOT NULL,
-            url VARCHAR(255) NOT NULL,
-            changelog TEXT,
-            is_active BOOLEAN DEFAULT TRUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )`
-    ];
-
-    queries.forEach(query => {
-        pool.query(query, (err) => {
-            if (err) console.error('[ERROR] 테이블 생성/수정 실패:', err.message);
-        });
-    });
-
-    // 기존 테이블 컬럼 보정 (이미 생성된 경우 대비)
-    const requiredColumns = [
-        { name: 'email', type: 'VARCHAR(100)' },
-        { name: 'exp', type: 'INT DEFAULT 0' },
-        { name: 'pos_x', type: 'FLOAT DEFAULT 0' },
-        { name: 'pos_y', type: 'FLOAT DEFAULT 0' },
-        { name: 'pos_z', type: 'FLOAT DEFAULT 0' },
-        { name: 'updated_at', type: 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP' }
-    ];
-
-    requiredColumns.forEach(col => {
-        const checkQuery = `
-            SELECT COLUMN_NAME 
-            FROM INFORMATION_SCHEMA.COLUMNS 
-            WHERE TABLE_NAME = 'users' AND COLUMN_NAME = ?
-        `;
-        pool.query(checkQuery, [col.name], (err, results) => {
-            if (!err && results.length === 0) {
-                console.log(`[INFO] Adding missing column: ${col.name}`);
-                pool.query(`ALTER TABLE users ADD COLUMN ${col.name} ${col.type}`, (alterErr) => {
-                    if (alterErr) console.error(`[ERROR] Failed to add column ${col.name}:`, alterErr.message);
-                });
-            }
-        });
-    });
-
-    // 기본 관리자 계정 생성 (테이블 생성 후 약간의 지연 후 실행)
-    setTimeout(async () => {
-        const adminId = 'admin';
-        const adminPw = 'admin1234';
-        const hashedPw = await bcrypt.hash(adminPw, 10);
-
-        pool.query('SELECT * FROM users WHERE user_id = ?', [adminId], (err, results) => {
-            if (err) return;
-            if (results.length === 0) {
-                pool.query('INSERT INTO users (user_id, password, nickname, level) VALUES (?, ?, ?, ?)',
-                    [adminId, hashedPw, '관리자', 999], (err) => {
-                        if (err) console.error('[ERROR] 관리자 생성 실패:', err.message);
-                        else console.log('[INFO] 기본 관리자 계정 생성 완료 (admin/admin1234)');
-                    });
-            }
-        });
-    }, 2000);
-
-    console.log('[INFO] 데이터베이스 초기화 확인 완료');
-};
-
-initializeDatabase();
-
-
-// 1. 회원가입 API
+/**
+ * @route   POST /api/register
+ * @desc    사용자 회원가입 (ID, 비밀번호 해싱, 닉네임 유효성 검증)
+ * @param   {string} req.body.user_id - 고유 사용자 아이디
+ * @param   {string} req.body.password - 사용자 비밀번호
+ * @param   {string} req.body.nickname - 인게임 닉네임
+ * @param   {string} [req.body.email] - 이메일 (선택)
+ */
 app.post('/api/register', async (req, res) => {
     const { user_id, password, nickname, email } = req.body;
-
-    // 입력 검증
     if (!user_id || !password || !nickname) {
         return res.status(400).json({ error: "아이디, 비밀번호, 닉네임은 필수입니다." });
     }
-
-    if (user_id.length < 3 || user_id.length > 20) {
-        return res.status(400).json({ error: "아이디는 3-20자 사이여야 합니다." });
-    }
-
-    if (password.length < 6) {
-        return res.status(400).json({ error: "비밀번호는 최소 6자 이상이어야 합니다." });
-    }
-
-    try {
-        // 비밀번호 암호화
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // 아이디 중복 확인
-        console.log(`[REGISTER DEBUG] 중복 확인 시작: user_id="${user_id}"`);
-        pool.query('SELECT id FROM users WHERE user_id = ?', [user_id], (err, results) => {
-            if (err) {
-                console.error("[REGISTER] 중복 확인 DB 오류:", err);
-                return res.status(500).json({ error: "서버 오류" });
-            }
-
-            console.log(`[REGISTER DEBUG] 쿼리 결과: ${results.length}개 행, 데이터:`, JSON.stringify(results));
-
-            if (results.length > 0) {
-                console.log(`[REGISTER] 중복 발견! 기존 ID: ${results[0].id}`);
-                return res.status(400).json({ error: "이미 존재하는 아이디입니다." });
-            }
-
-            // 사용자 등록
-            pool.query('INSERT INTO users (user_id, password, nickname, email) VALUES (?, ?, ?, ?)',
-                [user_id, hashedPassword, nickname, email || null], (err, result) => {
-                    if (err) {
-                        console.error("사용자 등록 DB 오류:", err);
-                        return res.status(500).json({ error: "회원가입 중 오류가 발생했습니다." });
-                    }
-
-                    console.log(`새 사용자 등록: ${user_id}`);
-                    res.json({ message: "회원가입이 완료되었습니다!", id: result.insertId });
-                });
-        });
-
-    } catch (error) {
-        console.error("회원가입 처리 오류:", error);
-        res.status(500).json({ error: "서버 오류가 발생했습니다." });
-    }
+    return proprietaryRedactedResponse(res, "POST /api/register");
 });
 
-// 2.5. 프로필 업데이트 API
-app.post('/api/profile/update', async (req, res) => {
-    const { user_id, nickname, email, new_password } = req.body;
-
-    try {
-        // 사용자 확인
-        pool.query('SELECT id FROM users WHERE user_id = ?', [user_id], async (err, results) => {
-            if (err) {
-                console.error("프로필 조회 DB 오류:", err);
-                return res.status(500).json({ error: "서버 오류" });
-            }
-
-            if (results.length === 0) {
-                return res.status(400).json({ error: "사용자를 찾을 수 없습니다." });
-            }
-
-            const userId = results[0].id;
-            let updateFields = [];
-            let updateValues = [];
-
-            // 닉네임 업데이트
-            if (nickname) {
-                updateFields.push('nickname = ?');
-                updateValues.push(nickname);
-            }
-
-            // 이메일 업데이트
-            if (email !== undefined) {
-                updateFields.push('email = ?');
-                updateValues.push(email);
-            }
-
-            // 비밀번호 업데이트
-            if (new_password) {
-                const hashedPassword = await bcrypt.hash(new_password, 10);
-                updateFields.push('password = ?');
-                updateValues.push(hashedPassword);
-            }
-
-            if (updateFields.length === 0) {
-                return res.status(400).json({ error: "업데이트할 내용이 없습니다." });
-            }
-
-            updateValues.push(userId);
-            const updateQuery = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
-
-            pool.query(updateQuery, updateValues, (err, result) => {
-                if (err) {
-                    console.error("프로필 업데이트 DB 오류:", err);
-                    return res.status(500).json({ error: "프로필 업데이트 실패" });
-                }
-
-                console.log(`프로필 업데이트: ${user_id}`);
-                res.json({ message: "프로필이 성공적으로 업데이트되었습니다." });
-            });
-        });
-
-    } catch (error) {
-        console.error("프로필 업데이트 처리 오류:", error);
-        res.status(500).json({ error: "서버 오류가 발생했습니다." });
-    }
-});
-
-// 2. 로그인 API
+/**
+ * @route   POST /api/login
+ * @desc    사용자 로그인 인증 및 세션 정보 반환
+ * @param   {string} req.body.user_id - 사용자 아이디
+ * @param   {string} req.body.password - 사용자 비밀번호
+ */
 app.post('/api/login', async (req, res) => {
     const { user_id, password } = req.body;
-    console.log(`[DEBUG] 로그인 시도: user_id=${user_id}`);
-
-    try {
-        pool.query('SELECT * FROM users WHERE user_id = ?', [user_id], async (err, results) => {
-            if (err) {
-                console.error("[ERROR] DB 조회 오류 (Login):", err);
-                return res.status(500).json({ error: "데이터베이스 조회 중 오류가 발생했습니다.", details: err.message });
-            }
-
-            if (results.length === 0) {
-                console.warn(`[WARN] 로그인 실패: ${user_id} - 존재하지 않는 사용자`);
-                return res.status(400).json({ error: "사용자를 찾을 수 없습니다." });
-            }
-
-            const user = results[0];
-            try {
-                const isMatch = await bcrypt.compare(password, user.password);
-                if (!isMatch) {
-                    console.warn(`[WARN] 로그인 실패: ${user_id} - 비밀번호 불일치`);
-                    return res.status(400).json({ error: "비밀번호가 일치하지 않습니다." });
-                }
-
-                if (user.status === 'banned') {
-                    console.warn(`[WARN] 로그인 실패: ${user_id} - 정지된 계정`);
-                    return res.status(403).json({ error: "정지된 계정입니다. 관리자에게 문의하세요." });
-                }
-
-                console.log(`[SUCCESS] 로그인 성공: ${user_id}`);
-                res.json({
-                    message: "로그인 성공!",
-                    user: {
-                        user_id: user.user_id,
-                        nickname: user.nickname,
-                        level: user.level,
-                        gold: user.gold
-                    }
-                });
-            } catch (err) {
-                console.error("[ERROR] 비밀번호 비교 오류:", err);
-                res.status(500).json({ error: "인증 처리 중 오류가 발생했습니다." });
-            }
-        });
-    } catch (err) {
-        console.error("[ERROR] 예기치 못한 로그인 오류:", err);
-        res.status(500).json({ error: "서버 내부 오류가 발생했습니다." });
+    if (!user_id || !password) {
+        return res.status(400).json({ error: "아이디와 비밀번호를 입력해주세요." });
     }
+    return proprietaryRedactedResponse(res, "POST /api/login");
 });
 
-// 3. 서버 상태 테스트 API
+/**
+ * @route   POST /api/profile/update
+ * @desc    유저 인게임 상태 및 프로필(레벨, 골드, 좌표) 동기화
+ */
+app.post('/api/profile/update', async (req, res) => {
+    return proprietaryRedactedResponse(res, "POST /api/profile/update");
+});
+
+/* ============================================================================
+ * 3. PUBLIC CONTENT & NOTICES CONTROLLER
+ * ============================================================================ */
+
+/**
+ * @route   GET /api/test
+ * @desc    서버 헬스체크 및 가동 상태 확인
+ */
 app.get('/api/test', (req, res) => {
     res.json({
-        status: 'online',
-        timestamp: new Date().toISOString(),
-        message: 'Server is running successfully'
+        status: "online",
+        mode: "skeleton_specification",
+        author: "모카 (srunaic)",
+        timestamp: new Date().toISOString()
     });
 });
 
-// 서버 시작 시간 기록
-const bootTime = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
-
-// 4. DB 연결 상태 디버깅 API (실제 연결 테스트 및 데이터 확인 포함)
-app.get('/api/debug/db', (req, res) => {
-    const config = {
-        host: getEnv('MYSQLHOST') || getEnv('DBHOST') || 'localhost',
-        user: getEnv('MYSQLUSER') || getEnv('DBUSER') || 'root',
-        database: getEnv('MYSQLDATABASE') || getEnv('DBNAME') || 'virtual_server',
-        port: parseInt(getEnv('MYSQLPORT') || getEnv('DBPORT')) || 3306
-    };
-
-    pool.getConnection((err, connection) => {
-        if (err) {
-            return res.json({
-                connection_test: 'FAILED',
-                error: {
-                    code: err.code,
-                    message: err.message
-                },
-                env_check_fuzzy: {
-                    MYSQL_URL: getEnv('MYSQLURL') ? 'FOUND' : 'MISSING',
-                    MYSQLHOST: getEnv('MYSQLHOST') ? 'FOUND' : 'MISSING',
-                    MYSQLUSER: getEnv('MYSQLUSER') ? 'FOUND' : 'MISSING',
-                    MYSQLDATABASE: getEnv('MYSQLDATABASE') ? 'FOUND' : 'MISSING',
-                    MYSQLPASSWORD: getEnv('MYSQLPASSWORD') || getEnv('MYSQLROOTPASSWORD') ? 'FOUND' : 'MISSING'
-                },
-                pool_using_config: config
-            });
-        }
-
-        // 연결 성공 시 테이블 정보 조회
-        const stats = {};
-        const tables = ['users', 'inquiries', 'notices'];
-        let processed = 0;
-
-        tables.forEach(table => {
-            connection.query(`SELECT COUNT(*) as count FROM ${table}`, (err, results) => {
-                processed++;
-                if (!err) stats[table] = results[0].count;
-                else stats[table] = 'ERROR: ' + err.code;
-
-                if (processed === tables.length) {
-                    connection.release();
-                    res.json({
-                        server_info: {
-                            boot_time: bootTime,
-                            current_time: new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
-                        },
-                        connection_test: 'SUCCESS',
-                        table_stats: stats,
-                        env_check_fuzzy: {
-                            MYSQL_URL: getEnv('MYSQLURL') ? 'FOUND' : 'MISSING',
-                            MYSQLHOST: getEnv('MYSQLHOST') ? 'FOUND' : 'MISSING',
-                            MYSQLUSER: getEnv('MYSQLUSER') ? 'FOUND' : 'MISSING',
-                            MYSQLDATABASE: getEnv('MYSQLDATABASE') ? 'FOUND' : 'MISSING',
-                            MYSQLPASSWORD: getEnv('MYSQLPASSWORD') || getEnv('MYSQLROOTPASSWORD') ? 'FOUND' : 'MISSING'
-                        },
-                        pool_using_config: config
-                    });
-                }
-            });
-        });
-    });
-});
-
-// 4. 어드민 로그인 API
-app.post('/api/admin/login', (req, res) => {
-    const { admin_id, password } = req.body;
-
-    // 환경변수에서 관리자 정보 가져오기 (보안 강화)
-    const envAdminUsername = process.env.ADMIN_USERNAME || 'victoryka123';
-    const envAdminPassword = process.env.ADMIN_PASSWORD;
-
-    // 환경변수에 설정된 관리자 계정으로 로그인 시도
-    if (admin_id === envAdminUsername && password === envAdminPassword) {
-        return res.json({
-            message: "어드민 로그인 성공",
-            admin: {
-                id: 1,
-                admin_id: envAdminUsername,
-                role: 'superadmin',
-                login_method: 'env_credentials'
-            }
-        });
-    }
-
-    // DB에서 관리자 조회 (기존 방식 유지)
-    const query = 'SELECT * FROM admins WHERE admin_id = ?';
-    pool.query(query, [admin_id], async (err, results) => {
-        if (err) {
-            console.error("어드민 로그인 DB 오류:", err);
-            return res.status(500).json({ error: "DB 오류" });
-        }
-        if (results.length === 0) return res.status(400).json({ error: "관리자 정보가 없습니다." });
-
-        const admin = results[0];
-        // 비밀번호 암호화 처리가 되어있다면 bcrypt.compare 사용
-        if (password === admin.password) { // 임시로 평문 비교 (보안상 추후 암호화 권장)
-            res.json({
-                message: "어드민 로그인 성공",
-                admin: {
-                    id: admin.id,
-                    admin_id: admin.admin_id,
-                    role: admin.role,
-                    login_method: 'db_credentials'
-                }
-            });
-        } else {
-            res.status(400).json({ error: "비밀번호가 틀렸습니다." });
-        }
-    });
-});
-
-// 4. 모든 유저 정보 조회 (어드민 전용)
-app.get('/api/admin/users', (req, res) => {
-    pool.query('SELECT id, user_id, nickname, level, gold, status, created_at FROM users', (err, results) => {
-        if (err) {
-            console.error("유저 조회 DB 오류:", err);
-            return res.status(500).json({ error: "데이터 조회 실패", details: err.message });
-        }
-        res.json(results);
-    });
-});
-
-// 5. 유저 상태 변경 (제재/해제)
-app.post('/api/admin/users/status', (req, res) => {
-    const { user_id, status } = req.body;
-
-    // 관리자 계정 보호 로직
-    if (user_id === 'admin' || user_id === 'victoryka123') {
-        return res.status(403).json({ error: "관리자 계정은 제재할 수 없습니다." });
-    }
-
-    pool.query('UPDATE users SET status = ? WHERE user_id = ?', [status, user_id], (err, result) => {
-        if (err) {
-            console.error("상태 변경 오류:", err);
-            return res.status(500).json({ error: "상태 변경 실패" });
-        }
-        res.json({ message: `유저 상태가 ${status}(으)로 변경되었습니다.` });
-    });
-});
-
-// 6. 유저 삭제
-app.delete('/api/admin/users/:user_id', (req, res) => {
-    const { user_id } = req.params;
-
-    // 관리자 계정 보호 로직
-    if (user_id === 'admin' || user_id === 'victoryka123') {
-        return res.status(403).json({ error: "관리자 계정은 삭제할 수 없습니다." });
-    }
-
-    pool.query('DELETE FROM users WHERE user_id = ?', [user_id], (err, result) => {
-        if (err) {
-            console.error("유저 삭제 오류:", err);
-            return res.status(500).json({ error: "유저 삭제 실패" });
-        }
-        res.json({ message: "유저가 삭제되었습니다." });
-    });
-});
-
-// 5. 공지사항 등록 (어드민)
-app.post('/api/admin/notices', (req, res) => {
-    const { title, content } = req.body;
-    pool.query('INSERT INTO notices (title, content) VALUES (?, ?)', [title, content], (err, result) => {
-        if (err) return res.status(500).json({ error: "공지 저장 실패" });
-        res.json({ message: "공지사항이 등록되었습니다.", id: result.insertId });
-    });
-});
-
-// 5.1. 공지사항 전체 조회 (공개)
+/**
+ * @route   GET /api/notices
+ * @desc    전체 공지사항 목록 조회 (메인 웹페이지 노출용)
+ */
 app.get('/api/notices', (req, res) => {
-    pool.query('SELECT * FROM notices ORDER BY created_at DESC', (err, results) => {
-        if (err) return res.status(500).json({ error: "공지 조회 실패" });
-        res.json(results);
-    });
+    return proprietaryRedactedResponse(res, "GET /api/notices");
 });
 
-// 5.2. 공지사항 수정 (어드민)
-app.put('/api/admin/notices/:id', (req, res) => {
-    const { id } = req.params;
-    const { title, content } = req.body;
-    pool.query('UPDATE notices SET title = ?, content = ? WHERE id = ?', [title, content, id], (err, result) => {
-        if (err) return res.status(500).json({ error: "공지 수정 실패" });
-        res.json({ message: "공지사항이 수정되었습니다." });
-    });
-});
+/* ============================================================================
+ * 4. INQUIRY (1:1 고객센터) CONTROLLER INTERFACES
+ * ============================================================================ */
 
-// 5.3. 공지사항 삭제 (어드민)
-app.delete('/api/admin/notices/:id', (req, res) => {
-    const { id } = req.params;
-    pool.query('DELETE FROM notices WHERE id = ?', [id], (err, result) => {
-        if (err) return res.status(500).json({ error: "공지 삭제 실패" });
-        res.json({ message: "공지사항이 삭제되었습니다." });
-    });
-});
-
-// --- 유저 문의(Inquiry) API ---
-
-// 1. 문의 작성
+/**
+ * @route   POST /api/inquiries
+ * @desc    1:1 문의 등록
+ */
 app.post('/api/inquiries', (req, res) => {
-    console.log("문의 작성 요청 바디:", req.body);
-    const { user_id, nickname, title, content } = req.body;
-    if (!user_id || !title || !content) {
-        return res.status(400).json({ error: "필수 정보가 누락되었습니다." });
-    }
-    pool.query('INSERT INTO inquiries (user_id, nickname, title, content) VALUES (?, ?, ?, ?)',
-        [user_id, nickname || 'anonymous', title, content], (err, result) => {
-            if (err) {
-                console.error("문의 저장 오류:", err);
-                return res.status(500).json({ error: "문의 저장 실패" });
-            }
-            res.json({ message: "문의가 등록되었습니다.", id: result.insertId });
-        });
+    return proprietaryRedactedResponse(res, "POST /api/inquiries");
 });
 
-// 2. 본인 문의 내역 조회
+/**
+ * @route   GET /api/inquiries/:user_id
+ * @desc    특정 유저의 문의 내역 조회
+ */
 app.get('/api/inquiries/:user_id', (req, res) => {
-    const { user_id } = req.params;
-    pool.query('SELECT * FROM inquiries WHERE user_id = ? ORDER BY created_at DESC', [user_id], (err, results) => {
-        if (err) return res.status(500).json({ error: "조회 실패" });
-        res.json(results);
-    });
+    return proprietaryRedactedResponse(res, "GET /api/inquiries/:user_id");
 });
 
-// 3. 문의 수정
+/**
+ * @route   PUT /api/inquiries/:id
+ * @desc    문의 내용 수정
+ */
 app.put('/api/inquiries/:id', (req, res) => {
-    const { id } = req.params;
-    const { title, content } = req.body;
-    pool.query('UPDATE inquiries SET title = ?, content = ? WHERE id = ?', [title, content, id], (err, result) => {
-        if (err) return res.status(500).json({ error: "수정 실패" });
-        res.json({ message: "문의가 수정되었습니다." });
-    });
+    return proprietaryRedactedResponse(res, "PUT /api/inquiries/:id");
 });
 
-// 4. 문의 삭제
+/**
+ * @route   DELETE /api/inquiries/:id
+ * @desc    문의 삭제
+ */
 app.delete('/api/inquiries/:id', (req, res) => {
-    const { id } = req.params;
-    pool.query('DELETE FROM inquiries WHERE id = ?', [id], (err, result) => {
-        if (err) return res.status(500).json({ error: "삭제 실패" });
-        res.json({ message: "문의가 삭제되었습니다." });
-    });
+    return proprietaryRedactedResponse(res, "DELETE /api/inquiries/:id");
 });
 
-// 5. [관리자] 전체 문의 조회
+/* ============================================================================
+ * 5. ADMIN MANAGEMENT & MONITORING CONTROLLER
+ * ============================================================================ */
+
+/**
+ * @route   POST /api/admin/login
+ * @desc    관리자 인증
+ */
+app.post('/api/admin/login', (req, res) => {
+    return proprietaryRedactedResponse(res, "POST /api/admin/login");
+});
+
+/**
+ * @route   GET /api/admin/users
+ * @desc    전체 회원 모니터링 및 상태 목록
+ */
+app.get('/api/admin/users', (req, res) => {
+    return proprietaryRedactedResponse(res, "GET /api/admin/users");
+});
+
+/**
+ * @route   POST /api/admin/users/status
+ * @desc    회원 계정 활성화/정지(Sanction) 상태 변경
+ */
+app.post('/api/admin/users/status', (req, res) => {
+    return proprietaryRedactedResponse(res, "POST /api/admin/users/status");
+});
+
+/**
+ * @route   DELETE /api/admin/users/:user_id
+ * @desc    회원 강제 탈퇴 처리
+ */
+app.delete('/api/admin/users/:user_id', (req, res) => {
+    return proprietaryRedactedResponse(res, "DELETE /api/admin/users/:user_id");
+});
+
+/**
+ * @route   POST /api/admin/notices
+ * @desc    관리자 신규 공지사항 등록
+ */
+app.post('/api/admin/notices', (req, res) => {
+    return proprietaryRedactedResponse(res, "POST /api/admin/notices");
+});
+
+/**
+ * @route   PUT /api/admin/notices/:id
+ * @desc    관리자 공지사항 수정
+ */
+app.put('/api/admin/notices/:id', (req, res) => {
+    return proprietaryRedactedResponse(res, "PUT /api/admin/notices/:id");
+});
+
+/**
+ * @route   DELETE /api/admin/notices/:id
+ * @desc    관리자 공지사항 삭제
+ */
+app.delete('/api/admin/notices/:id', (req, res) => {
+    return proprietaryRedactedResponse(res, "DELETE /api/admin/notices/:id");
+});
+
+/**
+ * @route   GET /api/admin/inquiries
+ * @desc    관리자 전체 문의 목록 조회 및 필터링
+ */
 app.get('/api/admin/inquiries', (req, res) => {
-    pool.query('SELECT * FROM inquiries ORDER BY created_at DESC', (err, results) => {
-        if (err) return res.status(500).json({ error: "조회 실패" });
-        res.json(results);
-    });
+    return proprietaryRedactedResponse(res, "GET /api/admin/inquiries");
 });
 
-// 6. [관리자] 문의 읽음 처리
+/**
+ * @route   POST /api/admin/inquiries/:id/read
+ * @desc    문의 읽음 플래그 처리
+ */
 app.post('/api/admin/inquiries/:id/read', (req, res) => {
-    const { id } = req.params;
-    pool.query('UPDATE inquiries SET is_read = TRUE WHERE id = ?', [id], (err, result) => {
-        if (err) return res.status(500).json({ error: "상태 변경 실패" });
-        res.json({ message: "읽음 처리되었습니다." });
-    });
+    return proprietaryRedactedResponse(res, "POST /api/admin/inquiries/:id/read");
 });
 
-// 6.5. [관리자] 문의 개별 삭제
+/**
+ * @route   DELETE /api/admin/inquiries/:id
+ * @desc    단일 문의 삭제
+ */
 app.delete('/api/admin/inquiries/:id', (req, res) => {
-    const { id } = req.params;
-    pool.query('DELETE FROM inquiries WHERE id = ?', [id], (err, result) => {
-        if (err) {
-            console.error("문의 삭제 오류:", err);
-            return res.status(500).json({ error: "삭제 실패" });
-        }
-        res.json({ message: "문의가 삭제되었습니다." });
-    });
+    return proprietaryRedactedResponse(res, "DELETE /api/admin/inquiries/:id");
 });
 
-// 6.6. [관리자] 문의 전체 삭제
+/**
+ * @route   DELETE /api/admin/inquiries
+ * @desc    전체 문의 일괄 정리
+ */
 app.delete('/api/admin/inquiries', (req, res) => {
-    pool.query('DELETE FROM inquiries', (err, result) => {
-        if (err) {
-            console.error("문의 전체 삭제 오류:", err);
-            return res.status(500).json({ error: "전체 삭제 실패" });
-        }
-        res.json({ message: "모든 문의가 삭제되었습니다." });
-    });
+    return proprietaryRedactedResponse(res, "DELETE /api/admin/inquiries");
 });
 
-// --- 앱 버전 및 업데이트(Release) API ---
+/* ============================================================================
+ * 6. VERSIONING & RELEASE MANAGEMENT CONTROLLER
+ * ============================================================================ */
 
-// 1. 최신 버전 조회 (클라이언트 전용)
+/**
+ * @route   GET /api/version/:platform
+ * @desc    플랫폼별(PC, Android, iOS) 최신 빌드 버전 조회
+ */
 app.get('/api/version/:platform', (req, res) => {
-    const { platform } = req.params;
-    const query = 'SELECT version, url, changelog FROM app_versions WHERE platform = ? AND is_active = TRUE ORDER BY created_at DESC LIMIT 1';
-    pool.query(query, [platform], (err, results) => {
-        if (err) {
-            console.error("버전 조회 오류:", err);
-            return res.status(500).json({ error: "버전 조회 실패" });
-        }
-        if (results.length === 0) {
-            return res.status(404).json({ error: "등록된 버전 정보가 없습니다." });
-        }
-        res.json(results[0]);
-    });
+    return proprietaryRedactedResponse(res, "GET /api/version/:platform");
 });
 
-// 2. 새 버전 배포 (관리자 전용 - 패스워드 필수)
+/**
+ * @route   POST /api/admin/release
+ * @desc    Unity 빌드 툴 연동 신규 릴리즈 배포 명세
+ */
 app.post('/api/admin/release', (req, res) => {
-    const { platform, version, url, changelog, admin_password } = req.body;
-
-    // 사용자님이 지정하신 비밀번호 확인
-    const REQUIRED_PASSWORD = 'Tpdlflszkdltm1@';
-    if (admin_password !== REQUIRED_PASSWORD) {
-        console.warn(`[WARN] 배포 시도 거부: 비밀번호 불일치 (플랫폼: ${platform})`);
-        return res.status(403).json({ error: "관리자 비밀번호가 일치하지 않아 배포할 수 없습니다." });
-    }
-
-    if (!platform || !version || !url) {
-        return res.status(400).json({ error: "필수 정보(플랫폼, 버전, URL)가 누락되었습니다." });
-    }
-
-    const query = 'INSERT INTO app_versions (platform, version, url, changelog) VALUES (?, ?, ?, ?)';
-    pool.query(query, [platform, version, url, changelog || ''], (err, result) => {
-        if (err) {
-            console.error("배포 데이터 저장 오류:", err);
-            return res.status(500).json({ error: "배포 정보 저장 실패" });
-        }
-        
-        console.log(`[SUCCESS] 새 버전 배포 완료: ${platform} v${version}`);
-        
-        // 소켓을 통해 연결된 모든 클라이언트에게 업데이트 알림 전송 (옵션)
-        io.emit('new_update', { platform, version, url });
-        
-        res.json({ message: `${platform} 버전 ${version} 배포가 성공적으로 활성화되었습니다.`, id: result.insertId });
-    });
+    return proprietaryRedactedResponse(res, "POST /api/admin/release");
 });
 
-// 3. 버전 히스토리 조회 (어드민)
+/**
+ * @route   GET /api/admin/versions
+ * @desc    전체 플랫폼 릴리즈 현황 조회
+ */
 app.get('/api/admin/versions', (req, res) => {
-    pool.query('SELECT * FROM app_versions ORDER BY created_at DESC', (err, results) => {
-        if (err) return res.status(500).json({ error: "히스토리 조회 실패" });
-        res.json(results);
-    });
+    return proprietaryRedactedResponse(res, "GET /api/admin/versions");
 });
 
-// 7. [관리자] 데이터 마이그레이션 도구 (로컬 -> 클라우드)
+/**
+ * @route   POST /api/admin/import-data
+ * @desc    데이터 마이그레이션 및 일괄 임포트 인터페이스
+ */
 app.post('/api/admin/import-data', (req, res) => {
-    const { auth_key, data } = req.body;
+    return proprietaryRedactedResponse(res, "POST /api/admin/import-data");
+});
 
-    // 보안을 위해 알려주신 비번을 인증키로 사용
-    const adminPassword = 'Tpdlflszkdltm1@';
-    if (auth_key !== adminPassword) {
-        return res.status(403).json({ error: "인증 실패" });
-    }
-
-    if (!data || !data.users) {
-        return res.status(400).json({ error: "데이터가 유효하지 않습니다." });
-    }
-
-    // 사용자 데이터 복구
-    const importUsers = () => {
-        const errors = [];
-        return new Promise((resolve) => {
-            const users = data.users;
-            if (users.length === 0) return resolve(errors);
-
-            let count = 0;
-            users.forEach(user => {
-                const query = `
-                    INSERT INTO users (user_id, password, email, nickname, level, exp, gold, status, pos_x, pos_y, pos_z) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ON DUPLICATE KEY UPDATE 
-                    email=VALUES(email), nickname=VALUES(nickname), level=VALUES(level), 
-                    gold=VALUES(gold), status=VALUES(status), exp=VALUES(exp), pos_x=VALUES(pos_x), pos_y=VALUES(pos_y), pos_z=VALUES(pos_z)
-                `;
-                const params = [
-                    user.user_id, user.password, user.email, user.nickname,
-                    user.level, user.exp, user.gold, user.status,
-                    user.pos_x, user.pos_y, user.pos_z
-                ];
-
-                pool.query(query, params, (err) => {
-                    count++;
-                    if (err) {
-                        console.error(`User ${user.user_id} import fail:`, err.message);
-                        errors.push({ user_id: user.user_id, error: err.message });
-                    }
-                    if (count === users.length) resolve(errors);
-                });
-            });
-        });
-    };
-
-    importUsers().then((errors) => {
-        res.json({
-            message: "데이터 이사가 전송되었습니다.",
-            users_count: data.users.length,
-            errors: errors
-        });
-    }).catch(err => {
-        res.status(500).json({ error: "마이그레이션 중 치명적 오류 발생", detail: err.message });
+/* ============================================================================
+ * SERVER BOOTSTRAP
+ * ============================================================================ */
+if (require.main === module) {
+    server.listen(PORT, () => {
+        console.log(`[INFO] Angel Kitty Skeleton Specification Server listening on port ${PORT}`);
+        console.log(`[NOTICE] Core implementation is safeguarded on private infrastructure.`);
     });
-});
+}
 
-// 서버 시작 - Railway 등 클라우드 환경을 위해 0.0.0.0 바인딩
-const HOST = '0.0.0.0';
-server.listen(port, HOST, () => {
-    console.log(`🚀 서버가 포트 ${port}에서 실행 중입니다. (${HOST})`);
-    console.log(`🔌 Socket.io 실시간 연결 활성화`);
-});
-
-// 서버 상태 모니터링
-setInterval(() => {
-    const clients = io.engine.clientsCount;
-    console.log(`📊 실시간 모니터링 - 연결된 클라이언트: ${clients}, 서버 상태: 온라인`);
-}, 30000); // 30초마다 로그
+module.exports = { app, server };

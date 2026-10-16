@@ -1,8 +1,23 @@
+# Dependencies
 node_modules/
+package-lock.json
+
+# Environment variables & secrets
 .env
 .env.*
 !.env.example
-.gemini/
+
+# Logs and runtime artifacts
 *.log
- 
+*_log.txt
+*.txt
+!Development-Plan.txt
+query
+current_tunnel_url.txt
+update_password.sql
+
+# IDE & OS files
+.gemini/
 dist/
+.DS_Store
+Thumbs.db
