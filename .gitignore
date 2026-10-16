@@ -16,6 +16,10 @@ query
 current_tunnel_url.txt
 update_password.sql
 
+# Local backups & deploy folders
+AngelKitty_WebPage_Private_Original/
+AngelKitty_Web_Deploy/
+
 # IDE & OS files
 .gemini/
 dist/
