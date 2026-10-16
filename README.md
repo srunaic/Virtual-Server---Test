@@ -1,5 +1,3 @@
-# 🐱‍👤 천사냥이 
-
 버튼을 클릭해주세요
 
 [**🎮 웹에서 스토리 체험하기**] (https://srunaic.github.io/Virtual-Server---Test/)    
