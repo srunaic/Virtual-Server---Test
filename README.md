@@ -2,7 +2,7 @@
 
 버튼을 클릭해주세요
 
-<h1>### [**🎮 웹에서 스토리 체험하기**](https://srunaic.github.io/Virtual-Server---Test/) </h1>
+<h1> [**🎮 웹에서 스토리 체험하기**] </h1>   
 
 [![천사냥이 방문](https://img.shields.io/badge/🌟_천사냥이_방문-수호수의_이야기-ff69b4?style=for-the-badge&logo=github&logoColor=white)](https://srunaic.github.io/Virtual-Server---Test/)
 
