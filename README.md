@@ -66,8 +66,6 @@ Virtual-Server---Test/
 ├── angelic.css             # Glassmorphism 테마 스타일시트
 ├── rumi.jpg                # 캐릭터 일러스트 리소스
 ├── launcher_bg.jpg         # 런처 배경 리소스
-├── server.js               # [Skeleton] 백엔드 컨트롤러 인터페이스 명세
-├── database_schema.sql     # [Skeleton] 데이터 모델 스키마 명세
 ├── LICENSE                 # All Rights Reserved 독점 저작권 명세
 └── README.md               # 프로젝트 안내 및 명세 문서
 ```
