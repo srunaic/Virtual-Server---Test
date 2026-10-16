@@ -3,7 +3,7 @@
 <div align="center">
 
 ![License](https://img.shields.io/badge/License-All_Rights_Reserved-red?style=for-the-badge)
-![Status](https://img.shields.io/badge/Architecture-Skeleton_Specification-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Repository-README_Only-lightgrey?style=for-the-badge)
 ![Web](https://img.shields.io/badge/🌐_Web-공식_스토리_사이트-purple?style=for-the-badge)
 
 <br/>
@@ -12,9 +12,24 @@
 
 [**🎮 웹에서 스토리 체험하기**](https://virtual-server---test.victoryka123.workers.dev/)    
 
-[![천사냥이 방문](https://img.shields.io/badge/🌟_천사냥이_방문-수호수의_이야기-ff69b4?style=for-the-badge&logo=github&logoColor=white)](https://srunaic.github.io/Virtual-Server---Test/)
+[![천사냥이 방문](https://img.shields.io/badge/🌟_천사냥이_방문-수호수의_이야기-ff69b4?style=for-the-badge&logo=github&logoColor=white)](https://virtual-server---test.victoryka123.workers.dev/)
 
 </div>
+
+---
+
+## 🛡️ 핵심 자산 보호 안내 (Proprietary & Private Notice)
+
+> **[중요 공지] 본 저장소는 핵심 자산 보호 정책에 따라 소스 코드가 비공개 인프라로 완전 이전되었습니다.**
+> 
+> 1. **저작권 라이선스 (All Rights Reserved)**:
+>    - 본 프로젝트의 세계관, 스토리, 캐릭터 일러스트, UI 디자인, 기획 문서 및 시스템 설계에 대한 모든 권리는 원저작자(**모카 / srunaic**)에게 있습니다.
+>    - 사전 서면 동의 없는 무단 복제, 2차 저작물 제작, 상업적/비상업적 도용 및 무단 서비스 배포를 엄격히 금지합니다.
+> 2. **풀 소스 비공개 격리 완료**:
+>    - 프론트엔드 UI/HTML, 백엔드 서버 엔진, 데이터베이스 로직 등 **모든 실행 코드는 비공개 인프라 및 로컬 백업에 안전하게 격리**되었으며, 깃허브에는 외부 무단 도용 방지를 위해 일체의 소스 코드를 노출하지 않습니다.
+>    - 실제 웹 서비스는 독립된 Cloudflare 인프라를 통해 배포/운영됩니다.
+
+---
 
 ## 🌐 시스템 인터페이스 구조 (API Specification)
 
@@ -43,16 +58,8 @@
 
 ```
 Virtual-Server---Test/
-├── index.html              # 사용자 공식 웹 스토리 & 트레일러 페이지 (UI)
-├── admin.html              # 관리자 운영 대시보드 UI
-├── launcher.html           # 전용 게임 런처 인터페이스 UI
-├── inquiry.html            # 1:1 고객센터 UI
-├── register.html           # 회원가입 UI
-├── angelic.css             # Glassmorphism 테마 스타일시트
-├── rumi.jpg                # 캐릭터 일러스트 리소스
-├── launcher_bg.jpg         # 런처 배경 리소스
 ├── LICENSE                 # All Rights Reserved 독점 저작권 명세
-└── README.md               # 프로젝트 안내 및 명세 문서
+└── README.md               # 프로젝트 공식 안내 문서
 ```
 
 ---
