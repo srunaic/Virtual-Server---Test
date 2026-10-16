@@ -445,7 +445,7 @@
             usersToRender.forEach(user => {
                 const tr = document.createElement('tr');
                 const statusColor = user.status === 'banned' ? '#ff6b6b' : '#319795';
-                const isAdmin = (user.user_id === 'admin' || user.user_id === 'victoryka123');
+                const isAdmin = (user.user_id === 'admin' || user.role === 'admin');
 
                 tr.innerHTML = `
                     <td>${user.user_id}</td>

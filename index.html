@@ -524,7 +524,7 @@
                 document.getElementById('user-gold').innerText = user.gold || 0;
 
                 // Show admin link if user is admin
-                if (user.user_id === 'admin' || user.user_id === 'victoryka123') {
+                if (user.user_id === 'admin' || user.role === 'admin') {
                     document.getElementById('admin-link').style.display = 'block';
                 }
             }
